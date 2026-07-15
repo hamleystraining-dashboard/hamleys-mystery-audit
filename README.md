@@ -9,8 +9,11 @@ Static GitHub Pages prototype for Mystery Audit performance and disciplinary act
 - `hr-action.html` — HR action queue
 - `style.css`, `app.js`, `seed-data.js` — shared assets/data
 
-## V1 scope
-- Store / SD / ROM / RM / date / section filtering
+## V1.1 scope
+- Country landing page with nationwide average and all 7 section reflections
+- Left-side RM / ROM / SD / Store navigation
+- Date range and section filters inside each hierarchy tab
+- Independent incompatible hierarchy filters removed to prevent false mapping combinations
 - Audit trend and section performance
 - Latest Areas of Improvement remarks
 - Store hierarchy from Base Store Data
@@ -41,3 +44,7 @@ Base Store Excel must contain these exact headers:
 
 ## Libraries
 The prototype loads Chart.js, SheetJS and PDF.js from public CDNs. An internet connection is required for these libraries.
+
+
+## V1.1 mapping correction
+The earlier dashboard used independent ROM, RM, SD and Store dropdowns. This allowed impossible combinations to be selected simultaneously (for example a North ROM with a Bengaluru store), producing zero-result views and the appearance of incorrect mapping. V1.1 uses one hierarchy dimension at a time and always derives audit membership from the Store Code mapping in Base Store Data.

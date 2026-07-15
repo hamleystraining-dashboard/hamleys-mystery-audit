@@ -9,5 +9,5 @@ const DB={
 const SECTIONS=['Hamleys First Impression','Approaching Right','Meeting Thy Needs','Lost in Demos','Engaging Till Experience','You Come First','Seeing Them Off'];
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function scoreClass(v){return v<60?'bad':v<80?'warn':'good'}
-function nav(active){return `<header><div class="brand"><div class="logo">Hamleys</div><div><b>Mystery Audit</b><div class="sub">Leadership Intelligence V1</div></div></div><nav>
+function nav(active){return `<header><div class="brand"><img class="logo-img" src="hamleys-logo.png" alt="Hamleys"><div><b>Mystery Audit</b><div class="sub">Leadership Intelligence V1</div></div></div><nav>
 <a class="${active==='dash'?'active':''}" href="index.html">Dashboard</a><a class="${active==='admin'?'active':''}" href="admin.html">Admin</a><a class="${active==='def'?'active':''}" href="defaulters.html">Defaulters</a><a class="${active==='hr'?'active':''}" href="hr-action.html">HR Actions</a></nav></header>`}
