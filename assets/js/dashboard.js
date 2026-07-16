@@ -122,40 +122,35 @@ function initialiseFilters(){
 
 function loadDropdowns(){
 
-    loadSelect(
+    if(typeof DataServiceAPI==="undefined"){
 
+        return;
+
+    }
+
+    loadSelect(
         "rmFilter",
-
         DataServiceAPI.getRMList()
-
     );
 
     loadSelect(
-
         "romFilter",
-
         DataServiceAPI.getROMList()
-
     );
 
     loadSelect(
-
         "sdFilter",
-
         DataServiceAPI.getSDList()
-
     );
 
     loadSelect(
-
         "storeFilter",
-
         DataServiceAPI.getStoreList()
-
     );
+
+    updateSectionNames();
 
 }
-
 function loadSelect(id,data){
 
     const select=document.getElementById(id);
