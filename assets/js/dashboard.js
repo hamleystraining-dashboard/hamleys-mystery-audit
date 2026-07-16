@@ -387,7 +387,7 @@ function renderInsights(summary){
 
         document.getElementById(
 
-            "insightContainer"
+            "aiInsights"
 
         );
 
