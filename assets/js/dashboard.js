@@ -745,5 +745,33 @@ window.addEventListener("load",()=>{
     },300);
 
 });
+document.getElementById("navOverview")?.addEventListener("click", () => {
 
+    alert("Overview clicked");
+
+});
+
+document.getElementById("navRM")?.addEventListener("click", () => {
+
+    alert("RM clicked");
+
+});
+
+document.getElementById("navROM")?.addEventListener("click", () => {
+
+    alert("ROM clicked");
+
+});
+
+document.getElementById("navSD")?.addEventListener("click", () => {
+
+    alert("SD clicked");
+
+});
+
+document.getElementById("navStore")?.addEventListener("click", () => {
+
+    alert("Store clicked");
+
+});
 console.log("Dashboard Controller Loaded");
