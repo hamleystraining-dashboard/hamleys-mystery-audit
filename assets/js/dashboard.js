@@ -745,47 +745,5 @@ window.addEventListener("load",()=>{
     },300);
 
 });
-document.getElementById("navOverview")?.addEventListener("click", () => {
 
-    showSection("overviewSection");
-function hideSection(id){
-
-    const el=document.getElementById(id);
-
-    if(el){
-
-        el.style.display="none";
-
-    }
-
-}
-    hideSection("hierarchyWorkspace");
-
-    hideSection("storeProfile");
-
-});
-
-document.getElementById("navRM")?.addEventListener("click", () => {
-
-    alert("RM clicked");
-
-});
-
-document.getElementById("navROM")?.addEventListener("click", () => {
-
-    alert("ROM clicked");
-
-});
-
-document.getElementById("navSD")?.addEventListener("click", () => {
-
-    alert("SD clicked");
-
-});
-
-document.getElementById("navStore")?.addEventListener("click", () => {
-
-    alert("Store clicked");
-
-});
 console.log("Dashboard Controller Loaded");
