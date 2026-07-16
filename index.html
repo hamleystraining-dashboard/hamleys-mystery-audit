@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hamleys Mystery Audit Intelligence</title>
+
+    <!-- CSS -->
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+
+    <!-- Google Fonts -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Apache ECharts -->
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+
+</head>
+
+<body>
+
+    <!-- ========================================================= -->
+    <!-- HEADER -->
+    <!-- ========================================================= -->
+
+    <header class="top-header">
+
+        <div class="header-left">
+
+            <img src="assets/images/hamleys-logo.png"
+                class="hamleys-logo"
+                alt="Hamleys">
+
+            <div class="header-title">
+
+                <h1>Hamleys Mystery Audit Intelligence</h1>
+
+                <span>
+                    Customer Experience Intelligence Dashboard
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="header-right">
+
+            <!-- Retail / Play Toggle -->
+
+            <div class="business-toggle">
+
+                <button
+                    id="retailToggle"
+                    class="toggle-btn active">
+
+                    RETAIL
+
+                </button>
+
+                <button
+                    id="playToggle"
+                    class="toggle-btn">
+
+                    PLAY
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- ========================================================= -->
+    <!-- MAIN CONTAINER -->
+    <!-- ========================================================= -->
+
+    <div class="dashboard-layout">
+
+        <!-- ===================================================== -->
+        <!-- LEFT SIDEBAR -->
+        <!-- ===================================================== -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-menu">
+
+                <button class="nav-item active">
+
+                    <span>🏠</span>
+
+                    <span>Overview</span>
+
+                </button>
+
+                <button class="nav-item">
+
+                    <span>🌏</span>
+
+                    <span>RM Wise</span>
+
+                </button>
+
+                <button class="nav-item">
+
+                    <span>👤</span>
+
+                    <span>ROM Wise</span>
+
+                </button>
+
+                <button class="nav-item">
+
+                    <span>🏬</span>
+
+                    <span>SD Wise</span>
+
+                </button>
+
+                <button class="nav-item">
+
+                    <span>🏪</span>
+
+                    <span>Store Wise</span>
+
+                </button>
+
+                <hr>
+
+                <a href="admin.html" class="nav-link">
+
+                    ⚙ Admin
+
+                </a>
+
+                <a href="cases.html" class="nav-link">
+
+                    👥 Defaulters & HR
+
+                </a>
+
+            </div>
+
+        </aside>
+
+        <!-- ===================================================== -->
+        <!-- MAIN CONTENT -->
+        <!-- ===================================================== -->
+
+        <main class="main-content">
+
+            <!-- ================================================= -->
+            <!-- HERO -->
+            <!-- ================================================= -->
+
+            <section class="hero-banner">
+
+                <div class="hero-left">
+
+                    <h2>
+
+                        Welcome to
+
+                        <span>
+
+                            Hamleys Mystery Audit Intelligence
+
+                        </span>
+
+                    </h2>
+
+                    <p>
+
+                        Monitor Retail and PLAY Mystery Audit
+                        performance across India through one
+                        unified leadership dashboard.
+
+                    </p>
+
+                </div>
+
+                <div class="hero-right">
+
+                    <div class="hero-score-card">
+
+                        <div class="score-title">
+
+                            INDIA OVERALL SCORE
+
+                        </div>
+
+                        <div class="score-value"
+                            id="overallIndiaScore">
+
+                            --
+
+                        </div>
+
+                        <div class="score-change positive">
+
+                            ↑ Compared to Previous Audit
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- KPI CARDS -->
+            <!-- ================================================= -->
+
+            <section class="kpi-grid">
+
+                <div class="kpi-card">
+
+                    <h4>
+
+                        Average Score
+
+                    </h4>
+
+                    <h2 id="avgScore">
+
+                        --
+
+                    </h2>
+
+                </div>
+
+                <div class="kpi-card">
+
+                    <h4>
+
+                        Stores Audited
+
+                    </h4>
+
+                    <h2 id="storesAudited">
+
+                        --
+
+                    </h2>
+
+                </div>
+
+                <div class="kpi-card">
+
+                    <h4>
+
+                        Below 80%
+
+                    </h4>
+
+                    <h2 id="below80">
+
+                        --
+
+                    </h2>
+
+                </div>
+
+                <div class="kpi-card">
+
+                    <h4>
+
+                        Below 60%
+
+                    </h4>
+
+                    <h2 id="below60">
+
+                        --
+
+                    </h2>
+
+                </div>
+
+                <div class="kpi-card">
+
+                    <h4>
+
+                        Open HR Actions
+
+                    </h4>
+
+                    <h2 id="openCases">
+
+                        --
+
+                    </h2>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- PART 2 STARTS HERE -->            <!-- ================================================= -->
+            <!-- EXECUTIVE FILTER BAR -->
+            <!-- ================================================= -->
+
+            <section class="filter-bar">
+
+                <div class="filter-group">
+
+                    <label>Date Range</label>
+
+                    <input type="date" id="fromDate">
+
+                    <span>to</span>
+
+                    <input type="date" id="toDate">
+
+                </div>
+
+                <div class="filter-group">
+
+                    <label>Section</label>
+
+                    <select id="sectionFilter">
+
+                        <option value="all">All Sections</option>
+
+                        <!-- Populated dynamically based on Retail / PLAY -->
+
+                    </select>
+
+                </div>
+
+                <div class="filter-group">
+
+                    <button class="primary-btn">
+
+                        Refresh Dashboard
+
+                    </button>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- COUNTRY SCORECARDS -->
+            <!-- ================================================= -->
+
+            <section class="country-summary">
+
+                <div class="summary-card">
+
+                    <h3>Retail Average</h3>
+
+                    <div class="summary-number"
+                        id="retailAverage">
+
+                        --
+
+                    </div>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <h3>PLAY Average</h3>
+
+                    <div class="summary-number"
+                        id="playAverage">
+
+                        --
+
+                    </div>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <h3>Highest Performing Region</h3>
+
+                    <div class="summary-number"
+                        id="bestRegion">
+
+                        --
+
+                    </div>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <h3>Most Improved Region</h3>
+
+                    <div class="summary-number"
+                        id="mostImproved">
+
+                        --
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- SECTION PERFORMANCE -->
+            <!-- ================================================= -->
+
+            <section class="section-performance">
+
+                <div class="section-header">
+
+                    <h2>
+
+                        Audit Section Performance
+
+                    </h2>
+
+                    <span>
+
+                        Retail / PLAY sections update automatically
+
+                    </span>
+
+                </div>
+
+                <div
+                    id="sectionCards"
+                    class="section-card-grid">
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- CHART ROW -->
+            <!-- ================================================= -->
+
+            <section class="chart-row">
+
+                <div class="chart-card">
+
+                    <div class="card-title">
+
+                        India Audit Trend
+
+                    </div>
+
+                    <div
+                        id="indiaTrendChart"
+                        class="chart-large">
+
+                    </div>
+
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="card-title">
+
+                        Regional Performance
+
+                    </div>
+
+                    <div
+                        id="regionChart"
+                        class="chart-large">
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- SECOND CHART ROW -->
+            <!-- ================================================= -->
+
+            <section class="chart-row">
+
+                <div class="chart-card">
+
+                    <div class="card-title">
+
+                        Audit Heatmap
+
+                    </div>
+
+                    <div
+                        id="heatMapChart"
+                        class="chart-large">
+
+                    </div>
+
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="card-title">
+
+                        Score Distribution
+
+                    </div>
+
+                    <div
+                        id="distributionChart"
+                        class="chart-large">
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- EXECUTIVE TABLES -->
+            <!-- ================================================= -->
+
+            <section class="performance-row">
+
+                <div class="performance-card">
+
+                    <div class="card-title">
+
+                        Top Performing Stores
+
+                    </div>
+
+                    <table id="topStoresTable">
+
+                    </table>
+
+                </div>
+
+                <div class="performance-card">
+
+                    <div class="card-title">
+
+                        Bottom Performing Stores
+
+                    </div>
+
+                    <table id="bottomStoresTable">
+
+                    </table>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- AI INSIGHTS -->
+            <!-- ================================================= -->
+
+            <section class="ai-section">
+
+                <div class="card-title">
+
+                    AI Leadership Insights
+
+                </div>
+
+                <div
+                    id="aiInsights"
+                    class="insight-container">
+
+                    <!-- Generated dynamically -->
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- PART 3 STARTS HERE -->            <!-- ================================================= -->
+            <!-- HIERARCHY WORKSPACE -->
+            <!-- ================================================= -->
+
+            <section id="hierarchyWorkspace" class="hierarchy-workspace">
+
+                <div class="workspace-header">
+
+                    <div>
+
+                        <h2 id="workspaceTitle">
+
+                            RM Performance
+
+                        </h2>
+
+                        <p id="workspaceSubtitle">
+
+                            Drill down into Mystery Audit performance across the selected hierarchy.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- ============================================= -->
+                <!-- FILTERS -->
+                <!-- ============================================= -->
+
+                <div class="workspace-filters">
+
+                    <div class="filter-item">
+
+                        <label id="hierarchyLabel">
+
+                            RM
+
+                        </label>
+
+                        <select id="hierarchyDropdown">
+
+                        </select>
+
+                    </div>
+
+                    <div class="filter-item">
+
+                        <label>
+
+                            Date Range
+
+                        </label>
+
+                        <input type="date" id="hierarchyFrom">
+
+                    </div>
+
+                    <div class="filter-item">
+
+                        <label>&nbsp;</label>
+
+                        <input type="date" id="hierarchyTo">
+
+                    </div>
+
+                    <div class="filter-item">
+
+                        <label>
+
+                            Audit Section
+
+                        </label>
+
+                        <select id="hierarchySection">
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <!-- ============================================= -->
+                <!-- KPI ROW -->
+                <!-- ============================================= -->
+
+                <div class="workspace-kpis">
+
+                    <div class="workspace-kpi">
+
+                        <span>Average Score</span>
+
+                        <h2 id="workspaceAverage">
+
+                            --
+
+                        </h2>
+
+                    </div>
+
+                    <div class="workspace-kpi">
+
+                        <span>Audits</span>
+
+                        <h2 id="workspaceAudits">
+
+                            --
+
+                        </h2>
+
+                    </div>
+
+                    <div class="workspace-kpi">
+
+                        <span>Below 80%</span>
+
+                        <h2 id="workspaceBelow80">
+
+                            --
+
+                        </h2>
+
+                    </div>
+
+                    <div class="workspace-kpi">
+
+                        <span>Open HR Cases</span>
+
+                        <h2 id="workspaceCases">
+
+                            --
+
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <!-- ============================================= -->
+                <!-- CHARTS -->
+                <!-- ============================================= -->
+
+                <div class="workspace-chart-grid">
+
+                    <div class="chart-card">
+
+                        <div class="card-title">
+
+                            Performance Trend
+
+                        </div>
+
+                        <div
+                            id="workspaceTrendChart"
+                            class="chart-large">
+
+                        </div>
+
+                    </div>
+
+                    <div class="chart-card">
+
+                        <div class="card-title">
+
+                            Section Performance
+
+                        </div>
+
+                        <div
+                            id="workspaceRadarChart"
+                            class="chart-large">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ============================================= -->
+                <!-- DETAIL GRID -->
+                <!-- ============================================= -->
+
+                <div class="workspace-detail-grid">
+
+                    <div class="detail-card">
+
+                        <div class="card-title">
+
+                            Stores
+
+                        </div>
+
+                        <table id="workspaceStoreTable">
+
+                        </table>
+
+                    </div>
+
+                    <div class="detail-card">
+
+                        <div class="card-title">
+
+                            Latest Areas of Improvement
+
+                        </div>
+
+                        <div
+                            id="workspaceRemarks"
+                            class="remarks-panel">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- STORE PROFILE -->
+            <!-- ================================================= -->
+
+            <section id="storeProfile" class="store-profile">
+
+                <div class="profile-header">
+
+                    <div>
+
+                        <h2 id="storeName">
+
+                            Store Profile
+
+                        </h2>
+
+                        <p id="storeCode">
+
+                            Store Code
+
+                        </p>
+
+                    </div>
+
+                    <div class="profile-score">
+
+                        <span>
+
+                            Current Score
+
+                        </span>
+
+                        <h1 id="storeScore">
+
+                            --
+
+                        </h1>
+
+                    </div>
+
+                </div>
+
+                <div class="profile-grid">
+
+                    <div class="profile-card">
+
+                        <h3>
+
+                            Store Information
+
+                        </h3>
+
+                        <table class="info-table">
+
+                            <tr>
+
+                                <td>Store Manager</td>
+
+                                <td id="storeManager"></td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Store Director</td>
+
+                                <td id="storeDirector"></td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>ROM</td>
+
+                                <td id="storeROM"></td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>RM</td>
+
+                                <td id="storeRM"></td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>HRBP</td>
+
+                                <td id="storeHR"></td>
+
+                            </tr>
+
+                        </table>
+
+                    </div>
+
+                    <div class="profile-card">
+
+                        <h3>
+
+                            Audit Timeline
+
+                        </h3>
+
+                        <div id="storeTimeline">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="workspace-chart-grid">
+
+                    <div class="chart-card">
+
+                        <div class="card-title">
+
+                            Store Trend
+
+                        </div>
+
+                        <div id="storeTrendChart"
+                            class="chart-large">
+
+                        </div>
+
+                    </div>
+
+                    <div class="chart-card">
+
+                        <div class="card-title">
+
+                            Section Trend
+
+                        </div>
+
+                        <div id="storeSectionChart"
+                            class="chart-large">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- PART 4 STARTS HERE -->
