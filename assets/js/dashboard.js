@@ -1,16 +1,23 @@
 /* ==========================================================
    Hamleys Mystery Audit Intelligence
-   Dashboard Controller
-   Part 1
+   Dashboard Controller v0.9.0
 ========================================================== */
 
 "use strict";
 
 /* ==========================================================
-   DASHBOARD
+   DASHBOARD STATE
 ========================================================== */
 
-const Dashboard = {
+const Dashboard={
+
+    page:
+
+        window.location.pathname
+        .split("/")
+        .pop()
+        .replace(".html","")
+        ||"index",
 
     filters:{
 
@@ -36,15 +43,17 @@ const Dashboard = {
    INITIALISE
 ========================================================== */
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener(
 
-    initialiseDashboard();
+    "DOMContentLoaded",
 
-});
+    initialiseDashboard
+
+);
 
 function initialiseDashboard(){
 
-    initialiseFilters();
+    bindFilters();
 
     loadDropdowns();
 
@@ -53,66 +62,44 @@ function initialiseDashboard(){
 }
 
 /* ==========================================================
-   FILTERS
+   FILTER EVENTS
 ========================================================== */
 
-function initialiseFilters(){
+function bindFilters(){
 
-    const from=document.getElementById("fromDate");
+    [
 
-    const to=document.getElementById("toDate");
+        "fromDate",
 
-    const rm=document.getElementById("rmFilter");
+        "toDate",
 
-    const rom=document.getElementById("romFilter");
+        "rmFilter",
 
-    const sd=document.getElementById("sdFilter");
+        "romFilter",
 
-    const store=document.getElementById("storeFilter");
+        "sdFilter",
 
-    const section=document.getElementById("sectionFilter");
+        "storeFilter",
 
-    if(from){
+        "sectionFilter"
 
-        from.addEventListener("change",refreshDashboard);
+    ].forEach(id=>{
 
-    }
+        const el=document.getElementById(id);
 
-    if(to){
+        if(el){
 
-        to.addEventListener("change",refreshDashboard);
+            el.addEventListener(
 
-    }
+                "change",
 
-    if(rm){
+                refreshDashboard
 
-        rm.addEventListener("change",refreshDashboard);
+            );
 
-    }
+        }
 
-    if(rom){
-
-        rom.addEventListener("change",refreshDashboard);
-
-    }
-
-    if(sd){
-
-        sd.addEventListener("change",refreshDashboard);
-
-    }
-
-    if(store){
-
-        store.addEventListener("change",refreshDashboard);
-
-    }
-
-    if(section){
-
-        section.addEventListener("change",refreshDashboard);
-
-    }
+    });
 
 }
 
@@ -122,69 +109,115 @@ function initialiseFilters(){
 
 function loadDropdowns(){
 
-    if(typeof DataServiceAPI==="undefined"){
+    if(
+
+        typeof DataServiceAPI==="undefined"
+
+    ){
+
+        console.warn(
+
+            "DataServiceAPI unavailable"
+
+        );
 
         return;
 
     }
 
     loadSelect(
+
         "rmFilter",
+
         DataServiceAPI.getRMList()
+
     );
 
     loadSelect(
+
         "romFilter",
+
         DataServiceAPI.getROMList()
+
     );
 
     loadSelect(
+
         "sdFilter",
+
         DataServiceAPI.getSDList()
+
     );
 
     loadSelect(
+
         "storeFilter",
+
         DataServiceAPI.getStoreList()
+
     );
 
-    updateSectionNames();
+    if(
+
+        typeof updateSectionNames==="function"
+
+    ){
+
+        updateSectionNames();
+
+    }
 
 }
-function loadSelect(id,data){
 
-    const select=document.getElementById(id);
+function loadSelect(
+
+    id,
+
+    values=[]
+
+){
+
+    const select=
+
+        document.getElementById(id);
 
     if(!select) return;
 
     select.innerHTML="";
 
-    data.forEach(item=>{
+    values.forEach(value=>{
 
-        const option=document.createElement("option");
+        const option=
 
-        option.value=item;
+            document.createElement("option");
 
-        option.text=item;
+        option.value=value;
+
+        option.textContent=value;
 
         select.appendChild(option);
 
     });
 
-}/* ==========================================================
-   REFRESH DASHBOARD
+}
+
+/* ==========================================================
+   REFRESH ENGINE
 ========================================================== */
 
 function refreshDashboard(){
 
-    collectFilters();
-
     if(
+
         typeof DataServiceAPI==="undefined"
+
     ){
-        console.warn("DataServiceAPI not ready");
+
         return;
+
     }
+
+    collectFilters();
 
     const summary=
 
@@ -195,8 +228,6 @@ function refreshDashboard(){
         );
 
     if(!summary){
-
-        console.warn("No dashboard summary available");
 
         return;
 
@@ -209,75 +240,6 @@ function refreshDashboard(){
     renderTables(summary);
 
     renderCharts(summary);
-
-    hideWorkspaceSections();
-
-    switch(App.currentPage){
-
-        case "RM Wise":
-
-            showSection("hierarchyWorkspace");
-
-            break;
-
-        case "ROM Wise":
-
-            showSection("hierarchyWorkspace");
-
-            break;
-
-        case "SD Wise":
-
-            showSection("hierarchyWorkspace");
-
-            break;
-
-        case "Store Wise":
-
-            showSection("storeProfile");
-
-            break;
-
-        default:
-
-            showSection("overviewSection");
-
-    }
-
-}
-function hideWorkspaceSections(){
-
-    [
-
-        "overviewSection",
-
-        "hierarchyWorkspace",
-
-        "storeProfile"
-
-    ].forEach(id=>{
-
-        const el=document.getElementById(id);
-
-        if(el){
-
-            el.style.display="none";
-
-        }
-
-    });
-
-}
-
-function showSection(id){
-
-    const el=document.getElementById(id);
-
-    if(el){
-
-        el.style.display="block";
-
-    }
 
 }
 /* ==========================================================
@@ -322,53 +284,12 @@ function collectFilters(){
 
 function renderKPIs(summary){
 
-    setText(
-
-        "overallIndiaScore",
-
-        summary.averageScore+"%"
-
-    );
-
-    setText(
-
-        "avgScore",
-
-        summary.averageScore
-
-    );
-
-    setText(
-
-        "storesAudited",
-
-        summary.storesAudited
-
-    );
-
-    setText(
-
-        "below80",
-
-        summary.below80
-
-    );
-
-    setText(
-
-        "below60",
-
-        summary.below60
-
-    );
-
-    setText(
-
-        "openCases",
-
-        summary.below80
-
-    );
+    setText("overallIndiaScore", summary.averageScore + "%");
+    setText("avgScore", summary.averageScore + "%");
+    setText("storesAudited", summary.storesAudited);
+    setText("below80", summary.below80);
+    setText("below60", summary.below60);
+    setText("openCases", summary.openCases || 0);
 
 }
 
@@ -379,100 +300,91 @@ function renderKPIs(summary){
 function renderInsights(summary){
 
     const container =
-
-        document.getElementById(
-
-            "aiInsights"
-
-        );
+        document.getElementById("aiInsights");
 
     if(!container) return;
 
-    container.innerHTML="";
+    container.innerHTML = "";
 
     const insights =
-
         DataServiceAPI.generateInsights(
-
             DataServiceAPI.getFilteredDataset(
-
                 Dashboard.filters
-
             )
-
         );
 
     insights.forEach(text=>{
 
         const card =
-
             document.createElement("div");
 
-        card.className="insight-card";
+        card.className = "insight-card";
 
-        card.innerHTML=`
-
+        card.innerHTML = `
             <h4>Insight</h4>
-
             <p>${text}</p>
-
         `;
 
         container.appendChild(card);
 
     });
 
-}/* ==========================================================
-   TOP & BOTTOM TABLES
+}
+
+/* ==========================================================
+   TABLES
 ========================================================== */
 
 function renderTables(summary){
 
     renderTable(
-
         "topStoresTable",
-
-        summary.topStores
-
+        summary.topStores || []
     );
 
     renderTable(
-
         "bottomStoresTable",
-
-        summary.bottomStores
-
+        summary.bottomStores || []
     );
 
 }
 
 function renderTable(id,data){
 
-    const table=document.getElementById(id);
+    const tbody =
+        document.getElementById(id);
 
-    if(!table) return;
+    if(!tbody) return;
 
-    table.innerHTML="";
+    tbody.innerHTML = "";
 
-    data.forEach(item=>{
+    if(data.length===0){
 
-        const row=document.createElement("tr");
+        tbody.innerHTML =
+        `<tr>
+            <td colspan="5">No data available</td>
+        </tr>`;
 
-        row.innerHTML=`
+        return;
 
-            <td>${item.storeName}</td>
+    }
 
-            <td>${item.rm || "-"}</td>
+    data.forEach(store=>{
 
-            <td>${item.rom || "-"}</td>
+        const row =
+            document.createElement("tr");
 
-            <td>${item.sd || "-"}</td>
+        row.innerHTML = `
 
-            <td>${item.overall}%</td>
+            <td>${store.storeName || "-"}</td>
+            <td>${store.rm || "-"}</td>
+            <td>${store.rom || "-"}</td>
+            <td>${store.sd || "-"}</td>
+            <td>${store.overall || 0}%</td>
 
         `;
 
-        table.appendChild(row);
+        tbody.appendChild(row);
 
     });
 
@@ -484,63 +396,27 @@ function renderTable(id,data){
 
 function renderCharts(summary){
 
-    if(typeof renderIndiaTrendChart==="function"){
+    if(typeof ChartsAPI==="undefined") return;
 
-        renderIndiaTrendChart(
+    ChartsAPI.renderIndiaTrend(
+        Dashboard.filters
+    );
 
+    ChartsAPI.renderRegionalSummary(
+        summary.regionalSummary || []
+    );
+
+    ChartsAPI.renderScoreDistribution(
+        DataServiceAPI.getFilteredDataset(
             Dashboard.filters
+        )
+    );
 
-        );
-
-    }
-
-    if(typeof renderRegionalChart==="function"){
-
-        renderRegionalChart(
-
-            summary.regionalSummary
-
-        );
-
-    }
-
-    if(typeof renderDistributionChart==="function"){
-
-        renderDistributionChart(
-
-            DataServiceAPI.getFilteredDataset(
-
-                Dashboard.filters
-
-            )
-
-        );
-
-    }
-
-    if(typeof renderSectionChart==="function"){
-
-        renderSectionChart(
-
-            DataServiceAPI.getFilteredDataset(
-
-                Dashboard.filters
-
-            )
-
-        );
-
-    }
-
-    if(typeof renderStoreTrendChart==="function"){
-
-        renderStoreTrendChart(
-
-            Dashboard.filters.store
-
-        );
-
-    }
+    ChartsAPI.renderSectionPerformance(
+        DataServiceAPI.getFilteredDataset(
+            Dashboard.filters
+        )
+    );
 
 }
 
@@ -550,60 +426,26 @@ function renderCharts(summary){
 
 function loadStoreProfile(storeCode){
 
-    const profile=
-
-        DataServiceAPI.getStoreProfile(
-
-            storeCode
-
-        );
+    const profile =
+        DataServiceAPI.getStoreProfile(storeCode);
 
     if(!profile) return;
 
-    setText(
-
-        "profileStoreName",
-
-        profile.storeName
-
-    );
-
-    setText(
-
-        "profileRM",
-
-        profile.rm
-
-    );
-
-    setText(
-
-        "profileROM",
-
-        profile.rom
-
-    );
-
-    setText(
-
-        "profileSD",
-
-        profile.sd
-
-    );
+    setText("profileStoreName", profile.storeName);
+    setText("profileRM", profile.rm);
+    setText("profileROM", profile.rom);
+    setText("profileSD", profile.sd);
 
     if(profile.latest){
 
         setText(
-
             "profileScore",
-
-            profile.latest.overall+"%"
-
+            profile.latest.overall + "%"
         );
 
     }
 
+}
 }/* ==========================================================
    UTILITIES
 ========================================================== */
@@ -612,7 +454,7 @@ function value(id){
 
     const el=document.getElementById(id);
 
-    return el ? el.value : "";
+    return el ? el.value : "All";
 
 }
 
@@ -637,12 +479,34 @@ function setText(id,value){
 }
 
 /* ==========================================================
+   COLLECT FILTERS
+========================================================== */
+
+function collectFilters(){
+
+    Dashboard.filters.from=valueAsDate("fromDate");
+
+    Dashboard.filters.to=valueAsDate("toDate");
+
+    Dashboard.filters.rm=value("rmFilter");
+
+    Dashboard.filters.rom=value("romFilter");
+
+    Dashboard.filters.sd=value("sdFilter");
+
+    Dashboard.filters.store=value("storeFilter");
+
+    Dashboard.filters.section=value("sectionFilter");
+
+}
+
+/* ==========================================================
    RESET FILTERS
 ========================================================== */
 
 function resetFilters(){
 
-    const filters=[
+    [
 
         "rmFilter",
 
@@ -654,9 +518,7 @@ function resetFilters(){
 
         "sectionFilter"
 
-    ];
-
-    filters.forEach(id=>{
+    ].forEach(id=>{
 
         const el=document.getElementById(id);
 
@@ -676,45 +538,48 @@ function resetFilters(){
    BUSINESS TOGGLE
 ========================================================== */
 
-document.addEventListener("click",function(e){
+document.getElementById("retailToggle")
+?.addEventListener(
 
-    if(e.target.id==="retailToggle"){
+    "click",
 
-        refreshDashboard();
+    refreshDashboard
 
-    }
+);
 
-    if(e.target.id==="playToggle"){
+document.getElementById("playToggle")
+?.addEventListener(
 
-        refreshDashboard();
+    "click",
 
-    }
+    refreshDashboard
 
-});
+);
 
 /* ==========================================================
    WINDOW RESIZE
 ========================================================== */
 
-window.addEventListener("resize",function(){
+window.addEventListener(
 
-    if(typeof resizeCharts==="function"){
+    "resize",
 
-        resizeCharts();
+    ()=>{
+
+        if(
+
+            window.ChartsAPI &&
+            ChartsAPI.resize
+
+        ){
+
+            ChartsAPI.resize();
+
+        }
 
     }
 
-});
-
-/* ==========================================================
-   AUTO REFRESH
-========================================================== */
-
-function reloadDashboard(){
-
-    refreshDashboard();
-
-}
+);
 
 /* ==========================================================
    PUBLIC API
@@ -724,11 +589,17 @@ window.DashboardAPI={
 
     refresh:refreshDashboard,
 
-    reload:reloadDashboard,
+    reload:refreshDashboard,
 
-    resetFilters:resetFilters,
+    resetFilters,
 
-    loadStoreProfile:loadStoreProfile
+    loadStoreProfile,
+
+    getFilters(){
+
+        return Dashboard.filters;
+
+    }
 
 };
 
@@ -736,14 +607,26 @@ window.DashboardAPI={
    STARTUP
 ========================================================== */
 
-window.addEventListener("load",()=>{
+window.addEventListener(
 
-    setTimeout(()=>{
+    "load",
 
-        refreshDashboard();
+    ()=>{
 
-    },300);
+        setTimeout(
 
-});
+            refreshDashboard,
 
-console.log("Dashboard Controller Loaded");
+            250
+
+        );
+
+    }
+
+);
+
+console.log(
+
+    "Dashboard v0.9.0 Loaded"
+
+);
