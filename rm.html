@@ -1,1 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+
+        Hamleys Mystery Audit Intelligence
+        | RM Performance
+
+    </title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="assets/css/dashboard.css">
+
+    <link rel="stylesheet"
+          href="assets/css/animations.css">
+
+</head>
+
+<body>
+
+<header class="top-header">
+
+    <div class="header-left">
+
+        <img
+            src="assets/images/hamleys-logo.png"
+            class="hamleys-logo"
+            alt="Hamleys">
+
+        <div class="header-title">
+
+            <h1>
+
+                RM Performance Dashboard
+
+            </h1>
+
+            <span>
+
+                Regional Manager Mystery Audit Intelligence
+
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="header-right">
+
+        <div class="business-toggle">
+
+            <button
+                id="retailToggle"
+                class="toggle-btn active">
+
+                RETAIL
+
+            </button>
+
+            <button
+                id="playToggle"
+                class="toggle-btn">
+
+                PLAY
+
+            </button>
+
+        </div>
+
+    </div>
+
+</header>
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-menu">
+
+            <button
+                class="nav-item"
+                id="navOverview">
+
+                🏠 Overview
+
+            </button>
+
+            <button
+                class="nav-item active"
+                id="navRM">
+
+                🌏 RM Wise
+
+            </button>
+
+            <button
+                class="nav-item"
+                id="navROM">
+
+                👤 ROM Wise
+
+            </button>
+
+            <button
+                class="nav-item"
+                id="navSD">
+
+                🏬 SD Wise
+
+            </button>
+
+            <button
+                class="nav-item"
+                id="navStore">
+
+                🏪 Store Wise
+
+            </button>
+
+            <hr>
+
+            <a
+                href="admin.html"
+                class="nav-link"
+                id="navAdmin">
+
+                ⚙ Admin
+
+            </a>
+
+            <a
+                href="cases.html"
+                class="nav-link"
+                id="navCases">
+
+                👥 Defaulters & HR
+
+            </a>
+
+        </div>
+
+    </aside>
+
+    <main class="main-content">
+
+        <section class="hero-banner">
+
+            <div class="hero-left">
+
+                <h2>
+
+                    Regional Manager Performance
+
+                </h2>
+
+                <p>
+
+                    Drill down into RM-wise Mystery Audit performance across Retail and PLAY.
+
+                </p>
+
+            </div>
+
+        </section>
+
+        <section class="workspace-filters">
+
+            <div class="filter-item">
+
+                <label>
+
+                    Regional Manager
+
+                </label>
+
+                <select id="rmFilter">
+
+                </select>
+
+            </div>
+
+            <div class="filter-item">
+
+                <label>
+
+                    From
+
+                </label>
+
+                <input
+                    type="date"
+                    id="fromDate">
+
+            </div>
+
+            <div class="filter-item">
+
+                <label>
+
+                    To
+
+                </label>
+
+                <input
+                    type="date"
+                    id="toDate">
+
+            </div>
+
+        </section>        <!-- ========================================= -->
+        <!-- KPI CARDS -->
+        <!-- ========================================= -->
+
+        <section class="kpi-grid">
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Average Score
+
+                </h4>
+
+                <h2 id="rmAverageScore">
+
+                    --
+
+                </h2>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Stores Audited
+
+                </h4>
+
+                <h2 id="rmStoresAudited">
+
+                    --
+
+                </h2>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Below 80%
+
+                </h4>
+
+                <h2 id="rmBelow80">
+
+                    --
+
+                </h2>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Below 60%
+
+                </h4>
+
+                <h2 id="rmBelow60">
+
+                    --
+
+                </h2>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Open HR Cases
+
+                </h4>
+
+                <h2 id="rmOpenCases">
+
+                    --
+
+                </h2>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- CHARTS -->
+        <!-- ========================================= -->
+
+        <section class="chart-row">
+
+            <div class="chart-card">
+
+                <div class="card-title">
+
+                    RM Performance Trend
+
+                </div>
+
+                <div
+                    id="rmTrendChart"
+                    class="chart-large">
+
+                </div>
+
+            </div>
+
+            <div class="chart-card">
+
+                <div class="card-title">
+
+                    Section Performance
+
+                </div>
+
+                <div
+                    id="rmSectionChart"
+                    class="chart-large">
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- STORE PERFORMANCE -->
+        <!-- ========================================= -->
+
+        <section class="performance-card mt-30">
+
+            <div class="card-title">
+
+                Stores Under Selected RM
+
+            </div>
+
+            <table id="rmStoreTable">
+
+            </table>
+
+        </section>        <!-- ========================================= -->
+        <!-- RM DETAILS -->
+        <!-- ========================================= -->
+
+        <section class="workspace-detail-grid mt-30">
+
+            <div class="detail-card">
+
+                <div class="card-title">
+
+                    RM Information
+
+                </div>
+
+                <table class="info-table">
+
+                    <tr>
+
+                        <td>
+
+                            Regional Manager
+
+                        </td>
+
+                        <td id="rmName">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Region
+
+                        </td>
+
+                        <td id="rmRegion">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Total ROMs
+
+                        </td>
+
+                        <td id="rmTotalROMs">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Total Stores
+
+                        </td>
+
+                        <td id="rmTotalStores">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Average Score
+
+                        </td>
+
+                        <td id="rmAverage">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <div class="detail-card">
+
+                <div class="card-title">
+
+                    Key Improvement Areas
+
+                </div>
+
+                <div
+                    id="rmInsights"
+                    class="remarks-panel">
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- TOP / BOTTOM STORES -->
+        <!-- ========================================= -->
+
+        <section class="chart-row mt-30">
+
+            <div class="performance-card">
+
+                <div class="card-title">
+
+                    Top Performing Stores
+
+                </div>
+
+                <table id="rmTopStores">
+
+                </table>
+
+            </div>
+
+            <div class="performance-card">
+
+                <div class="card-title">
+
+                    Bottom Performing Stores
+
+                </div>
+
+                <table id="rmBottomStores">
+
+                </table>
+
+            </div>
+
+        </section>        <!-- ========================================= -->
+        <!-- ROM PERFORMANCE -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <div class="card-title">
+
+                ROM Performance under Selected RM
+
+            </div>
+
+            <table id="rmROMTable">
+
+            </table>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- STORE SCORE DISTRIBUTION -->
+        <!-- ========================================= -->
+
+        <section class="chart-row mt-30">
+
+            <div class="chart-card">
+
+                <div class="card-title">
+
+                    Score Distribution
+
+                </div>
+
+                <div
+                    id="rmDistributionChart"
+                    class="chart-large">
+
+                </div>
+
+            </div>
+
+            <div class="chart-card">
+
+                <div class="card-title">
+
+                    Monthly Trend
+
+                </div>
+
+                <div
+                    id="rmMonthlyTrendChart"
+                    class="chart-large">
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ACTION TRACKER -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <div class="card-title">
+
+                HR Action Tracker
+
+            </div>
+
+            <table id="rmCasesTable">
+
+            </table>
+
+        </section>        <!-- ========================================= -->
+        <!-- AUDIT HISTORY -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <div class="card-title">
+
+                Audit History
+
+            </div>
+
+            <table id="rmAuditHistory">
+
+            </table>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- EXPORT -->
+        <!-- ========================================= -->
+
+        <section class="chart-row mt-30">
+
+            <div class="chart-card text-center">
+
+                <button
+                    class="primary-btn"
+                    id="exportRM">
+
+                    Export Excel
+
+                </button>
+
+            </div>
+
+            <div class="chart-card text-center">
+
+                <button
+                    class="primary-btn"
+                    id="printRM">
+
+                    Print Dashboard
+
+                </button>
+
+            </div>
+
+            <div class="chart-card text-center">
+
+                <button
+                    class="primary-btn"
+                    id="refreshRM">
+
+                    Refresh Data
+
+                </button>
+
+            </div>
+
+        </section>
+
+        <footer
+            class="text-center mt-30 mb-30">
+
+            Hamleys Mystery Audit Intelligence
+            | RM Performance Dashboard
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+
+<script src="assets/js/app.js"></script>
+<script src="assets/js/navigation.js"></script>
+<script src="assets/js/dataService.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/dashboard.js"></script><script>
+
+document.addEventListener("DOMContentLoaded",function(){
+
+    if(window.NavigationAPI){
+
+        console.log("Navigation Loaded");
+
+    }
+
+    if(window.DashboardAPI){
+
+        DashboardAPI.refresh();
+
+    }
+
+    document.getElementById("refreshRM")
+    ?.addEventListener("click",function(){
+
+        DashboardAPI.refresh();
+
+    });
+
+    document.getElementById("printRM")
+    ?.addEventListener("click",function(){
+
+        window.print();
+
+    });
+
+    document.getElementById("exportRM")
+    ?.addEventListener("click",function(){
+
+        alert("RM Export will be available in the next build.");
+
+    });
+
+});
+
+</script>
+
+</body>
+
+</html>
