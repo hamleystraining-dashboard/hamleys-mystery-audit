@@ -747,7 +747,21 @@ window.addEventListener("load",()=>{
 });
 document.getElementById("navOverview")?.addEventListener("click", () => {
 
-    alert("Overview clicked");
+    showSection("overviewSection");
+function hideSection(id){
+
+    const el=document.getElementById(id);
+
+    if(el){
+
+        el.style.display="none";
+
+    }
+
+}
+    hideSection("hierarchyWorkspace");
+
+    hideSection("storeProfile");
 
 });
 
