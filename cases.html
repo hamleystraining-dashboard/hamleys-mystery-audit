@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+
+        Hamleys Mystery Audit Intelligence
+        | HR Cases
+
+    </title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="assets/css/dashboard.css">
+
+    <link rel="stylesheet"
+          href="assets/css/animations.css">
+
+</head>
+
+<body>
+
+<div class="dashboard-layout">
+
+    <!-- ========================================= -->
+    <!-- SIDEBAR -->
+    <!-- ========================================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo-area">
+
+            <img
+                src="assets/images/hamleys-logo.png"
+                class="logo">
+
+            <h2>
+
+                HR Cases
+
+            </h2>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a
+                href="index.html"
+                class="nav-item">
+
+                📊 Dashboard
+
+            </a>
+
+            <a
+                href="admin.html"
+                class="nav-item">
+
+                📂 Admin
+
+            </a>
+
+            <a
+                href="cases.html"
+                class="nav-item active">
+
+                👥 HR Cases
+
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- ========================================= -->
+    <!-- MAIN -->
+    <!-- ========================================= -->
+
+    <main class="main-content">
+
+        <div class="hero-banner">
+
+            <div class="hero-left">
+
+                <h2>
+
+                    Defaulter Management
+
+                    <span>
+
+                        Portal
+
+                    </span>
+
+                </h2>
+
+                <p>
+
+                    ROM uploads defaulters.
+                    HRBP reviews and initiates disciplinary action.
+
+                </p>
+
+            </div>
+
+            <div class="hero-right">
+
+                <div class="toggle-group">
+
+                    <button
+                        id="retailToggle"
+                        class="primary-btn active">
+
+                        RETAIL
+
+                    </button>
+
+                    <button
+                        id="playToggle"
+                        class="primary-btn">
+
+                        PLAY
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================================= -->
+        <!-- CASE SUMMARY -->
+        <!-- ========================================= -->
+
+        <section class="kpi-grid">
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Open Cases
+
+                </h4>
+
+                <h2 id="openCases">
+
+                    0
+
+                </h2>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Closed Cases
+
+                </h4>
+
+                <h2 id="closedCases">
+
+                    0
+
+                </h2>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Warning Letters
+
+                </h4>
+
+                <h2 id="warningLetters">
+
+                    0
+
+                </h2>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Terminations
+
+                </h4>
+
+                <h2 id="terminationLetters">
+
+                    0
+
+                </h2>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h4>
+
+                    Total Defaulters
+
+                </h4>
+
+                <h2 id="totalCases">
+
+                    0
+
+                </h2>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- STORE DETAILS -->
+        <!-- ========================================= -->
+
+        <section class="chart-card">
+
+            <h3 class="card-title">
+
+                Audit Details
+
+            </h3>
+
+            <div class="workspace-filters">
+
+                <div class="filter-item">
+
+                    <label>
+
+                        Audit Date
+
+                    </label>
+
+                    <input
+                        type="date"
+                        id="auditDate">
+
+                </div>
+
+                <div class="filter-item">
+
+                    <label>
+
+                        Store
+
+                    </label>
+
+                    <select
+                        id="storeFilter">
+
+                    </select>
+
+                </div>
+
+                <div class="filter-item">
+
+                    <label>
+
+                        ROM
+
+                    </label>
+
+                    <select
+                        id="romFilter">
+
+                    </select>
+
+                </div>
+
+                <div class="filter-item">
+
+                    <label>
+
+                        HRBP
+
+                    </label>
+
+                    <select
+                        id="hrbpFilter">
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </section>        <!-- ========================================= -->
+        <!-- DEFAULTER ENTRY -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <div class="section-header">
+
+                <h3>
+
+                    Defaulter Details
+
+                </h3>
+
+                <button
+                    class="primary-btn"
+                    id="addEmployee">
+
+                    + Add Employee
+
+                </button>
+
+            </div>
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Employee Code</th>
+
+                        <th>Employee Name</th>
+
+                        <th>Department</th>
+
+                        <th>Designation</th>
+
+                        <th>Audit Score</th>
+
+                        <th>Reason</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="employeeTable">
+
+                    <tr>
+
+                        <td>
+
+                            <input
+                                type="text"
+                                placeholder="Employee Code">
+
+                        </td>
+
+                        <td>
+
+                            <input
+                                type="text"
+                                placeholder="Employee Name">
+
+                        </td>
+
+                        <td>
+
+                            <input
+                                type="text"
+                                placeholder="Department">
+
+                        </td>
+
+                        <td>
+
+                            <input
+                                type="text"
+                                placeholder="Designation">
+
+                        </td>
+
+                        <td>
+
+                            <input
+                                type="number"
+                                placeholder="Score">
+
+                        </td>
+
+                        <td>
+
+                            <input
+                                type="text"
+                                placeholder="Reason">
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="primary-btn">
+
+                                Delete
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- HR ACTION -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <h3 class="card-title">
+
+                HR Action
+
+            </h3>
+
+            <div class="workspace-filters">
+
+                <div class="filter-item">
+
+                    <label>
+
+                        HR Action
+
+                    </label>
+
+                    <select id="hrAction">
+
+                        <option>
+
+                            Coaching
+
+                        </option>
+
+                        <option>
+
+                            Warning Letter
+
+                        </option>
+
+                        <option>
+
+                            Final Warning
+
+                        </option>
+
+                        <option>
+
+                            Termination
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="filter-item">
+
+                    <label>
+
+                        Action Date
+
+                    </label>
+
+                    <input
+                        type="date"
+                        id="actionDate">
+
+                </div>
+
+                <div class="filter-item">
+
+                    <label>
+
+                        Status
+
+                    </label>
+
+                    <select id="caseStatus">
+
+                        <option>
+
+                            Open
+
+                        </option>
+
+                        <option>
+
+                            Closed
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </section>        <!-- ========================================= -->
+        <!-- HR REMARKS -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <h3 class="card-title">
+
+                HR Remarks
+
+            </h3>
+
+            <textarea
+                id="hrRemarks"
+                rows="5"
+                placeholder="Enter HR remarks..."></textarea>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- CASE HISTORY -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <div class="section-header">
+
+                <h3>
+
+                    Case History
+
+                </h3>
+
+            </div>
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Store</th>
+
+                        <th>Audit Date</th>
+
+                        <th>Employee</th>
+
+                        <th>Employee Code</th>
+
+                        <th>HRBP</th>
+
+                        <th>Action</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="caseHistoryTable">
+
+                    <tr>
+
+                        <td colspan="7">
+
+                            No HR cases available
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ACTION BUTTONS -->
+        <!-- ========================================= -->
+
+        <section class="chart-row mt-30">
+
+            <div class="chart-card text-center">
+
+                <button
+                    class="primary-btn"
+                    id="saveCase">
+
+                    Save Draft
+
+                </button>
+
+            </div>
+
+            <div class="chart-card text-center">
+
+                <button
+                    class="primary-btn"
+                    id="submitHR">
+
+                    Submit to HR
+
+                </button>
+
+            </div>
+
+            <div class="chart-card text-center">
+
+                <button
+                    class="primary-btn"
+                    id="exportCases">
+
+                    Export Excel
+
+                </button>
+
+            </div>
+
+            <div class="chart-card text-center">
+
+                <button
+                    class="primary-btn"
+                    id="printCases">
+
+                    Print
+
+                </button>
+
+            </div>
+
+        </section>        <!-- ========================================= -->
+        <!-- CASE ANALYTICS -->
+        <!-- ========================================= -->
+
+        <section class="chart-row mt-30">
+
+            <div class="chart-card">
+
+                <h3 class="card-title">
+
+                    Action Distribution
+
+                </h3>
+
+                <div
+                    id="actionChart"
+                    style="height:350px;">
+
+                </div>
+
+            </div>
+
+            <div class="chart-card">
+
+                <h3 class="card-title">
+
+                    Cases by ROM
+
+                </h3>
+
+                <div
+                    id="romCasesChart"
+                    style="height:350px;">
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- STORE ACTION SUMMARY -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <h3 class="card-title">
+
+                Store Action Summary
+
+            </h3>
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Store</th>
+
+                        <th>Open Cases</th>
+
+                        <th>Warning</th>
+
+                        <th>Final Warning</th>
+
+                        <th>Termination</th>
+
+                        <th>Closed</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="storeSummaryTable">
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            No records found
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- EMAIL STATUS -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <h3 class="card-title">
+
+                Notification Status
+
+            </h3>
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Recipient</th>
+
+                        <th>Email</th>
+
+                        <th>Status</th>
+
+                        <th>Sent On</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="emailStatusTable">
+
+                    <tr>
+
+                        <td colspan="4">
+
+                            No notifications sent
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>        <!-- ========================================= -->
+        <!-- AUDIT DETAILS -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <h3 class="card-title">
+
+                Linked Mystery Audit
+
+            </h3>
+
+            <table class="table">
+
+                <tbody>
+
+                    <tr>
+
+                        <td width="30%">
+
+                            Business
+
+                        </td>
+
+                        <td id="businessType">
+
+                            Retail
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Audit Score
+
+                        </td>
+
+                        <td id="auditScore">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            Audit Date
+
+                        </td>
+
+                        <td id="auditDateView">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            RM
+
+                        </td>
+
+                        <td id="rmName">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            ROM
+
+                        </td>
+
+                        <td id="romName">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+
+                            SD
+
+                        </td>
+
+                        <td id="sdName">
+
+                            --
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- SYSTEM LOG -->
+        <!-- ========================================= -->
+
+        <section class="chart-card mt-30">
+
+            <div class="section-header">
+
+                <h3>
+
+                    Activity Log
+
+                </h3>
+
+            </div>
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+
+                            Date & Time
+
+                        </th>
+
+                        <th>
+
+                            User
+
+                        </th>
+
+                        <th>
+
+                            Activity
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="activityLog">
+
+                    <tr>
+
+                        <td colspan="3">
+
+                            No activity available
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <footer
+            class="text-center mt-30 mb-30">
+
+            Hamleys Mystery Audit Intelligence
+            HR Cases Portal
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+
+<script src="assets/js/app.js"></script>
+<script src="assets/js/dataService.js"></script>
+<script src="assets/js/parser.js"></script>
+<script src="assets/js/cases.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/dashboard.js"></script><script>
+
+document.addEventListener("DOMContentLoaded",function(){
+
+    console.log("HR Cases Portal Loaded");
+
+    if(window.CasesAPI){
+
+        const summary=CasesAPI.getCaseSummary();
+
+        document.getElementById("openCases").innerHTML=summary.open;
+
+        document.getElementById("closedCases").innerHTML=summary.closed;
+
+        document.getElementById("warningLetters").innerHTML=summary.warningLetters;
+
+        document.getElementById("terminationLetters").innerHTML=summary.terminationLetters;
+
+        document.getElementById("totalCases").innerHTML=summary.total;
+
+    }
+
+    document.getElementById("saveCase").addEventListener("click",function(){
+
+        alert("Draft Saved.");
+
+    });
+
+    document.getElementById("submitHR").addEventListener("click",function(){
+
+        alert("Submitted to HR.");
+
+    });
+
+    document.getElementById("exportCases").addEventListener("click",function(){
+
+        if(window.CasesAPI){
+
+            CasesAPI.exportCases();
+
+        }
+
+    });
+
+    document.getElementById("printCases").addEventListener("click",function(){
+
+        window.print();
+
+    });
+
+});
+
+</script>
+
+</body>
+
+</html>
