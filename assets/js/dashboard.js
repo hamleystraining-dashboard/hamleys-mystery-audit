@@ -184,13 +184,28 @@ function refreshDashboard(){
 
     collectFilters();
 
-    const summary =
+    if(
+        typeof DataServiceAPI==="undefined"
+    ){
+        console.warn("DataServiceAPI not ready");
+        return;
+    }
+
+    const summary=
 
         DataServiceAPI.getDashboardSummary(
 
             Dashboard.filters
 
         );
+
+    if(!summary){
+
+        console.warn("No dashboard summary available");
+
+        return;
+
+    }
 
     renderKPIs(summary);
 
@@ -199,6 +214,40 @@ function refreshDashboard(){
     renderTables(summary);
 
     renderCharts(summary);
+
+    hideWorkspaceSections();
+
+    switch(App.currentPage){
+
+        case "RM Wise":
+
+            showSection("hierarchyWorkspace");
+
+            break;
+
+        case "ROM Wise":
+
+            showSection("hierarchyWorkspace");
+
+            break;
+
+        case "SD Wise":
+
+            showSection("hierarchyWorkspace");
+
+            break;
+
+        case "Store Wise":
+
+            showSection("storeProfile");
+
+            break;
+
+        default:
+
+            showSection("overviewSection");
+
+    }
 
 }
 
