@@ -250,7 +250,41 @@ function refreshDashboard(){
     }
 
 }
+function hideWorkspaceSections(){
 
+    [
+
+        "overviewSection",
+
+        "hierarchyWorkspace",
+
+        "storeProfile"
+
+    ].forEach(id=>{
+
+        const el=document.getElementById(id);
+
+        if(el){
+
+            el.style.display="none";
+
+        }
+
+    });
+
+}
+
+function showSection(id){
+
+    const el=document.getElementById(id);
+
+    if(el){
+
+        el.style.display="block";
+
+    }
+
+}
 /* ==========================================================
    COLLECT FILTERS
 ========================================================== */
