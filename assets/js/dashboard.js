@@ -180,6 +180,9 @@ function renderScopedPage(scope, prefix){
     const selectId = Dashboard.config.selectId;
     const selectedValue = value(selectId);
     const summary = DataServiceAPI.getScopedSummary(scope, selectedValue, Dashboard.filters);
+    const cohort = DataServiceAPI.getCohortSummary(scope, Dashboard.filters);
+
+    renderCohortTable(prefix + "CohortTable", cohort, selectId, selectedValue);
 
     setText(prefix + "AverageScore", summary.average + "%");
     setText(prefix + "StoresAudited", summary.storesAudited);
@@ -217,6 +220,9 @@ function labelForScope(scope){
 
 function renderStorePage(){
     const storeName = value("storeFilter");
+    const cohort = DataServiceAPI.getCohortSummary("store", Dashboard.filters);
+    renderCohortTable("storeCohortTable", cohort, "storeFilter", storeName);
+
     if(!storeName || storeName === "All"){
         return;
     }
@@ -248,6 +254,36 @@ function renderStorePage(){
 /* ==========================================================
    RENDER HELPERS
    ========================================================== */
+
+function renderCohortTable(id, cohort, selectId, selectedValue){
+    const table = document.getElementById(id);
+    if(!table) return;
+    table.innerHTML = `<tr><th>#</th><th>Name</th><th>Stores</th><th>Audits</th><th>Average</th><th>Below 80</th><th>Below 60</th><th>Open Cases</th></tr>`;
+    cohort.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.style.cursor = "pointer";
+        if(selectedValue && item.name === selectedValue) row.classList.add("cohort-row-active");
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td><strong>${escapeHtml(item.name)}</strong></td>
+            <td>${item.storesAudited}/${item.totalStores}</td>
+            <td>${item.totalAudits}</td>
+            <td>${item.average}%</td>
+            <td>${item.below80}</td>
+            <td>${item.below60}</td>
+            <td>${item.openCases}</td>
+        `;
+        row.addEventListener("click", () => {
+            const select = document.getElementById(selectId);
+            if(select){
+                select.value = item.name;
+                refreshDashboard();
+                select.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        });
+        table.appendChild(row);
+    });
+}
 
 function renderInsights(containerId, insights){
     const container = document.getElementById(containerId);

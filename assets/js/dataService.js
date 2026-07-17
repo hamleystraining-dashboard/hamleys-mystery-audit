@@ -456,6 +456,27 @@ function getScopedSummary(scopeType, value, filters = {}){
     };
 }
 
+function getCohortSummary(scopeType, filters = {}){
+    const field = scopeType === "store" ? "storeName" : scopeType;
+    const data = getFilteredDataset(filters);
+    const entities = uniqueSorted(DataService.storeMaster.map(s => s[field])).filter(v => v !== "All");
+
+    return entities.map(name => {
+        const entityData = data.filter(item => item[field] === name);
+        const storesInScope = scopeType === "store" ? getStoresUnder("storeName", name) : getStoresUnder(scopeType, name);
+        return {
+            name,
+            average: calculateAverage(entityData),
+            storesAudited: storesAudited(entityData),
+            totalStores: storesInScope.length,
+            below80: below80(entityData),
+            below60: below60(entityData),
+            totalAudits: entityData.length,
+            openCases: (typeof CasesAPI !== "undefined") ? CasesAPI.getOpenCasesByField(field, name).length : 0
+        };
+    }).sort((a, b) => b.average - a.average);
+}
+
 /* ==========================================================
    STORE PROFILE
    ========================================================== */
@@ -502,6 +523,7 @@ window.DataServiceAPI = {
     // summaries
     getDashboardSummary,
     getScopedSummary,
+    getCohortSummary,
     getStoreProfile,
     getStoreHistory,
     getGroupSummary,

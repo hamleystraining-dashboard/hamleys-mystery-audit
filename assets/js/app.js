@@ -92,9 +92,25 @@ function initialiseDates(){
     const from = document.getElementById("fromDate");
     const to = document.getElementById("toDate");
     if(!from || !to) return;
+
+    const allAudits = (typeof DataService !== "undefined")
+        ? DataService.retailAudits.concat(DataService.playAudits)
+        : [];
+
     const today = new Date();
-    const first = new Date(today.getFullYear(), 0, 1);
-    from.valueAsDate = first;
+    let earliest = today;
+    allAudits.forEach(a => {
+        const d = new Date(a.auditDate);
+        if(!isNaN(d) && d < earliest) earliest = d;
+    });
+
+    // Fallback: if there's no data yet, or the earliest date is today,
+    // default to a full year back so nothing looks empty by default.
+    if(allAudits.length === 0){
+        earliest = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+    }
+
+    from.valueAsDate = earliest;
     to.valueAsDate = today;
 }
 

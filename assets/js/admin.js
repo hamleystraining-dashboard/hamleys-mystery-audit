@@ -100,8 +100,23 @@ async function uploadBaseStore(){
         }
         DataServiceAPI.loadBaseStoreData(rows);
         addHistory("Base Store Master", file.name, `${rows.length} stores loaded`);
-        setStatus(status, "Completed", "success");
-        showToast(`Base Store Master updated — ${rows.length} stores.`);
+
+        const missingRM = rows.filter(r => !r.rm).length;
+        const missingROM = rows.filter(r => !r.rom).length;
+        const missingSD = rows.filter(r => !r.sd).length;
+
+        if(missingRM === rows.length || missingROM === rows.length || missingSD === rows.length){
+            setStatus(status, "Loaded with warnings", "warning");
+            showToast(
+                `${rows.length} stores loaded, but RM/ROM/SD columns weren't recognised in every row. ` +
+                `Check your file's headers are exactly "RM Name", "ROM Name", "SD Name" (or "RM"/"ROM"/"SD").`,
+                "warning"
+            );
+        }else{
+            setStatus(status, "Completed", "success");
+            showToast(`Base Store Master updated — ${rows.length} stores (${missingRM} missing RM, ${missingROM} missing ROM, ${missingSD} missing SD).`);
+        }
+
         updateKPIs();
         AppAPI.renderDataStatusBadge();
         refreshPreview();
@@ -260,7 +275,7 @@ function setText(id, value){
 
 function setStatus(el, text, state){
     if(!el) return;
-    const map = { pending: "info", success: "success", error: "danger" };
+    const map = { pending: "info", success: "success", error: "danger", warning: "warning" };
     el.textContent = text;
     el.className = "status " + (map[state] || "info");
 }

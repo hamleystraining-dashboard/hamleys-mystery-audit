@@ -1441,3 +1441,16 @@ table.data-table tr:not(:first-child):hover{
 .secondary-btn:hover{
     background:#fff5f5;
 }
+
+/* ==========================================================
+   COHORT LEADERBOARD
+   ========================================================== */
+
+table.data-table tr.cohort-row-active{
+    background: #fff5f5;
+    font-weight: 600;
+}
+
+table.data-table tr.cohort-row-active td:first-child{
+    border-left: 4px solid var(--hamleys-red, #D71920);
+}
