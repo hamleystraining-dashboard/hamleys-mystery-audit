@@ -7,9 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css?v=1.4.0">
-<link rel="stylesheet" href="assets/css/dashboard.css?v=1.4.0">
-<link rel="stylesheet" href="assets/css/animations.css?v=1.4.0">
+<link rel="stylesheet" href="assets/css/style.css?v=1.5.0">
+<link rel="stylesheet" href="assets/css/dashboard.css?v=1.5.0">
+<link rel="stylesheet" href="assets/css/animations.css?v=1.5.0">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -17,7 +17,7 @@
 
 <header class="top-header">
     <div class="header-left">
-        <img src="assets/images/hamleys-logo.png?v=1.4.0" class="hamleys-logo" alt="Hamleys">
+        <img src="assets/images/hamleys-logo.png?v=1.5.0" class="hamleys-logo" alt="Hamleys">
         <div class="header-title">
             <h1>Hamleys Mystery Audit Intelligence</h1>
             <span>Admin Portal — Data Management</span>
@@ -114,16 +114,21 @@
                 <button class="secondary-btn" id="rebuildIndexes">Rebuild Store Mappings</button>
                 <button class="secondary-btn" id="exportDatabase">Export Database (JSON)</button>
             </div>
+            <p class="hint" style="margin-top:16px;">Testing locally and need to move that data onto the live site? Export above from the local copy, then import the file here on the live Admin page.</p>
+            <div class="upload-row">
+                <input type="file" id="importDatabaseUpload" accept=".json">
+                <button class="primary-btn" id="importDatabase">Import Database (JSON)</button>
+            </div>
         </section>
 
     </main>
 </div>
 
-<script src="assets/js/dataService.js?v=1.4.0"></script>
-<script src="assets/js/cases.js?v=1.4.0"></script>
-<script src="assets/js/app.js?v=1.4.0"></script>
-<script src="assets/js/parser.js?v=1.4.0"></script>
-<script src="assets/js/admin.js?v=1.4.0"></script>
+<script src="assets/js/dataService.js?v=1.5.0"></script>
+<script src="assets/js/cases.js?v=1.5.0"></script>
+<script src="assets/js/app.js?v=1.5.0"></script>
+<script src="assets/js/parser.js?v=1.5.0"></script>
+<script src="assets/js/admin.js?v=1.5.0"></script>
 
 </body>
 </html>
