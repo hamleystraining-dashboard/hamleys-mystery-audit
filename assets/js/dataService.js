@@ -506,9 +506,40 @@ function getDefaulterCandidates(threshold, filters = {}){
         .sort((a, b) => a.overall - b.overall);
 }
 
-/* ==========================================================
-   CONTACT DIRECTORY (optional emails from Base Store Master)
-   ========================================================== */
+function getActionStatusList(threshold, filters = {}){
+    const candidates = getDefaulterCandidates(threshold, filters);
+    const cases = (typeof CasesAPI !== "undefined") ? CasesAPI.getActionProcesses() : [];
+
+    return candidates.map(c => {
+        const record = cases
+            .filter(x => x.storeCode === c.storeCode)
+            .sort((a, b) => new Date(b.ldStartedOn) - new Date(a.ldStartedOn))[0];
+
+        if(!record){
+            return {
+                storeName: c.storeName, storeCode: c.storeCode, overall: c.overall,
+                rm: c.rm, rom: c.rom, sd: c.sd,
+                ldDone: false, romDone: false, hrDone: false,
+                romDelayed: false, hrDelayed: false, status: "Not Started"
+            };
+        }
+
+        const now = new Date();
+        const msPerDay = 86400000;
+        const romDelayed = !!record.ldStartedOn && !record.romSubmittedOn && Math.floor((now - new Date(record.ldStartedOn)) / msPerDay) > (typeof CasesAPI !== "undefined" ? CasesAPI.SLA_DAYS.rom : 3);
+        const hrDelayed = !!record.romSubmittedOn && !record.hrClosedOn && Math.floor((now - new Date(record.romSubmittedOn)) / msPerDay) > (typeof CasesAPI !== "undefined" ? CasesAPI.SLA_DAYS.hr : 5);
+
+        return {
+            storeName: c.storeName, storeCode: c.storeCode, overall: c.overall,
+            rm: c.rm, rom: c.rom, sd: c.sd,
+            ldDone: !!record.ldStartedOn,
+            romDone: !!record.romSubmittedOn,
+            hrDone: !!record.hrClosedOn,
+            romDelayed, hrDelayed,
+            status: record.status
+        };
+    });
+}
 
 function getContactEmail(name){
     return DataService.contacts && DataService.contacts[name] ? DataService.contacts[name] : "";
@@ -572,6 +603,7 @@ window.DataServiceAPI = {
     getBottomStores,
     generateInsights,
     getDefaulterCandidates,
+    getActionStatusList,
     getContactEmail,
     // dropdowns
     getRMList,

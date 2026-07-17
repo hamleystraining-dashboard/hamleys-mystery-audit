@@ -83,6 +83,12 @@ function detectCurrentPage(){
 
             break;
 
+        case "action-status.html":
+
+            Navigation.currentPage="actionStatus";
+
+            break;
+
         default:
 
             Navigation.currentPage="overview";
@@ -109,7 +115,9 @@ function activateSidebar(){
 
         admin:"navAdmin",
 
-        cases:"navCases"
+        cases:"navCases",
+
+        actionStatus:"navActionStatus"
 
     };
 
@@ -186,6 +194,14 @@ function bindNavigation(){
         "navStore",
 
         "store.html"
+
+    );
+
+    bind(
+
+        "navActionStatus",
+
+        "action-status.html"
 
     );
 

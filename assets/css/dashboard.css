@@ -1454,3 +1454,45 @@ table.data-table tr.cohort-row-active{
 table.data-table tr.cohort-row-active td:first-child{
     border-left: 4px solid var(--hamleys-red, #D71920);
 }
+
+/* ==========================================================
+   ACTION STATUS PIPELINE
+   ========================================================== */
+
+.pipeline{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+.pipeline-step{
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pipeline-step.done{
+    background: #e8f8ef;
+    color: #2e7d32;
+}
+
+.pipeline-step.pending{
+    background: #f4f4f4;
+    color: #8a9ba8;
+}
+
+.pipeline-step.delayed{
+    background: #ffe9e8;
+    color: #c62828;
+}
+
+.pipeline-arrow{
+    color: #ccc;
+    font-weight: 700;
+}
