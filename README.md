@@ -84,3 +84,43 @@ Deploy from branch → `main` / root). No build step required.
   another. Use **Export Database (JSON)** on the Admin page to back up or
   hand off data.
 - Duplicate PDF uploads (same Evaluation ID) are automatically skipped.
+
+## Defaulter Action Process (Below 80 / Below 60)
+
+A three-stage, tracked workflow for underperforming stores, run entirely from `cases.html`:
+
+1. **L&D** — sees stores whose latest audit is below 80% or below 60% (candidate
+   list auto-refreshes from live audit data) and clicks **Start Action Process**.
+   This creates a tracked case and opens a pre-filled email to that store's RM
+   and ROM (if their emails are known — see below).
+2. **ROM** — opens the Defaulters page, finds the store under *Awaiting ROM
+   Submission*, and submits the defaulting employee's name/code plus the
+   Store Director's name/code. This opens a pre-filled email to HR.
+3. **HR (HRBP / HR Head)** — finds the store under *Awaiting HR Action*,
+   selects Warning Letter / PLI Stop Letter / Termination Letter per policy,
+   and closes the process.
+
+**Process Tracker** — a running table (✓/✗ per stakeholder, with a red
+"Delayed" flag once a stage misses its SLA) is shown in full on the
+Defaulters page and as a compact widget on the main Overview dashboard.
+SLA thresholds are set in `assets/js/cases.js` (`SLA_DAYS` — defaults:
+L&D 3 days, ROM 3 days, HR 5 days) and are easy to change to match actual
+policy.
+
+### Email notifications — important limitation
+
+This is a static GitHub Pages site with **no backend**, so it cannot send
+email automatically. Every notification step instead opens a `mailto:` link
+pre-filled with subject/recipient/body — the person triggering the step
+still has to hit send in their own mail client. This keeps the loop
+functioning without needing a server, but it is not silent/automatic.
+
+- RM/ROM/SD email addresses are optional columns (`RM Email`, `ROM Email`,
+  `SD Email`) in the Base Store Master upload. If present, they're used to
+  pre-fill the "to" field; if absent, the notification step still runs but
+  shows a warning that no email was found.
+- The HR notification address is a single setting saved in the browser
+  (Defaulters page → "HR Notification Email").
+- If fully automatic email is needed later, the mailto calls in `cases.html`
+  can be swapped for a client-side email API (e.g. EmailJS) — that requires
+  a (free) EmailJS account and API key, which isn't set up here.

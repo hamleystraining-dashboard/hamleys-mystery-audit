@@ -7,15 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css?v=1.2.0">
-<link rel="stylesheet" href="assets/css/dashboard.css?v=1.2.0">
-<link rel="stylesheet" href="assets/css/animations.css?v=1.2.0">
+<link rel="stylesheet" href="assets/css/style.css?v=1.3.0">
+<link rel="stylesheet" href="assets/css/dashboard.css?v=1.3.0">
+<link rel="stylesheet" href="assets/css/animations.css?v=1.3.0">
 </head>
 <body>
 
 <header class="top-header">
     <div class="header-left">
-        <img src="assets/images/hamleys-logo.png?v=1.2.0" class="hamleys-logo" alt="Hamleys">
+        <img src="assets/images/hamleys-logo.png?v=1.3.0" class="hamleys-logo" alt="Hamleys">
         <div class="header-title">
             <h1>Hamleys Mystery Audit Intelligence</h1>
             <span>Defaulters &amp; HR Action Portal</span>
@@ -33,7 +33,7 @@
         <section class="workspace-header">
             <div>
                 <h2>Defaulters &amp; HR Action Portal</h2>
-                <p class="workspace-subtitle">ROMs report defaulting stores/staff — HR confirms the action taken</p>
+                <p class="workspace-subtitle">L&amp;D starts the process for underperforming stores → ROM identifies the defaulter → HR issues the letter and closes the loop</p>
             </div>
             <div class="header-actions">
                 <button class="secondary-btn" onclick="window.print()">Print</button>
@@ -42,16 +42,80 @@
         </section>
 
         <section class="kpi-grid">
-            <div class="kpi-card"><span class="summary-number" id="casesTotal">0</span><span>Total Cases</span></div>
-            <div class="kpi-card"><span class="summary-number" id="casesOpen">0</span><span>Open Cases</span></div>
-            <div class="kpi-card"><span class="summary-number" id="casesClosed">0</span><span>Closed Cases</span></div>
-            <div class="kpi-card"><span class="summary-number" id="casesWarning">0</span><span>Warning Letters</span></div>
-            <div class="kpi-card"><span class="summary-number" id="casesTermination">0</span><span>Terminations</span></div>
+            <div class="kpi-card"><span class="summary-number" id="processOpen">0</span><span>Open Action Processes</span></div>
+            <div class="kpi-card"><span class="summary-number" id="processAwaitingRom">0</span><span>Awaiting ROM</span></div>
+            <div class="kpi-card"><span class="summary-number" id="processAwaitingHr">0</span><span>Awaiting HR</span></div>
+            <div class="kpi-card"><span class="summary-number" id="processDelayed">0</span><span>Delayed (SLA breached)</span></div>
+            <div class="kpi-card"><span class="summary-number" id="processClosed">0</span><span>Closed This Period</span></div>
         </section>
 
         <section class="upload-card">
-            <h3>Report a Defaulter</h3>
-            <p class="hint">For Regional Operations Managers (ROM) — log a store or staff member that has fallen below performance standards. Store, Store Code and ROM are pulled from the Base Store Master — no typing needed.</p>
+            <h3>HR Notification Email</h3>
+            <p class="hint">Since this dashboard has no backend, notifications open as a pre-filled email in your mail client (mailto) rather than sending automatically. Set the HRBP/HR Head inbox here once — it's remembered on this browser.</p>
+            <div class="upload-row">
+                <input type="email" id="hrNotifyEmail" placeholder="hr-team@hamleys.co.in" style="flex:1;min-width:260px;padding:10px 12px;border:1px solid #ddd;border-radius:10px;">
+                <button class="secondary-btn" id="saveHrEmail">Save</button>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- STEP 1 — L&D: Stores requiring action -->
+        <!-- ============================================================ -->
+
+        <section class="table-card mt-20">
+            <div class="section-header">
+                <h3>Step 1 — Stores Requiring Action (L&amp;D)</h3>
+                <div class="filter-group" style="display:flex;gap:10px;align-items:center;">
+                    <label>Threshold</label>
+                    <select id="defaulterThreshold">
+                        <option value="below80">Below 80</option>
+                        <option value="below60">Below 60</option>
+                    </select>
+                </div>
+            </div>
+            <p class="hint">Latest audit per store, filtered by threshold. Starting a process notifies the store's RM and ROM by email and creates a tracked case.</p>
+            <table class="data-table" id="candidateTable"></table>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- STEP 2 — ROM: submit defaulter + SD details -->
+        <!-- ============================================================ -->
+
+        <section class="table-card mt-20">
+            <h3>Step 2 — Awaiting ROM Submission</h3>
+            <p class="hint">ROM (or RM) enters the defaulting employee and Store Director details, then submits — this notifies HR.</p>
+            <table class="data-table" id="awaitingRomTable"></table>
+        </section>
+
+        <div id="romFormContainer"></div>
+
+        <!-- ============================================================ -->
+        <!-- STEP 3 — HR: issue letter and close -->
+        <!-- ============================================================ -->
+
+        <section class="table-card mt-20">
+            <h3>Step 3 — Awaiting HR Action</h3>
+            <p class="hint">HRBP / HR Head selects the action per policy and closes the process.</p>
+            <table class="data-table" id="awaitingHrTable"></table>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- PROCESS TRACKER -->
+        <!-- ============================================================ -->
+
+        <section class="table-card mt-20">
+            <h3>Process Tracker</h3>
+            <p class="hint" id="slaHint">✓ = done on time · ✗ = not yet done · Delayed = past SLA</p>
+            <table class="data-table" id="processTrackerTable"></table>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- AD-HOC MANUAL REPORTING (unrelated to score threshold) -->
+        <!-- ============================================================ -->
+
+        <section class="upload-card mt-20">
+            <h3>Other HR Cases (ad-hoc report — not score triggered)</h3>
+            <p class="hint">For grooming/SOP violations, complaints, attendance issues, etc. not tied to an audit threshold.</p>
             <div class="form-grid">
                 <div class="form-group">
                     <label>Store Name</label>
@@ -80,7 +144,6 @@
                 <div class="form-group">
                     <label>Reason</label>
                     <select id="caseReason">
-                        <option>Repeated audit score below 60%</option>
                         <option>Grooming / SOP violation</option>
                         <option>Customer complaint</option>
                         <option>Attendance / discipline</option>
@@ -96,41 +159,39 @@
         </section>
 
         <section class="table-card mt-20">
-            <h3>Open Cases — HR Action Required</h3>
-            <table class="data-table">
-                <thead>
-                <tr><th>Store</th><th>Code</th><th>RM / ROM / SD</th><th>Employee</th><th>Emp. Code</th><th>Reason</th><th>Reported</th><th>HR Action</th><th>Update</th></tr>
-                </thead>
-                <tbody id="openCasesTable"></tbody>
-            </table>
-        </section>
-
-        <section class="table-card mt-20">
-            <h3>Case History / Activity Log</h3>
-            <table class="data-table">
-                <thead>
-                <tr><th>Store</th><th>Code</th><th>Employee</th><th>Emp. Code</th><th>Reason</th><th>HR Action</th><th>Status</th><th>Reported On</th><th>Updated On</th></tr>
-                </thead>
-                <tbody id="caseHistoryTable"></tbody>
-            </table>
+            <h3>Ad-hoc Case History</h3>
+            <table class="data-table" id="caseHistoryTable"></table>
         </section>
 
     </main>
 </div>
 
-<script src="assets/js/dataService.js?v=1.2.0"></script>
-<script src="assets/js/cases.js?v=1.2.0"></script>
-<script src="assets/js/app.js?v=1.2.0"></script>
+<script src="assets/js/dataService.js?v=1.3.0"></script>
+<script src="assets/js/cases.js?v=1.3.0"></script>
+<script src="assets/js/app.js?v=1.3.0"></script>
 <script>
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadStoreDropdown();
     loadROMDropdown();
-    refreshCasesUI();
+    loadHrEmail();
     document.getElementById("caseStore").addEventListener("change", autoFillFromStore);
     document.getElementById("submitCase").addEventListener("click", submitCase);
+    document.getElementById("defaulterThreshold").addEventListener("change", refreshAll);
+    document.getElementById("saveHrEmail").addEventListener("click", saveHrEmail);
+    fillSlaHint();
+    refreshAll();
 });
+
+function fillSlaHint(){
+    const el = document.getElementById("slaHint");
+    if(el) el.innerHTML = `✓ = done on time · ✗ = not yet done · <span class="status danger">Delayed</span> = past the policy SLA (L&D ${CasesAPI.SLA_DAYS.ld} days · ROM ${CasesAPI.SLA_DAYS.rom} days · HR ${CasesAPI.SLA_DAYS.hr} days)`;
+}
+
+/* ==========================================================
+   DROPDOWNS
+   ========================================================== */
 
 function loadStoreDropdown(){
     const select = document.getElementById("caseStore");
@@ -156,10 +217,289 @@ function autoFillFromStore(){
     const storeName = document.getElementById("caseStore").value;
     const store = DataServiceAPI.findStoreByName(storeName);
     document.getElementById("caseStoreCode").value = store ? store.storeCode : "";
-    if(store && store.rom){
-        document.getElementById("caseROM").value = store.rom;
-    }
+    if(store && store.rom) document.getElementById("caseROM").value = store.rom;
 }
+
+/* ==========================================================
+   HR NOTIFICATION EMAIL (persisted setting)
+   ========================================================== */
+
+const HR_EMAIL_KEY = "hamleysHRNotifyEmail";
+
+function loadHrEmail(){
+    document.getElementById("hrNotifyEmail").value = localStorage.getItem(HR_EMAIL_KEY) || "";
+}
+
+function saveHrEmail(){
+    localStorage.setItem(HR_EMAIL_KEY, document.getElementById("hrNotifyEmail").value.trim());
+    showToast("HR notification email saved on this browser.");
+}
+
+function getHrEmail(){
+    return localStorage.getItem(HR_EMAIL_KEY) || "";
+}
+
+/* ==========================================================
+   REFRESH ALL SECTIONS
+   ========================================================== */
+
+function refreshAll(){
+    renderCandidates();
+    renderAwaitingRom();
+    renderAwaitingHr();
+    renderProcessTracker();
+    renderKpis();
+    renderCaseHistory();
+}
+
+function renderKpis(){
+    const tracker = CasesAPI.getProcessTracker();
+    const open = tracker.filter(t => t.status === "Open");
+    setText("processOpen", open.length);
+    setText("processAwaitingRom", open.filter(t => t.stage === "Started").length);
+    setText("processAwaitingHr", open.filter(t => t.stage === "DefaultersSubmitted").length);
+    setText("processDelayed", open.filter(t => t.romDelayed || t.hrDelayed).length);
+    setText("processClosed", tracker.filter(t => t.status === "Closed").length);
+}
+
+/* ==========================================================
+   STEP 1 — CANDIDATES (L&D)
+   ========================================================== */
+
+function renderCandidates(){
+    const threshold = document.getElementById("defaulterThreshold").value;
+    const table = document.getElementById("candidateTable");
+    const candidates = DataServiceAPI.getDefaulterCandidates(threshold);
+
+    table.innerHTML = `<tr><th>Store</th><th>Score</th><th>RM</th><th>ROM</th><th>SD</th><th>Days Since Audit</th><th>Action</th></tr>`;
+
+    if(!candidates.length){
+        table.innerHTML += `<tr><td colspan="7">No stores currently below ${threshold === "below60" ? "60" : "80"}%.</td></tr>`;
+        return;
+    }
+
+    candidates.forEach(c => {
+        const row = document.createElement("tr");
+        if(c.hasActiveProcess){
+            row.innerHTML = `
+                <td>${escapeHtml(c.storeName)}</td>
+                <td>${c.overall}%</td>
+                <td>${escapeHtml(c.rm || "-")}</td>
+                <td>${escapeHtml(c.rom || "-")}</td>
+                <td>${escapeHtml(c.sd || "-")}</td>
+                <td>${c.daysSinceAudit}</td>
+                <td><span class="status info">Process already started</span></td>
+            `;
+        }else{
+            row.innerHTML = `
+                <td>${escapeHtml(c.storeName)}</td>
+                <td>${c.overall}%</td>
+                <td>${escapeHtml(c.rm || "-")}</td>
+                <td>${escapeHtml(c.rom || "-")}</td>
+                <td>${escapeHtml(c.sd || "-")}</td>
+                <td>${c.daysSinceAudit}${c.daysSinceAudit > 3 ? ' <span class="status warning">overdue</span>' : ''}</td>
+                <td><button class="primary-btn start-process" data-code="${escapeHtml(c.storeCode)}" data-name="${escapeHtml(c.storeName)}" data-score="${c.overall}" data-threshold="${threshold}" data-rm="${escapeHtml(c.rm||"")}" data-rom="${escapeHtml(c.rom||"")}" data-sd="${escapeHtml(c.sd||"")}">Start Action Process</button></td>
+            `;
+        }
+        table.appendChild(row);
+    });
+
+    table.querySelectorAll(".start-process").forEach(btn => {
+        btn.addEventListener("click", () => startProcess(btn.dataset));
+    });
+}
+
+function startProcess(data){
+    const record = CasesAPI.startActionProcess({
+        storeName: data.name,
+        storeCode: data.code,
+        rm: data.rm,
+        rom: data.rom,
+        sd: data.sd,
+        auditScore: Number(data.score),
+        threshold: data.threshold,
+        startedBy: "L&D"
+    });
+
+    const rmEmail = DataServiceAPI.getContactEmail(data.rm);
+    const romEmail = DataServiceAPI.getContactEmail(data.rom);
+    const subject = `Action Required: ${data.name} scored ${data.score}% (below ${data.threshold === "below60" ? "60" : "80"})`;
+    const body = `Hi,\n\n${data.name} (RM: ${data.rm}, ROM: ${data.rom}, SD: ${data.sd}) scored ${data.score}% on its latest Mystery Audit, below the ${data.threshold === "below60" ? "60%" : "80%"} threshold.\n\nPlease visit the Defaulters & HR page and submit the defaulting employee's name/code and the Store Director's name/code so HR can proceed with the appropriate action.\n\nDashboard: ${window.location.origin}${window.location.pathname.replace("cases.html","")}cases.html\n\nThank you.`;
+
+    const to = [rmEmail, romEmail].filter(Boolean).join(",");
+    if(to){
+        window.location.href = CasesAPI.buildMailto(to, subject, body);
+    }else{
+        showToast("Process started. No RM/ROM email on file — add RM Email / ROM Email columns to the Base Store Master to enable auto-notification.", "warning");
+    }
+
+    refreshAll();
+}
+
+/* ==========================================================
+   STEP 2 — AWAITING ROM SUBMISSION
+   ========================================================== */
+
+function renderAwaitingRom(){
+    const table = document.getElementById("awaitingRomTable");
+    const items = CasesAPI.getActionProcesses().filter(c => c.status === "Open" && c.stage === "Started");
+
+    table.innerHTML = `<tr><th>Store</th><th>Score</th><th>RM / ROM</th><th>L&amp;D Started</th><th>Status</th><th></th></tr>`;
+    if(!items.length){
+        table.innerHTML += `<tr><td colspan="6">Nothing awaiting ROM submission.</td></tr>`;
+        return;
+    }
+
+    items.forEach(c => {
+        const delayed = daysSince(c.ldStartedOn) > CasesAPI.SLA_DAYS.rom;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${escapeHtml(c.storeName)}</td>
+            <td>${c.auditScore}%</td>
+            <td>${escapeHtml(c.rm)} / ${escapeHtml(c.rom)}</td>
+            <td>${new Date(c.ldStartedOn).toLocaleDateString("en-IN")}</td>
+            <td>${delayed ? '<span class="status danger">Delayed</span>' : '<span class="status warning">Pending</span>'}</td>
+            <td><button class="secondary-btn open-rom-form" data-id="${c.id}">Submit Details</button></td>
+        `;
+        table.appendChild(row);
+    });
+
+    table.querySelectorAll(".open-rom-form").forEach(btn => {
+        btn.addEventListener("click", () => openRomForm(btn.dataset.id));
+    });
+}
+
+function openRomForm(id){
+    const record = CasesAPI.getActionProcesses().find(c => c.id == id);
+    if(!record) return;
+    const container = document.getElementById("romFormContainer");
+    container.innerHTML = `
+        <section class="upload-card mt-20">
+            <h3>Submit Defaulter Details — ${escapeHtml(record.storeName)}</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>Defaulter Name</label><input type="text" id="romDefaulterName"></div>
+                <div class="form-group"><label>Defaulter Employee Code</label><input type="text" id="romDefaulterCode"></div>
+                <div class="form-group"><label>SD Name</label><input type="text" id="romSdName" value="${escapeHtml(record.sd || "")}"></div>
+                <div class="form-group"><label>SD Employee Code</label><input type="text" id="romSdCode"></div>
+                <div class="form-group"><label>Submitted By (ROM)</label><input type="text" id="romSubmittedBy" value="${escapeHtml(record.rom || "")}"></div>
+            </div>
+            <button class="primary-btn" id="romSubmitBtn">Submit &amp; Notify HR</button>
+            <button class="secondary-btn" id="romCancelBtn">Cancel</button>
+        </section>
+    `;
+    document.getElementById("romSubmitBtn").addEventListener("click", () => submitRomForm(id));
+    document.getElementById("romCancelBtn").addEventListener("click", () => container.innerHTML = "");
+    container.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function submitRomForm(id){
+    const record = CasesAPI.submitDefaulterDetails(id, {
+        defaulterName: document.getElementById("romDefaulterName").value.trim(),
+        defaulterCode: document.getElementById("romDefaulterCode").value.trim(),
+        sdName: document.getElementById("romSdName").value.trim(),
+        sdCode: document.getElementById("romSdCode").value.trim(),
+        submittedBy: document.getElementById("romSubmittedBy").value.trim()
+    });
+
+    const hrEmail = getHrEmail();
+    const subject = `HR Action Needed: ${record.storeName} — ${record.defaulterName || "defaulter"}`;
+    const body = `Hi,\n\nDefaulter details have been submitted for ${record.storeName} (score ${record.auditScore}%):\n\nDefaulter: ${record.defaulterName} (${record.defaulterCode})\nStore Director: ${record.sdName} (${record.sdCode})\nSubmitted by: ${record.romSubmittedBy}\n\nPlease review and issue the appropriate action letter (Warning / PLI Stop / Termination) on the Defaulters & HR page.\n\nDashboard: ${window.location.origin}${window.location.pathname.replace("cases.html","")}cases.html`;
+
+    if(hrEmail){
+        window.location.href = CasesAPI.buildMailto(hrEmail, subject, body);
+    }else{
+        showToast("Submitted. Set an HR Notification Email above to auto-notify HR next time.", "warning");
+    }
+
+    document.getElementById("romFormContainer").innerHTML = "";
+    refreshAll();
+}
+
+/* ==========================================================
+   STEP 3 — AWAITING HR ACTION
+   ========================================================== */
+
+function renderAwaitingHr(){
+    const table = document.getElementById("awaitingHrTable");
+    const items = CasesAPI.getActionProcesses().filter(c => c.status === "Open" && c.stage === "DefaultersSubmitted");
+
+    table.innerHTML = `<tr><th>Store</th><th>Defaulter</th><th>SD</th><th>ROM Submitted</th><th>Status</th><th>Action</th><th></th></tr>`;
+    if(!items.length){
+        table.innerHTML += `<tr><td colspan="7">Nothing awaiting HR action.</td></tr>`;
+        return;
+    }
+
+    items.forEach(c => {
+        const delayed = daysSince(c.romSubmittedOn) > CasesAPI.SLA_DAYS.hr;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${escapeHtml(c.storeName)}</td>
+            <td>${escapeHtml(c.defaulterName)} (${escapeHtml(c.defaulterCode)})</td>
+            <td>${escapeHtml(c.sdName)} (${escapeHtml(c.sdCode)})</td>
+            <td>${new Date(c.romSubmittedOn).toLocaleDateString("en-IN")}</td>
+            <td>${delayed ? '<span class="status danger">Delayed</span>' : '<span class="status warning">Pending</span>'}</td>
+            <td>
+                <select id="hrAction${c.id}">
+                    <option>Warning Letter</option>
+                    <option>PLI Stop Letter</option>
+                    <option>Termination Letter</option>
+                </select>
+            </td>
+            <td><button class="primary-btn close-process" data-id="${c.id}">Issue &amp; Close</button></td>
+        `;
+        table.appendChild(row);
+    });
+
+    table.querySelectorAll(".close-process").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const id = btn.dataset.id;
+            const action = document.getElementById("hrAction" + id).value;
+            CasesAPI.closeActionProcess(id, { hrAction: action, closedBy: "HR" });
+            showToast(`${action} issued — process closed.`);
+            refreshAll();
+        });
+    });
+}
+
+/* ==========================================================
+   PROCESS TRACKER
+   ========================================================== */
+
+function renderProcessTracker(){
+    const table = document.getElementById("processTrackerTable");
+    const tracker = CasesAPI.getProcessTracker();
+
+    table.innerHTML = `<tr><th>Store</th><th>Score</th><th>L&amp;D</th><th>ROM</th><th>HR</th><th>Status</th></tr>`;
+    if(!tracker.length){
+        table.innerHTML += `<tr><td colspan="6">No action processes started yet.</td></tr>`;
+        return;
+    }
+
+    tracker.forEach(t => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${escapeHtml(t.storeName)}</td>
+            <td>${t.auditScore}%</td>
+            <td>${tickCross(t.ldDone)}</td>
+            <td>${tickCross(t.romDone)}${t.romDelayed ? ' <span class="status danger">Delayed</span>' : ''}</td>
+            <td>${tickCross(t.hrDone)}${t.hrDelayed ? ' <span class="status danger">Delayed</span>' : ''}</td>
+            <td><span class="status ${t.status === "Closed" ? "success" : "warning"}">${t.status}</span></td>
+        `;
+        table.appendChild(row);
+    });
+}
+
+function tickCross(done){
+    return done ? '<span style="color:#2ecc71;font-weight:700;">✓</span>' : '<span style="color:#e53935;font-weight:700;">✗</span>';
+}
+
+function daysSince(date){
+    return Math.floor((new Date() - new Date(date)) / 86400000);
+}
+
+/* ==========================================================
+   AD-HOC MANUAL CASES
+   ========================================================== */
 
 function submitCase(){
     const storeName = document.getElementById("caseStore").value;
@@ -186,68 +526,17 @@ function submitCase(){
     document.getElementById("caseReportedBy").value = "";
     document.getElementById("caseDetails").value = "";
     document.getElementById("caseStoreCode").value = "";
-    showToast("Case submitted for HR review.");
-    refreshCasesUI();
-}
-
-function refreshCasesUI(){
-    const summary = CasesAPI.getCaseSummary();
-    setText("casesTotal", summary.total);
-    setText("casesOpen", summary.open);
-    setText("casesClosed", summary.closed);
-    setText("casesWarning", summary.warningLetters);
-    setText("casesTermination", summary.terminationLetters);
-
-    renderOpenCases();
+    showToast("Case submitted.");
     renderCaseHistory();
-}
-
-function renderOpenCases(){
-    const tbody = document.getElementById("openCasesTable");
-    tbody.innerHTML = "";
-    CasesAPI.getOpenCases().forEach(item => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${escapeHtml(item.storeName)}</td>
-            <td>${escapeHtml(item.storeCode || "-")}</td>
-            <td>${escapeHtml(item.rm)} / ${escapeHtml(item.rom)} / ${escapeHtml(item.sd)}</td>
-            <td>${escapeHtml(item.employeeName || "-")}</td>
-            <td>${escapeHtml(item.employeeCode || "-")}</td>
-            <td>${escapeHtml(item.reason || "-")}</td>
-            <td>${new Date(item.createdOn).toLocaleDateString("en-IN")}</td>
-            <td>
-                <select data-id="${item.id}" class="hr-action-select">
-                    ${["Pending Review","Warning Letter","Final Warning","Termination"].map(a =>
-                        `<option value="${a}" ${item.hrAction===a?"selected":""}>${a}</option>`
-                    ).join("")}
-                </select>
-            </td>
-            <td><button class="secondary-btn close-case" data-id="${item.id}">Confirm &amp; Close</button></td>
-        `;
-        tbody.appendChild(row);
-    });
-
-    tbody.querySelectorAll(".hr-action-select").forEach(select => {
-        select.addEventListener("change", () => {
-            CasesAPI.updateHRAction(select.dataset.id, select.value);
-            showToast("HR action updated.");
-            renderCaseHistory();
-        });
-    });
-    tbody.querySelectorAll(".close-case").forEach(btn => {
-        btn.addEventListener("click", () => {
-            CasesAPI.updateCaseStatus(btn.dataset.id, "Closed");
-            showToast("Case closed.");
-            refreshCasesUI();
-        });
-    });
 }
 
 function renderCaseHistory(){
     const tbody = document.getElementById("caseHistoryTable");
-    tbody.innerHTML = "";
     const statusClass = { Open: "danger", Closed: "success" };
-    Cases.records.slice().sort((a,b) => new Date(b.createdOn) - new Date(a.createdOn)).forEach(item => {
+    const adhoc = Cases.records.filter(r => r.type !== "ActionProcess").slice().sort((a,b) => new Date(b.createdOn) - new Date(a.createdOn));
+
+    tbody.innerHTML = `<tr><th>Store</th><th>Code</th><th>Employee</th><th>Emp. Code</th><th>Reason</th><th>HR Action</th><th>Status</th><th>Reported On</th></tr>`;
+    adhoc.forEach(item => {
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${escapeHtml(item.storeName)}</td>
@@ -258,11 +547,14 @@ function renderCaseHistory(){
             <td>${escapeHtml(item.hrAction || "-")}</td>
             <td><span class="status ${statusClass[item.status] || "info"}">${escapeHtml(item.status)}</span></td>
             <td>${new Date(item.createdOn).toLocaleDateString("en-IN")}</td>
-            <td>${item.updatedOn ? new Date(item.updatedOn).toLocaleDateString("en-IN") : "-"}</td>
         `;
         tbody.appendChild(row);
     });
 }
+
+/* ==========================================================
+   UTILITIES
+   ========================================================== */
 
 function setText(id, value){
     const el = document.getElementById(id);
