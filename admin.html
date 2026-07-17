@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamleys Mystery Audit Intelligence | Admin Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<link rel="stylesheet" href="assets/css/animations.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+
+<header class="top-header">
+    <div class="header-left">
+        <img src="assets/images/hamleys-logo.png" class="hamleys-logo" alt="Hamleys">
+        <div class="header-title">
+            <h1>Hamleys Mystery Audit Intelligence</h1>
+            <span>Admin Portal — Data Management</span>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-menu">
+            <button class="nav-item" id="navOverview"><span>🏠</span><span>Overview</span></button>
+            <button class="nav-item" id="navRM"><span>🌏</span><span>RM Wise</span></button>
+            <button class="nav-item" id="navROM"><span>👤</span><span>ROM Wise</span></button>
+            <button class="nav-item" id="navSD"><span>🏬</span><span>SD Wise</span></button>
+            <button class="nav-item" id="navStore"><span>🏪</span><span>Store Wise</span></button>
+            <button class="nav-item" id="navAdmin"><span>⚙️</span><span>Admin</span></button>
+            <button class="nav-item" id="navCases"><span>📋</span><span>Defaulters &amp; HR</span></button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <section class="workspace-header">
+            <div>
+                <h2>Admin Portal</h2>
+                <p class="workspace-subtitle">Upload the Base Store Master and Mystery Audit Report PDFs to power every dashboard</p>
+            </div>
+        </section>
+
+        <section class="kpi-grid">
+            <div class="kpi-card"><span class="summary-number" id="storeCount">0</span><span>Stores in Master</span></div>
+            <div class="kpi-card"><span class="summary-number" id="retailCount">0</span><span>Retail Audits</span></div>
+            <div class="kpi-card"><span class="summary-number" id="playCount">0</span><span>PLAY Audits</span></div>
+            <div class="kpi-card"><span class="summary-number" id="totalAuditCount">0</span><span>Total Audits</span></div>
+            <div class="kpi-card"><span class="summary-number" id="lastUpload">—</span><span>Last Upload</span></div>
+        </section>
+
+        <section class="upload-card">
+            <h3>1. Base Store Master</h3>
+            <p class="hint">Excel file with columns: Store Name, Store Code, ROM Name, SD Name, RM Name. Re-upload any time store mappings change.</p>
+            <div class="upload-row">
+                <input type="file" id="baseStoreUpload" accept=".xlsx,.xls">
+                <button class="primary-btn" id="uploadBaseStore">Upload Base Store Master</button>
+                <span class="status info" id="baseStatus">Waiting</span>
+            </div>
+        </section>
+
+        <section class="upload-card">
+            <h3>2. Mystery Audit Report PDFs</h3>
+            <p class="hint">Upload one or more Retail or PLAY Mystery Audit PDF reports. Business type, store and score are detected automatically from each report.</p>
+            <div class="upload-row">
+                <input type="file" id="auditPdfUpload" accept=".pdf" multiple>
+                <button class="primary-btn" id="uploadAuditPdf">Upload Audit Report(s)</button>
+                <span class="status info" id="pdfStatus">Waiting</span>
+            </div>
+        </section>
+
+        <section class="table-card mt-20">
+            <div class="section-header">
+                <h3>Recent Audit Data Preview</h3>
+                <button class="secondary-btn" id="refreshPreview">Refresh</button>
+            </div>
+            <table class="data-table">
+                <thead>
+                <tr><th>Store Code</th><th>Store Name</th><th>RM</th><th>ROM</th><th>SD</th><th>Business</th><th>Audit Date</th><th>Score</th></tr>
+                </thead>
+                <tbody id="previewTable"></tbody>
+            </table>
+        </section>
+
+        <section class="table-card mt-20">
+            <div class="section-header">
+                <h3>Upload History</h3>
+                <button class="secondary-btn" id="clearLogs">Clear History</button>
+            </div>
+            <table class="data-table">
+                <thead>
+                <tr><th>Date</th><th>Type</th><th>File</th><th>Detail</th></tr>
+                </thead>
+                <tbody id="uploadHistoryTable"></tbody>
+            </table>
+        </section>
+
+        <section class="upload-card">
+            <h3>Data Management</h3>
+            <div class="upload-row">
+                <button class="secondary-btn" id="refreshDashboardData">Refresh Dashboards</button>
+                <button class="secondary-btn" id="rebuildIndexes">Rebuild Store Mappings</button>
+                <button class="secondary-btn" id="exportDatabase">Export Database (JSON)</button>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="assets/js/dataService.js"></script>
+<script src="assets/js/cases.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/navigation.js"></script>
+<script src="assets/js/parser.js"></script>
+<script src="assets/js/admin.js"></script>
+
+</body>
+</html>

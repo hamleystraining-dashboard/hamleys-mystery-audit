@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamleys Mystery Audit Intelligence | Defaulters &amp; HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+<link rel="stylesheet" href="assets/css/animations.css">
+</head>
+<body>
+
+<header class="top-header">
+    <div class="header-left">
+        <img src="assets/images/hamleys-logo.png" class="hamleys-logo" alt="Hamleys">
+        <div class="header-title">
+            <h1>Hamleys Mystery Audit Intelligence</h1>
+            <span>Defaulters &amp; HR Action Portal</span>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-menu">
+            <button class="nav-item" id="navOverview"><span>🏠</span><span>Overview</span></button>
+            <button class="nav-item" id="navRM"><span>🌏</span><span>RM Wise</span></button>
+            <button class="nav-item" id="navROM"><span>👤</span><span>ROM Wise</span></button>
+            <button class="nav-item" id="navSD"><span>🏬</span><span>SD Wise</span></button>
+            <button class="nav-item" id="navStore"><span>🏪</span><span>Store Wise</span></button>
+            <button class="nav-item" id="navAdmin"><span>⚙️</span><span>Admin</span></button>
+            <button class="nav-item" id="navCases"><span>📋</span><span>Defaulters &amp; HR</span></button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <section class="workspace-header">
+            <div>
+                <h2>Defaulters &amp; HR Action Portal</h2>
+                <p class="workspace-subtitle">ROMs report defaulting stores/staff — HR confirms the action taken</p>
+            </div>
+            <div class="header-actions">
+                <button class="secondary-btn" onclick="window.print()">Print</button>
+                <button class="secondary-btn" onclick="CasesAPI.exportCases()">Export Cases</button>
+            </div>
+        </section>
+
+        <section class="kpi-grid">
+            <div class="kpi-card"><span class="summary-number" id="casesTotal">0</span><span>Total Cases</span></div>
+            <div class="kpi-card"><span class="summary-number" id="casesOpen">0</span><span>Open Cases</span></div>
+            <div class="kpi-card"><span class="summary-number" id="casesClosed">0</span><span>Closed Cases</span></div>
+            <div class="kpi-card"><span class="summary-number" id="casesWarning">0</span><span>Warning Letters</span></div>
+            <div class="kpi-card"><span class="summary-number" id="casesTermination">0</span><span>Terminations</span></div>
+        </section>
+
+        <section class="upload-card">
+            <h3>Report a Defaulter</h3>
+            <p class="hint">For Regional Operations Managers (ROM) — log a store or staff member that has fallen below performance standards.</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Store</label>
+                    <select id="caseStore"><option value="">Select store</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Employee Name</label>
+                    <input type="text" id="caseEmployee" placeholder="Employee name (optional)">
+                </div>
+                <div class="form-group">
+                    <label>Reported By (ROM)</label>
+                    <input type="text" id="caseReportedBy" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <select id="caseReason">
+                        <option>Repeated audit score below 60%</option>
+                        <option>Grooming / SOP violation</option>
+                        <option>Customer complaint</option>
+                        <option>Attendance / discipline</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Details</label>
+                <textarea id="caseDetails" rows="3" placeholder="Describe the issue..."></textarea>
+            </div>
+            <button class="primary-btn" id="submitCase">Submit Case</button>
+        </section>
+
+        <section class="table-card mt-20">
+            <h3>Open Cases — HR Action Required</h3>
+            <table class="data-table">
+                <thead>
+                <tr><th>Store</th><th>RM / ROM / SD</th><th>Employee</th><th>Reason</th><th>Reported</th><th>HR Action</th><th>Update</th></tr>
+                </thead>
+                <tbody id="openCasesTable"></tbody>
+            </table>
+        </section>
+
+        <section class="table-card mt-20">
+            <h3>Case History / Activity Log</h3>
+            <table class="data-table">
+                <thead>
+                <tr><th>Store</th><th>Employee</th><th>Reason</th><th>HR Action</th><th>Status</th><th>Reported On</th><th>Updated On</th></tr>
+                </thead>
+                <tbody id="caseHistoryTable"></tbody>
+            </table>
+        </section>
+
+    </main>
+</div>
+
+<script src="assets/js/dataService.js"></script>
+<script src="assets/js/cases.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/navigation.js"></script>
+<script>
+"use strict";
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadStoreDropdown();
+    refreshCasesUI();
+    document.getElementById("submitCase").addEventListener("click", submitCase);
+});
+
+function loadStoreDropdown(){
+    const select = document.getElementById("caseStore");
+    DataServiceAPI.getStoreList().filter(s => s !== "All").forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.text = name;
+        select.appendChild(option);
+    });
+}
+
+function submitCase(){
+    const storeName = document.getElementById("caseStore").value;
+    if(!storeName){
+        showToast("Please select a store.", "warning");
+        return;
+    }
+    const store = DataServiceAPI.findStoreByName(storeName) || {};
+    CasesAPI.addCase({
+        storeName,
+        storeCode: store.storeCode || "",
+        rm: store.rm || "",
+        rom: store.rom || "",
+        sd: store.sd || "",
+        employeeName: document.getElementById("caseEmployee").value.trim(),
+        reportedBy: document.getElementById("caseReportedBy").value.trim(),
+        reason: document.getElementById("caseReason").value,
+        details: document.getElementById("caseDetails").value.trim(),
+        hrAction: "Pending Review"
+    });
+    document.getElementById("caseEmployee").value = "";
+    document.getElementById("caseReportedBy").value = "";
+    document.getElementById("caseDetails").value = "";
+    showToast("Case submitted for HR review.");
+    refreshCasesUI();
+}
+
+function refreshCasesUI(){
+    const summary = CasesAPI.getCaseSummary();
+    setText("casesTotal", summary.total);
+    setText("casesOpen", summary.open);
+    setText("casesClosed", summary.closed);
+    setText("casesWarning", summary.warningLetters);
+    setText("casesTermination", summary.terminationLetters);
+
+    renderOpenCases();
+    renderCaseHistory();
+}
+
+function renderOpenCases(){
+    const tbody = document.getElementById("openCasesTable");
+    tbody.innerHTML = "";
+    CasesAPI.getOpenCases().forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${escapeHtml(item.storeName)}</td>
+            <td>${escapeHtml(item.rm)} / ${escapeHtml(item.rom)} / ${escapeHtml(item.sd)}</td>
+            <td>${escapeHtml(item.employeeName || "-")}</td>
+            <td>${escapeHtml(item.reason || "-")}</td>
+            <td>${new Date(item.createdOn).toLocaleDateString("en-IN")}</td>
+            <td>
+                <select data-id="${item.id}" class="hr-action-select">
+                    ${["Pending Review","Warning Letter","Final Warning","Termination"].map(a =>
+                        `<option value="${a}" ${item.hrAction===a?"selected":""}>${a}</option>`
+                    ).join("")}
+                </select>
+            </td>
+            <td><button class="secondary-btn close-case" data-id="${item.id}">Confirm &amp; Close</button></td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    tbody.querySelectorAll(".hr-action-select").forEach(select => {
+        select.addEventListener("change", () => {
+            CasesAPI.updateHRAction(select.dataset.id, select.value);
+            showToast("HR action updated.");
+            renderCaseHistory();
+        });
+    });
+    tbody.querySelectorAll(".close-case").forEach(btn => {
+        btn.addEventListener("click", () => {
+            CasesAPI.updateCaseStatus(btn.dataset.id, "Closed");
+            showToast("Case closed.");
+            refreshCasesUI();
+        });
+    });
+}
+
+function renderCaseHistory(){
+    const tbody = document.getElementById("caseHistoryTable");
+    tbody.innerHTML = "";
+    const statusClass = { Open: "danger", Closed: "success" };
+    Cases.records.slice().sort((a,b) => new Date(b.createdOn) - new Date(a.createdOn)).forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${escapeHtml(item.storeName)}</td>
+            <td>${escapeHtml(item.employeeName || "-")}</td>
+            <td>${escapeHtml(item.reason || "-")}</td>
+            <td>${escapeHtml(item.hrAction || "-")}</td>
+            <td><span class="status ${statusClass[item.status] || "info"}">${escapeHtml(item.status)}</span></td>
+            <td>${new Date(item.createdOn).toLocaleDateString("en-IN")}</td>
+            <td>${item.updatedOn ? new Date(item.updatedOn).toLocaleDateString("en-IN") : "-"}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function setText(id, value){
+    const el = document.getElementById(id);
+    if(el) el.textContent = value;
+}
+
+function escapeHtml(str){
+    if(str === null || str === undefined) return "";
+    return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+</script>
+
+</body>
+</html>
