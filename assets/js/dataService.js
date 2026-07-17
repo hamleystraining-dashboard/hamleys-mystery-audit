@@ -14,7 +14,8 @@ const DataService = {
     storeMaster: [],
     retailAudits: [],
     playAudits: [],
-    filteredData: []
+    filteredData: [],
+    contacts: {}
 };
 
 const STORAGE_KEY = "hamleysMysteryAuditData";
@@ -32,6 +33,7 @@ function persistData(){
             storeMaster: DataService.storeMaster,
             retailAudits: DataService.retailAudits,
             playAudits: DataService.playAudits,
+            contacts: DataService.contacts,
             savedOn: new Date().toISOString()
         }));
     }catch(err){
@@ -47,6 +49,7 @@ function restoreData(){
         DataService.storeMaster = parsed.storeMaster || [];
         DataService.retailAudits = (parsed.retailAudits || []).map(reviveAudit);
         DataService.playAudits = (parsed.playAudits || []).map(reviveAudit);
+        DataService.contacts = parsed.contacts || {};
         return true;
     }catch(err){
         console.error("Unable to restore data", err);
@@ -79,7 +82,7 @@ function getLastSavedTimestamp(){
    LOADERS (called by parser.js)
    ========================================================== */
 
-function loadBaseStoreData(rows){
+function loadBaseStoreData(rows, contacts){
     DataService.storeMaster = rows.map(row => ({
         storeName: String(row["Store Name"] || "").trim(),
         storeCode: String(row["Store Code"] || "").trim(),
@@ -87,6 +90,9 @@ function loadBaseStoreData(rows){
         sd: String(row["SD Name"] || "").trim(),
         rm: String(row["RM Name"] || "").trim()
     }));
+    if(contacts){
+        DataService.contacts = { ...DataService.contacts, ...contacts };
+    }
     persistData();
 }
 
@@ -174,6 +180,11 @@ function getFilteredDataset(filters = {}){
     data = filterByField(data, "storeName", filters.store);
     if(filters.section && filters.section !== "All Sections"){
         data = data.map(item => ({ ...item, overall: getSectionScore(item, filters.section) }));
+    }
+    if(filters.threshold === "below80"){
+        data = data.filter(item => item.overall < 80);
+    }else if(filters.threshold === "below60"){
+        data = data.filter(item => item.overall < 60);
     }
     DataService.filteredData = data;
     return data;
@@ -477,6 +488,32 @@ function getCohortSummary(scopeType, filters = {}){
     }).sort((a, b) => b.average - a.average);
 }
 
+function getDefaulterCandidates(threshold, filters = {}){
+    const data = getFilteredDataset(filters);
+    const latest = getLatestAuditPerStore(data);
+    const cutoff = threshold === "below60" ? 60 : 80;
+    const qualifying = latest.filter(a => a.overall < cutoff);
+
+    const activeCases = (typeof CasesAPI !== "undefined") ? CasesAPI.getOpenActionProcesses() : [];
+    const activeStoreCodes = new Set(activeCases.map(c => c.storeCode));
+
+    return qualifying
+        .map(audit => ({
+            ...audit,
+            hasActiveProcess: activeStoreCodes.has(audit.storeCode),
+            daysSinceAudit: Math.floor((new Date() - new Date(audit.auditDate)) / 86400000)
+        }))
+        .sort((a, b) => a.overall - b.overall);
+}
+
+/* ==========================================================
+   CONTACT DIRECTORY (optional emails from Base Store Master)
+   ========================================================== */
+
+function getContactEmail(name){
+    return DataService.contacts && DataService.contacts[name] ? DataService.contacts[name] : "";
+}
+
 /* ==========================================================
    STORE PROFILE
    ========================================================== */
@@ -534,6 +571,8 @@ window.DataServiceAPI = {
     getTopStores,
     getBottomStores,
     generateInsights,
+    getDefaulterCandidates,
+    getContactEmail,
     // dropdowns
     getRMList,
     getROMList,

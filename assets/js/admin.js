@@ -94,11 +94,11 @@ async function uploadBaseStore(){
 
     setStatus(status, "Processing...", "pending");
     try{
-        const rows = await ParserAPI.parseBaseStoreFile(file);
+        const { stores: rows, contacts } = await ParserAPI.parseBaseStoreFile(file);
         if(!rows.length){
             throw new Error("No valid rows found. Check column headers: Store Name, Store Code, ROM Name, SD Name, RM Name.");
         }
-        DataServiceAPI.loadBaseStoreData(rows);
+        DataServiceAPI.loadBaseStoreData(rows, contacts);
         addHistory("Base Store Master", file.name, `${rows.length} stores loaded`);
 
         const missingRM = rows.filter(r => !r.rm).length;

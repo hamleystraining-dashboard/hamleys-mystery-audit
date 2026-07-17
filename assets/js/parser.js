@@ -81,13 +81,29 @@ function getColumn(row, ...candidates){
 
 async function parseBaseStoreFile(file){
     const rows = await readExcelFile(file);
-    return rows.map(row => ({
+    const stores = rows.map(row => ({
         storeName: String(getColumn(row, "Store Name", "StoreName")).trim(),
         storeCode: String(getColumn(row, "Store Code", "StoreCode", "Location ID")).trim(),
         rom: String(getColumn(row, "ROM Name", "ROM")).trim(),
         sd: String(getColumn(row, "SD Name", "SD")).trim(),
         rm: String(getColumn(row, "RM Name", "RM")).trim()
     })).filter(r => r.storeCode);
+
+    // Optional email columns — used only for mailto notifications on the
+    // Defaulters & HR page. Safe to omit entirely if not in the sheet.
+    const contacts = {};
+    rows.forEach(row => {
+        const pairs = [
+            [getColumn(row, "RM Name", "RM"), getColumn(row, "RM Email")],
+            [getColumn(row, "ROM Name", "ROM"), getColumn(row, "ROM Email")],
+            [getColumn(row, "SD Name", "SD"), getColumn(row, "SD Email")]
+        ];
+        pairs.forEach(([name, email]) => {
+            if(name && email) contacts[String(name).trim()] = String(email).trim();
+        });
+    });
+
+    return { stores, contacts };
 }
 
 /* ==========================================================

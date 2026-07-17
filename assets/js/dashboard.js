@@ -38,7 +38,7 @@ function initialiseDashboard(){
 }
 
 function initialiseFilters(){
-    ["fromDate", "toDate", "sectionFilter"].forEach(id => {
+    ["fromDate", "toDate", "sectionFilter", "thresholdFilter"].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.addEventListener("change", refreshDashboard);
     });
@@ -118,6 +118,7 @@ function collectFilters(){
     Dashboard.filters.rom = value("romFilterOverview");
     Dashboard.filters.sd = value("sdFilterOverview");
     Dashboard.filters.store = value("storeFilterOverview");
+    Dashboard.filters.threshold = value("thresholdFilter");
 }
 
 /* ==========================================================
@@ -164,12 +165,37 @@ function renderOverviewPage(){
     renderInsights("aiInsights", summary.insights);
     renderStoreTable("topStoresTable", summary.topStores);
     renderStoreTable("bottomStoresTable", summary.bottomStores);
+    renderProcessTracker("processTrackerTable");
 
     if(typeof ChartsAPI === "undefined") return;
     ChartsAPI.renderTrendChart("indiaTrendChart", summary.monthlyTrend.map(m => ({ label: m.label, value: m.average })));
     ChartsAPI.renderBarChart("regionalChart", summary.regionalSummary);
     ChartsAPI.renderDistributionChart("distributionChart", summary.distribution);
     ChartsAPI.renderSectionChart("sectionChart", DataServiceAPI.getSectionLabels(), summary.sectionAverages);
+}
+
+function renderProcessTracker(containerId){
+    const table = document.getElementById(containerId);
+    if(!table || typeof CasesAPI === "undefined") return;
+    const tracker = CasesAPI.getProcessTracker().filter(t => t.status === "Open").slice(0, 15);
+    table.innerHTML = `<tr><th>Store</th><th>Score</th><th>L&amp;D</th><th>ROM</th><th>HR</th><th>Status</th></tr>`;
+    if(!tracker.length){
+        table.innerHTML += `<tr><td colspan="6">No open action processes.</td></tr>`;
+        return;
+    }
+    const tick = ok => ok ? '<span style="color:#2ecc71;font-weight:700;">&#10003;</span>' : '<span style="color:#e53935;font-weight:700;">&#10007;</span>';
+    tracker.forEach(t => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${escapeHtml(t.storeName)}</td>
+            <td>${t.auditScore}%</td>
+            <td>${tick(t.ldDone)}</td>
+            <td>${tick(t.romDone)}${t.romDelayed ? ' <span class="status danger">Delayed</span>' : ''}</td>
+            <td>${tick(t.hrDone)}${t.hrDelayed ? ' <span class="status danger">Delayed</span>' : ''}</td>
+            <td><span class="status warning">${escapeHtml(t.status)}</span></td>
+        `;
+        table.appendChild(row);
+    });
 }
 
 /* ==========================================================
