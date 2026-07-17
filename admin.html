@@ -7,9 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css">
-<link rel="stylesheet" href="assets/css/dashboard.css">
-<link rel="stylesheet" href="assets/css/animations.css">
+<link rel="stylesheet" href="assets/css/style.css?v=1.1.0">
+<link rel="stylesheet" href="assets/css/dashboard.css?v=1.1.0">
+<link rel="stylesheet" href="assets/css/animations.css?v=1.1.0">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -17,27 +17,18 @@
 
 <header class="top-header">
     <div class="header-left">
-        <img src="assets/images/hamleys-logo.png" class="hamleys-logo" alt="Hamleys">
+        <img src="assets/images/hamleys-logo.png?v=1.1.0" class="hamleys-logo" alt="Hamleys">
         <div class="header-title">
             <h1>Hamleys Mystery Audit Intelligence</h1>
             <span>Admin Portal — Data Management</span>
         </div>
     </div>
+    <div class="header-right">
+        <a href="index.html" class="secondary-btn back-link">&larr; Back to Dashboard</a>
+    </div>
 </header>
 
 <div class="dashboard-layout">
-
-    <aside class="sidebar">
-        <div class="sidebar-menu">
-            <button class="nav-item" id="navOverview"><span>🏠</span><span>Overview</span></button>
-            <button class="nav-item" id="navRM"><span>🌏</span><span>RM Wise</span></button>
-            <button class="nav-item" id="navROM"><span>👤</span><span>ROM Wise</span></button>
-            <button class="nav-item" id="navSD"><span>🏬</span><span>SD Wise</span></button>
-            <button class="nav-item" id="navStore"><span>🏪</span><span>Store Wise</span></button>
-            <button class="nav-item" id="navAdmin"><span>⚙️</span><span>Admin</span></button>
-            <button class="nav-item" id="navCases"><span>📋</span><span>Defaulters &amp; HR</span></button>
-        </div>
-    </aside>
 
     <main class="main-content">
 
@@ -73,6 +64,23 @@
                 <input type="file" id="auditPdfUpload" accept=".pdf" multiple>
                 <button class="primary-btn" id="uploadAuditPdf">Upload Audit Report(s)</button>
                 <span class="status info" id="pdfStatus">Waiting</span>
+            </div>
+        </section>
+
+        <section class="upload-card">
+            <h3>3. Historical Audit Data (bulk Excel import)</h3>
+            <p class="hint">One-time import of last year's audit scores from a spreadsheet, so historical trends and store history are available from day one. This is imported alongside PDF-based audits — everything lives in the same dataset going forward.</p>
+            <div class="upload-row">
+                <label style="min-width:70px;font-weight:600;">Retail</label>
+                <input type="file" id="historicalRetailUpload" accept=".xlsx,.xls">
+                <button class="primary-btn" id="uploadHistoricalRetail">Import Retail History</button>
+                <span class="status info" id="historicalRetailStatus">Waiting</span>
+            </div>
+            <div class="upload-row" style="margin-top:14px;">
+                <label style="min-width:70px;font-weight:600;">PLAY</label>
+                <input type="file" id="historicalPlayUpload" accept=".xlsx,.xls">
+                <button class="primary-btn" id="uploadHistoricalPlay">Import PLAY History</button>
+                <span class="status info" id="historicalPlayStatus">Waiting</span>
             </div>
         </section>
 
@@ -114,12 +122,11 @@
     </main>
 </div>
 
-<script src="assets/js/dataService.js"></script>
-<script src="assets/js/cases.js"></script>
-<script src="assets/js/app.js"></script>
-<script src="assets/js/navigation.js"></script>
-<script src="assets/js/parser.js"></script>
-<script src="assets/js/admin.js"></script>
+<script src="assets/js/dataService.js?v=1.1.0"></script>
+<script src="assets/js/cases.js?v=1.1.0"></script>
+<script src="assets/js/app.js?v=1.1.0"></script>
+<script src="assets/js/parser.js?v=1.1.0"></script>
+<script src="assets/js/admin.js?v=1.1.0"></script>
 
 </body>
 </html>

@@ -7,35 +7,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css">
-<link rel="stylesheet" href="assets/css/dashboard.css">
-<link rel="stylesheet" href="assets/css/animations.css">
+<link rel="stylesheet" href="assets/css/style.css?v=1.1.0">
+<link rel="stylesheet" href="assets/css/dashboard.css?v=1.1.0">
+<link rel="stylesheet" href="assets/css/animations.css?v=1.1.0">
 </head>
 <body>
 
 <header class="top-header">
     <div class="header-left">
-        <img src="assets/images/hamleys-logo.png" class="hamleys-logo" alt="Hamleys">
+        <img src="assets/images/hamleys-logo.png?v=1.1.0" class="hamleys-logo" alt="Hamleys">
         <div class="header-title">
             <h1>Hamleys Mystery Audit Intelligence</h1>
             <span>Defaulters &amp; HR Action Portal</span>
         </div>
     </div>
+    <div class="header-right">
+        <a href="index.html" class="secondary-btn back-link">&larr; Back to Dashboard</a>
+    </div>
 </header>
 
 <div class="dashboard-layout">
-
-    <aside class="sidebar">
-        <div class="sidebar-menu">
-            <button class="nav-item" id="navOverview"><span>🏠</span><span>Overview</span></button>
-            <button class="nav-item" id="navRM"><span>🌏</span><span>RM Wise</span></button>
-            <button class="nav-item" id="navROM"><span>👤</span><span>ROM Wise</span></button>
-            <button class="nav-item" id="navSD"><span>🏬</span><span>SD Wise</span></button>
-            <button class="nav-item" id="navStore"><span>🏪</span><span>Store Wise</span></button>
-            <button class="nav-item" id="navAdmin"><span>⚙️</span><span>Admin</span></button>
-            <button class="nav-item" id="navCases"><span>📋</span><span>Defaulters &amp; HR</span></button>
-        </div>
-    </aside>
 
     <main class="main-content">
 
@@ -60,18 +51,30 @@
 
         <section class="upload-card">
             <h3>Report a Defaulter</h3>
-            <p class="hint">For Regional Operations Managers (ROM) — log a store or staff member that has fallen below performance standards.</p>
+            <p class="hint">For Regional Operations Managers (ROM) — log a store or staff member that has fallen below performance standards. Store, Store Code and ROM are pulled from the Base Store Master — no typing needed.</p>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Store</label>
+                    <label>Store Name</label>
                     <select id="caseStore"><option value="">Select store</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Store Code</label>
+                    <input type="text" id="caseStoreCode" placeholder="Auto-filled" readonly>
+                </div>
+                <div class="form-group">
+                    <label>ROM</label>
+                    <select id="caseROM"><option value="">Select ROM</option></select>
                 </div>
                 <div class="form-group">
                     <label>Employee Name</label>
                     <input type="text" id="caseEmployee" placeholder="Employee name (optional)">
                 </div>
                 <div class="form-group">
-                    <label>Reported By (ROM)</label>
+                    <label>Employee Code</label>
+                    <input type="text" id="caseEmployeeCode" placeholder="Employee code (optional)">
+                </div>
+                <div class="form-group">
+                    <label>Reported By</label>
                     <input type="text" id="caseReportedBy" placeholder="Your name">
                 </div>
                 <div class="form-group">
@@ -96,7 +99,7 @@
             <h3>Open Cases — HR Action Required</h3>
             <table class="data-table">
                 <thead>
-                <tr><th>Store</th><th>RM / ROM / SD</th><th>Employee</th><th>Reason</th><th>Reported</th><th>HR Action</th><th>Update</th></tr>
+                <tr><th>Store</th><th>Code</th><th>RM / ROM / SD</th><th>Employee</th><th>Emp. Code</th><th>Reason</th><th>Reported</th><th>HR Action</th><th>Update</th></tr>
                 </thead>
                 <tbody id="openCasesTable"></tbody>
             </table>
@@ -106,7 +109,7 @@
             <h3>Case History / Activity Log</h3>
             <table class="data-table">
                 <thead>
-                <tr><th>Store</th><th>Employee</th><th>Reason</th><th>HR Action</th><th>Status</th><th>Reported On</th><th>Updated On</th></tr>
+                <tr><th>Store</th><th>Code</th><th>Employee</th><th>Emp. Code</th><th>Reason</th><th>HR Action</th><th>Status</th><th>Reported On</th><th>Updated On</th></tr>
                 </thead>
                 <tbody id="caseHistoryTable"></tbody>
             </table>
@@ -115,16 +118,17 @@
     </main>
 </div>
 
-<script src="assets/js/dataService.js"></script>
-<script src="assets/js/cases.js"></script>
-<script src="assets/js/app.js"></script>
-<script src="assets/js/navigation.js"></script>
+<script src="assets/js/dataService.js?v=1.1.0"></script>
+<script src="assets/js/cases.js?v=1.1.0"></script>
+<script src="assets/js/app.js?v=1.1.0"></script>
 <script>
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadStoreDropdown();
+    loadROMDropdown();
     refreshCasesUI();
+    document.getElementById("caseStore").addEventListener("change", autoFillFromStore);
     document.getElementById("submitCase").addEventListener("click", submitCase);
 });
 
@@ -138,6 +142,25 @@ function loadStoreDropdown(){
     });
 }
 
+function loadROMDropdown(){
+    const select = document.getElementById("caseROM");
+    DataServiceAPI.getROMList().filter(r => r !== "All").forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.text = name;
+        select.appendChild(option);
+    });
+}
+
+function autoFillFromStore(){
+    const storeName = document.getElementById("caseStore").value;
+    const store = DataServiceAPI.findStoreByName(storeName);
+    document.getElementById("caseStoreCode").value = store ? store.storeCode : "";
+    if(store && store.rom){
+        document.getElementById("caseROM").value = store.rom;
+    }
+}
+
 function submitCase(){
     const storeName = document.getElementById("caseStore").value;
     if(!storeName){
@@ -147,19 +170,22 @@ function submitCase(){
     const store = DataServiceAPI.findStoreByName(storeName) || {};
     CasesAPI.addCase({
         storeName,
-        storeCode: store.storeCode || "",
+        storeCode: document.getElementById("caseStoreCode").value.trim() || store.storeCode || "",
         rm: store.rm || "",
-        rom: store.rom || "",
+        rom: document.getElementById("caseROM").value || store.rom || "",
         sd: store.sd || "",
         employeeName: document.getElementById("caseEmployee").value.trim(),
+        employeeCode: document.getElementById("caseEmployeeCode").value.trim(),
         reportedBy: document.getElementById("caseReportedBy").value.trim(),
         reason: document.getElementById("caseReason").value,
         details: document.getElementById("caseDetails").value.trim(),
         hrAction: "Pending Review"
     });
     document.getElementById("caseEmployee").value = "";
+    document.getElementById("caseEmployeeCode").value = "";
     document.getElementById("caseReportedBy").value = "";
     document.getElementById("caseDetails").value = "";
+    document.getElementById("caseStoreCode").value = "";
     showToast("Case submitted for HR review.");
     refreshCasesUI();
 }
@@ -183,8 +209,10 @@ function renderOpenCases(){
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${escapeHtml(item.storeName)}</td>
+            <td>${escapeHtml(item.storeCode || "-")}</td>
             <td>${escapeHtml(item.rm)} / ${escapeHtml(item.rom)} / ${escapeHtml(item.sd)}</td>
             <td>${escapeHtml(item.employeeName || "-")}</td>
+            <td>${escapeHtml(item.employeeCode || "-")}</td>
             <td>${escapeHtml(item.reason || "-")}</td>
             <td>${new Date(item.createdOn).toLocaleDateString("en-IN")}</td>
             <td>
@@ -223,7 +251,9 @@ function renderCaseHistory(){
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${escapeHtml(item.storeName)}</td>
+            <td>${escapeHtml(item.storeCode || "-")}</td>
             <td>${escapeHtml(item.employeeName || "-")}</td>
+            <td>${escapeHtml(item.employeeCode || "-")}</td>
             <td>${escapeHtml(item.reason || "-")}</td>
             <td>${escapeHtml(item.hrAction || "-")}</td>
             <td><span class="status ${statusClass[item.status] || "info"}">${escapeHtml(item.status)}</span></td>
