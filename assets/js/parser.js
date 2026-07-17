@@ -65,14 +65,28 @@ function readExcelFile(file){
     });
 }
 
+function normaliseHeaderKey(key){
+    return String(key || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function getColumn(row, ...candidates){
+    const map = {};
+    Object.keys(row).forEach(k => map[normaliseHeaderKey(k)] = row[k]);
+    for(const c of candidates){
+        const val = map[normaliseHeaderKey(c)];
+        if(val !== undefined && val !== null && String(val).trim() !== "") return val;
+    }
+    return "";
+}
+
 async function parseBaseStoreFile(file){
     const rows = await readExcelFile(file);
     return rows.map(row => ({
-        storeName: String(row["Store Name"] || "").trim(),
-        storeCode: String(row["Store Code"] || "").trim(),
-        rom: String(row["ROM Name"] || "").trim(),
-        sd: String(row["SD Name"] || "").trim(),
-        rm: String(row["RM Name"] || "").trim()
+        storeName: String(getColumn(row, "Store Name", "StoreName")).trim(),
+        storeCode: String(getColumn(row, "Store Code", "StoreCode", "Location ID")).trim(),
+        rom: String(getColumn(row, "ROM Name", "ROM")).trim(),
+        sd: String(getColumn(row, "SD Name", "SD")).trim(),
+        rm: String(getColumn(row, "RM Name", "RM")).trim()
     })).filter(r => r.storeCode);
 }
 
@@ -204,13 +218,111 @@ async function parseAuditPdfBatch(fileList){
 }
 
 /* ==========================================================
+   HISTORICAL AUDIT DATA (bulk Excel import)
+   Used for last year's data that already exists as a
+   spreadsheet, rather than one PDF per visit.
+   ========================================================== */
+
+function parseExcelDate(value){
+    if(value instanceof Date) return value;
+    if(typeof value === "number"){
+        // Excel serial date
+        return new Date(Math.round((value - 25569) * 86400 * 1000));
+    }
+    const str = String(value || "").trim();
+    const match = str.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+    if(match){
+        let [, m, d, y] = match;
+        if(y.length === 2) y = "20" + y;
+        return new Date(Number(y), Number(m) - 1, Number(d));
+    }
+    const parsed = new Date(str);
+    return isNaN(parsed) ? new Date() : parsed;
+}
+
+async function parseHistoricalRetail(file){
+    const rows = await readExcelFile(file);
+    const records = [];
+    rows.forEach(row => {
+        const storeCode = String(getColumn(row, "Location ID", "Store Code")).trim();
+        if(!storeCode) return;
+        const sections = {};
+        Object.keys(RETAIL_SECTION_MAP).forEach(rawName => {
+            const val = getColumn(row, rawName);
+            if(val !== "" && !isNaN(Number(val))){
+                sections[RETAIL_SECTION_MAP[rawName]] = Number(val);
+            }
+        });
+        records.push({
+            business: "Retail",
+            evaluationId: String(getColumn(row, "Evaluation ID")).trim() || null,
+            wave: getColumn(row, "Wave Name"),
+            storeCode,
+            storeName: String(getColumn(row, "Location Name", "Store Name")).trim(),
+            auditDate: parseExcelDate(getColumn(row, "Audit Date")),
+            overall: Number(getColumn(row, "Evaluation Score") || 0),
+            sections,
+            sourceFile: file.name
+        });
+    });
+    return records;
+}
+
+async function parseHistoricalPlay(file){
+    const rows = await readExcelFile(file);
+    const records = [];
+    rows.forEach(row => {
+        const location = String(getColumn(row, "Location")).trim();
+        if(!location) return;
+        // Format: "T38E - Hamleys - Lulu Mall, Lucknow"
+        const dashIndex = location.indexOf(" - ");
+        const storeCode = dashIndex > -1 ? location.substring(0, dashIndex).trim() : "";
+        const storeName = dashIndex > -1 ? location.substring(dashIndex + 3).trim() : location;
+        if(!storeCode) return;
+        const overallRaw = String(getColumn(row, "Overall Score")).replace("%", "").trim();
+        records.push({
+            business: "Play",
+            evaluationId: String(getColumn(row, "Evaluation ID")).trim() || null,
+            storeCode,
+            storeName,
+            auditDate: parseExcelDate(getColumn(row, "Date")),
+            overall: Number(overallRaw || 0),
+            sections: {},
+            sourceFile: file.name
+        });
+    });
+    return records;
+}
+
+function importHistoricalRecords(records){
+    const results = { added: 0, duplicates: 0 };
+    records.forEach(record => {
+        const wasAdded = DataServiceAPI.addAuditRecord(record);
+        if(wasAdded) results.added++; else results.duplicates++;
+    });
+    return results;
+}
+
+async function importHistoricalRetail(file){
+    const records = await parseHistoricalRetail(file);
+    return importHistoricalRecords(records);
+}
+
+async function importHistoricalPlay(file){
+    const records = await parseHistoricalPlay(file);
+    return importHistoricalRecords(records);
+}
+
+/* ==========================================================
    PUBLIC API
    ========================================================== */
 
 window.ParserAPI = {
     parseBaseStoreFile,
     parseAuditPdf,
-    parseAuditPdfBatch
+    parseAuditPdfBatch,
+    importHistoricalRetail,
+    importHistoricalPlay
 };
 
 console.log("Parser Loaded");

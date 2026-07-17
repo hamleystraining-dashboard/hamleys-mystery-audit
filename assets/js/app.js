@@ -19,8 +19,41 @@ document.addEventListener("DOMContentLoaded", () => {
     initialiseBusinessToggle();
     initialiseDates();
     animateCards();
+    renderDataStatusBadge();
     console.log("Hamleys Mystery Audit Intelligence Loaded");
 });
+
+/* ==========================================================
+   DATA STATUS BADGE
+   Small, always-visible confirmation of what data is
+   actually loaded on this page, to make it obvious when
+   the Base Store Master or audits haven't come through
+   (e.g. stale cached script, or data uploaded on a
+   different browser / device).
+   ========================================================== */
+
+function renderDataStatusBadge(){
+    if(typeof DataServiceAPI === "undefined") return;
+    let badge = document.getElementById("dataStatusBadge");
+    if(!badge){
+        badge = document.createElement("div");
+        badge.id = "dataStatusBadge";
+        badge.className = "data-status-badge";
+        document.body.appendChild(badge);
+    }
+    const stores = DataService.storeMaster.length;
+    const audits = DataService.retailAudits.length + DataService.playAudits.length;
+    const saved = DataServiceAPI.getLastSavedTimestamp();
+    const savedText = saved ? new Date(saved).toLocaleString("en-IN") : "never";
+
+    if(stores === 0){
+        badge.className = "data-status-badge warning";
+        badge.textContent = "⚠ No store data loaded on this browser — upload the Base Store Master in Admin.";
+    }else{
+        badge.className = "data-status-badge";
+        badge.textContent = `${stores} stores • ${audits} audits loaded — last saved ${savedText}`;
+    }
+}
 
 /* ==========================================================
    RETAIL / PLAY TOGGLE
@@ -139,4 +172,4 @@ function byId(id){
     return document.getElementById(id);
 }
 
-window.AppAPI = { showToast, showLoader, hideLoader, formatPercentage, formatDate };
+window.AppAPI = { showToast, showLoader, hideLoader, formatPercentage, formatDate, renderDataStatusBadge };

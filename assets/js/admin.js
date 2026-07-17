@@ -28,15 +28,54 @@ document.addEventListener("DOMContentLoaded", () => {
 function bindButtons(){
     document.getElementById("uploadBaseStore")?.addEventListener("click", uploadBaseStore);
     document.getElementById("uploadAuditPdf")?.addEventListener("click", uploadAuditPdfs);
+    document.getElementById("uploadHistoricalRetail")?.addEventListener("click", () => uploadHistorical("retail"));
+    document.getElementById("uploadHistoricalPlay")?.addEventListener("click", () => uploadHistorical("play"));
     document.getElementById("refreshPreview")?.addEventListener("click", refreshPreview);
     document.getElementById("clearLogs")?.addEventListener("click", clearLogs);
     document.getElementById("exportDatabase")?.addEventListener("click", exportDatabase);
     document.getElementById("rebuildIndexes")?.addEventListener("click", rebuildIndexes);
     document.getElementById("refreshDashboardData")?.addEventListener("click", () => {
         updateKPIs();
+        AppAPI.renderDataStatusBadge();
         refreshPreview();
         showToast("Dashboard data refreshed.");
     });
+}
+
+/* ==========================================================
+   HISTORICAL BULK UPLOAD (Retail / PLAY)
+   ========================================================== */
+
+async function uploadHistorical(business){
+    const inputId = business === "play" ? "historicalPlayUpload" : "historicalRetailUpload";
+    const statusId = business === "play" ? "historicalPlayStatus" : "historicalRetailStatus";
+    const input = document.getElementById(inputId);
+    const status = document.getElementById(statusId);
+    const file = input?.files?.[0];
+
+    if(!file){
+        showToast("Please select a historical audit Excel file.", "warning");
+        return;
+    }
+
+    setStatus(status, "Processing...", "pending");
+    try{
+        const results = business === "play"
+            ? await ParserAPI.importHistoricalPlay(file)
+            : await ParserAPI.importHistoricalRetail(file);
+
+        addHistory(`Historical ${business === "play" ? "PLAY" : "Retail"} Import`, file.name, `${results.added} added, ${results.duplicates} duplicate`);
+        setStatus(status, "Completed", "success");
+        showToast(`${results.added} historical audits imported (${results.duplicates} duplicates skipped).`);
+        updateKPIs();
+        AppAPI.renderDataStatusBadge();
+        refreshPreview();
+        input.value = "";
+    }catch(err){
+        console.error(err);
+        setStatus(status, "Failed", "error");
+        showToast(err.message, "error");
+    }
 }
 
 /* ==========================================================
@@ -64,6 +103,7 @@ async function uploadBaseStore(){
         setStatus(status, "Completed", "success");
         showToast(`Base Store Master updated — ${rows.length} stores.`);
         updateKPIs();
+        AppAPI.renderDataStatusBadge();
         refreshPreview();
         input.value = "";
     }catch(err){
@@ -110,6 +150,7 @@ async function uploadAuditPdfs(){
     }
 
     updateKPIs();
+        AppAPI.renderDataStatusBadge();
     refreshPreview();
     input.value = "";
 }

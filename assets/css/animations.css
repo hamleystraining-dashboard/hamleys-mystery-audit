@@ -463,3 +463,27 @@
     color: #D71920;
     z-index: 9998;
 }
+
+/* ==========================================================
+   Data Status Badge
+   ========================================================== */
+
+.data-status-badge{
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    background: #233142;
+    color: #fff;
+    font-size: 12px;
+    padding: 8px 14px;
+    border-radius: 30px;
+    opacity: .85;
+    z-index: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+.data-status-badge.warning{
+    background: #f4b400;
+    color: #233142;
+    font-weight: 600;
+}

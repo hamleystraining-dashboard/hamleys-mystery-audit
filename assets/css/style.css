@@ -502,3 +502,8 @@ td{
 }
 
 }
+
+.header-right .back-link{
+    text-decoration: none;
+    display: inline-block;
+}
