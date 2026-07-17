@@ -487,3 +487,17 @@
     color: #233142;
     font-weight: 600;
 }
+
+/* ==========================================================
+   Local Origin Warning Banner
+   ========================================================== */
+
+.local-origin-banner{
+    background: #f4b400;
+    color: #233142;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 14px 24px;
+    text-align: center;
+    line-height: 1.5;
+}

@@ -15,6 +15,7 @@ const Admin = {
 const HISTORY_KEY = "hamleysUploadHistory";
 
 document.addEventListener("DOMContentLoaded", () => {
+    renderLocalOriginWarning();
     bindButtons();
     loadHistory();
     updateKPIs();
@@ -33,6 +34,7 @@ function bindButtons(){
     document.getElementById("refreshPreview")?.addEventListener("click", refreshPreview);
     document.getElementById("clearLogs")?.addEventListener("click", clearLogs);
     document.getElementById("exportDatabase")?.addEventListener("click", exportDatabase);
+    document.getElementById("importDatabase")?.addEventListener("click", importDatabaseFile);
     document.getElementById("rebuildIndexes")?.addEventListener("click", rebuildIndexes);
     document.getElementById("refreshDashboardData")?.addEventListener("click", () => {
         updateKPIs();
@@ -290,6 +292,7 @@ function exportDatabase(){
         baseStores: DataService.storeMaster,
         retailAudits: DataService.retailAudits,
         playAudits: DataService.playAudits,
+        contacts: DataService.contacts,
         uploadHistory: Admin.uploadHistory
     };
     const blob = new Blob([JSON.stringify(database, null, 2)], { type: "application/json" });
@@ -298,6 +301,55 @@ function exportDatabase(){
     link.download = "hamleys_mystery_audit_database.json";
     link.click();
     showToast("Database exported.");
+}
+
+/* ==========================================================
+   IMPORT DATABASE (bring data from a local test copy onto
+   the live site in one step — see local-origin warning banner)
+   ========================================================== */
+
+function importDatabaseFile(){
+    const input = document.getElementById("importDatabaseUpload");
+    const file = input?.files?.[0];
+    if(!file){
+        showToast("Please choose a database JSON file to import.", "warning");
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+        try{
+            const result = DataServiceAPI.importDatabase(e.target.result);
+            addHistory("Database Import", file.name, `${result.stores} stores, ${result.retailAudits + result.playAudits} audits imported`);
+            showToast(`Imported ${result.stores} stores and ${result.retailAudits + result.playAudits} audits.`);
+            updateKPIs();
+            AppAPI.renderDataStatusBadge();
+            refreshPreview();
+            input.value = "";
+        }catch(err){
+            showToast(err.message, "error");
+        }
+    };
+    reader.onerror = () => showToast("Unable to read file.", "error");
+    reader.readAsText(file);
+}
+
+/* ==========================================================
+   LOCAL FILE (file://) WARNING BANNER
+   Opening the dashboard from a downloaded folder uses a
+   completely separate storage sandbox from the live GitHub
+   Pages site — data uploaded here will never appear there.
+   ========================================================== */
+
+function renderLocalOriginWarning(){
+    if(window.location.protocol !== "file:") return;
+    const banner = document.createElement("div");
+    banner.className = "local-origin-banner";
+    banner.innerHTML =
+        "&#9888; You're viewing this from a local file (not the live site). " +
+        "Anything uploaded here stays on this local copy only — it will NOT appear on the live dashboard. " +
+        "Use <strong>Export Database (JSON)</strong> below, then open the live Admin page and use " +
+        "<strong>Import Database (JSON)</strong> to bring this data onto the live site.";
+    document.body.prepend(banner);
 }
 
 function rebuildIndexes(){

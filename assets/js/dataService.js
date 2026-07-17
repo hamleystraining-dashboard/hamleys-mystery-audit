@@ -115,6 +115,27 @@ function addAuditRecord(record){
     return true;
 }
 
+function importDatabase(json){
+    try{
+        const parsed = typeof json === "string" ? JSON.parse(json) : json;
+        if(!parsed || !Array.isArray(parsed.baseStores)){
+            throw new Error("File doesn't look like a Hamleys Mystery Audit database export.");
+        }
+        DataService.storeMaster = parsed.baseStores || [];
+        DataService.retailAudits = (parsed.retailAudits || []).map(reviveAudit);
+        DataService.playAudits = (parsed.playAudits || []).map(reviveAudit);
+        DataService.contacts = parsed.contacts || {};
+        persistData();
+        return {
+            stores: DataService.storeMaster.length,
+            retailAudits: DataService.retailAudits.length,
+            playAudits: DataService.playAudits.length
+        };
+    }catch(err){
+        throw new Error("Import failed: " + err.message);
+    }
+}
+
 /* ==========================================================
    STORE LOOKUP / ENRICHMENT
    ========================================================== */
@@ -583,6 +604,7 @@ window.DataServiceAPI = {
     persistData,
     restoreData,
     clearAllData,
+    importDatabase,
     getLastSavedTimestamp,
     // datasets
     getCurrentDataset,
