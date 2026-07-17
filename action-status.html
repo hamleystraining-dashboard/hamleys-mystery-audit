@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamleys Mystery Audit Intelligence | Action Status</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css?v=1.4.0">
+<link rel="stylesheet" href="assets/css/dashboard.css?v=1.4.0">
+<link rel="stylesheet" href="assets/css/animations.css?v=1.4.0">
+</head>
+<body>
+
+<header class="top-header">
+    <div class="header-left">
+        <img src="assets/images/hamleys-logo.png?v=1.4.0" class="hamleys-logo" alt="Hamleys">
+        <div class="header-title">
+            <h1>Hamleys Mystery Audit Intelligence</h1>
+            <span>Action Status — Below 80 / Below 60</span>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-menu">
+            <button class="nav-item" id="navOverview"><span>🏠</span><span>Overview</span></button>
+            <button class="nav-item" id="navRM"><span>🌏</span><span>RM Wise</span></button>
+            <button class="nav-item" id="navROM"><span>👤</span><span>ROM Wise</span></button>
+            <button class="nav-item" id="navSD"><span>🏬</span><span>SD Wise</span></button>
+            <button class="nav-item" id="navStore"><span>🏪</span><span>Store Wise</span></button>
+            <button class="nav-item" id="navActionStatus"><span>🎯</span><span>Action Status</span></button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <section class="workspace-header">
+            <div>
+                <h2>Action Status</h2>
+                <p class="workspace-subtitle">Stores below performance threshold, and where each one stands in the L&amp;D &rarr; ROM &rarr; HR process</p>
+            </div>
+        </section>
+
+        <section class="filter-bar workspace-filters">
+            <div class="filter-group">
+                <label>Threshold</label>
+                <select id="statusThreshold">
+                    <option value="below80">Below 80</option>
+                    <option value="below60">Below 60</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="kpi-grid">
+            <div class="kpi-card"><span class="summary-number" id="statusTotal">0</span><span>Stores Below Threshold</span></div>
+            <div class="kpi-card"><span class="summary-number" id="statusNotStarted">0</span><span>Not Started</span></div>
+            <div class="kpi-card"><span class="summary-number" id="statusInProgress">0</span><span>In Progress</span></div>
+            <div class="kpi-card"><span class="summary-number" id="statusClosed">0</span><span>Closed</span></div>
+            <div class="kpi-card"><span class="summary-number" id="statusDelayed">0</span><span>Delayed</span></div>
+        </section>
+
+        <section class="table-card mt-20">
+            <h3>Store Status</h3>
+            <table class="data-table" id="statusTable"></table>
+        </section>
+
+    </main>
+</div>
+
+<script src="assets/js/dataService.js?v=1.4.0"></script>
+<script src="assets/js/cases.js?v=1.4.0"></script>
+<script src="assets/js/app.js?v=1.4.0"></script>
+<script src="assets/js/navigation.js?v=1.4.0"></script>
+<script>
+"use strict";
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("statusThreshold").addEventListener("change", render);
+    render();
+});
+
+function render(){
+    const threshold = document.getElementById("statusThreshold").value;
+    const list = DataServiceAPI.getActionStatusList(threshold);
+
+    setText("statusTotal", list.length);
+    setText("statusNotStarted", list.filter(s => s.status === "Not Started").length);
+    setText("statusInProgress", list.filter(s => s.status === "Open" && s.ldDone).length);
+    setText("statusClosed", list.filter(s => s.status === "Closed").length);
+    setText("statusDelayed", list.filter(s => s.romDelayed || s.hrDelayed).length);
+
+    const table = document.getElementById("statusTable");
+    table.innerHTML = `<tr><th>Store</th><th>Score</th><th>RM / ROM / SD</th><th>Pipeline</th><th>Status</th></tr>`;
+
+    if(!list.length){
+        table.innerHTML += `<tr><td colspan="5">No stores currently below ${threshold === "below60" ? "60" : "80"}%.</td></tr>`;
+        return;
+    }
+
+    list.forEach(s => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${escapeHtml(s.storeName)}</td>
+            <td>${s.overall}%</td>
+            <td>${escapeHtml(s.rm||"-")} / ${escapeHtml(s.rom||"-")} / ${escapeHtml(s.sd||"-")}</td>
+            <td>${pipeline(s)}</td>
+            <td><span class="status ${s.status === "Closed" ? "success" : s.status === "Not Started" ? "danger" : "warning"}">${escapeHtml(s.status)}</span></td>
+        `;
+        table.appendChild(row);
+    });
+}
+
+function pipeline(s){
+    const step = (label, done, delayed) => {
+        const cls = done ? "done" : (delayed ? "delayed" : "pending");
+        const icon = done ? "&#10003;" : "&#10007;";
+        return `<span class="pipeline-step ${cls}">${label} ${icon}</span>`;
+    };
+    return `<div class="pipeline">
+        ${step("L&D", s.ldDone, false)}
+        <span class="pipeline-arrow">&rarr;</span>
+        ${step("ROM", s.romDone, s.romDelayed)}
+        <span class="pipeline-arrow">&rarr;</span>
+        ${step("HR", s.hrDone, s.hrDelayed)}
+    </div>`;
+}
+
+function setText(id, value){
+    const el = document.getElementById(id);
+    if(el) el.textContent = value;
+}
+
+function escapeHtml(str){
+    if(str === null || str === undefined) return "";
+    return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+</script>
+
+</body>
+</html>
