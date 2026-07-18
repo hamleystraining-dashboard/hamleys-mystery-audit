@@ -315,3 +315,12 @@ tbody tr:hover { background: var(--line-soft); }
 .field-row label { font-size: 12px; font-weight: 700; color: var(--ink-soft); }
 .small-muted { font-size: 12px; color: var(--ink-faint); }
 .hr { height: 1px; background: var(--line); margin: 16px 0; border: none; }
+
+/* Standalone header (Admin & Cases — no dashboard sidebar) --------------- */
+.standalone-header {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--hamleys-navy);
+  padding: 16px 28px;
+  position: sticky; top: 0; z-index: 30;
+}
+.standalone-main { max-width: 1300px; margin: 0 auto; padding: 26px 28px 60px; }

@@ -21,6 +21,9 @@ const HMAI = (() => {
   let STORE_INDEX = {}; // storeCode -> store
 
   async function loadJSON(path) {
+    if (location.protocol === "file:") {
+      throw new Error("FILE_PROTOCOL");
+    }
     const res = await fetch(path);
     if (!res.ok) throw new Error("Failed to load " + path);
     return res.json();
@@ -179,6 +182,76 @@ const HMAI = (() => {
     return list.slice(0, n || 10);
   }
 
+  // ---- Regional leaderboard (Overview page) --------------------------------
+  // Groups audits by rm / rom / sd and ranks by average score, for a
+  // leadership-level "who's doing well, who isn't" view.
+  function regionalLeaderboard(vertical, groupField, filters) {
+    filters = filters || {};
+    let list = audits(vertical).map(withStoreMeta).filter(a => !a.unmapped);
+    if (filters.from || filters.to) list = list.filter(a => inDateRange(a.date, filters.from, filters.to));
+    const groups = {};
+    list.forEach(a => {
+      const key = a[groupField];
+      if (!key) return;
+      if (!groups[key]) groups[key] = { name: key, audits: [], below80: 0, below60: 0 };
+      groups[key].audits.push(a.score);
+      if (a.score < 80) groups[key].below80++;
+      if (a.score < 60) groups[key].below60++;
+    });
+    const rows = Object.values(groups).map(g => ({
+      name: g.name,
+      avg: Math.round((g.audits.reduce((s, v) => s + v, 0) / g.audits.length) * 10) / 10,
+      count: g.audits.length,
+      below80: g.below80,
+      below60: g.below60,
+    }));
+    rows.sort((a, b) => b.avg - a.avg);
+    return rows;
+  }
+
+  // ---- Trend / SWOT analysis (Trend Data page) ------------------------------
+  // Returns the last `n` audits for a store (chronological, oldest first)
+  // plus a strengths/weaknesses breakdown of its sections over that window.
+  function storeAuditHistory(vertical, storeCode, n) {
+    n = n || 5;
+    const list = audits(vertical)
+      .filter(a => a.storeCode === storeCode)
+      .map(withStoreMeta)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, n)
+      .sort((a, b) => new Date(a.date) - new Date(b.date)); // chronological for charting
+    return list;
+  }
+
+  function sectionSwot(vertical, storeCode, n) {
+    const list = storeAuditHistory(vertical, storeCode, n);
+    if (list.length < 1) return { audits: [], sections: [], strengths: [], weaknesses: [], mostImproved: null, mostDeclined: null };
+
+    const names = sectionNames(vertical);
+    const sections = names.map(name => {
+      const vals = list.map(a => a.sections[name]).filter(v => typeof v === "number");
+      const avgVal = vals.length ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 : null;
+      const first = vals.length ? vals[0] : null;
+      const last = vals.length ? vals[vals.length - 1] : null;
+      const delta = (first !== null && last !== null) ? Math.round((last - first) * 10) / 10 : null;
+      return { name, avg: avgVal, first, last, delta };
+    }).filter(s => s.avg !== null);
+
+    const byAvgDesc = [...sections].sort((a, b) => b.avg - a.avg);
+    const byAvgAsc = [...sections].sort((a, b) => a.avg - b.avg);
+    const byDeltaAsc = [...sections].filter(s => s.delta !== null).sort((a, b) => a.delta - b.delta);
+    const byDeltaDesc = [...sections].filter(s => s.delta !== null).sort((a, b) => b.delta - a.delta);
+
+    return {
+      audits: list,
+      sections,
+      strengths: byAvgDesc.slice(0, 3),
+      weaknesses: byAvgAsc.slice(0, 3),
+      mostImproved: byDeltaDesc.length && byDeltaDesc[0].delta > 0 ? byDeltaDesc[0] : null,
+      mostDeclined: byDeltaAsc.length && byDeltaAsc[0].delta < 0 ? byDeltaAsc[0] : null,
+    };
+  }
+
   // ---- Cases (Page 3) ---------------------------------------------------
   function getCases() {
     return readOverride(LS_KEYS.cases) || [];
@@ -254,9 +327,18 @@ const HMAI = (() => {
     };
   }
 
+  function storesWithAudits(vertical) {
+    return audits(vertical)
+      .map(withStoreMeta)
+      .filter((a, i, arr) => arr.findIndex(x => x.storeCode === a.storeCode) === i)
+      .map(a => ({ storeCode: a.storeCode, storeName: a.storeNameResolved, rm: a.rm, rom: a.rom, sd: a.sd, unmapped: a.unmapped }))
+      .sort((a, b) => a.storeName.localeCompare(b.storeName));
+  }
+
   return {
     LS_KEYS, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
     mtd, avg, sectionAverages, filterAudits, uniqueValues, cascadingValues, latestPerStore,
+    regionalLeaderboard, storeAuditHistory, sectionSwot, storesWithAudits,
     getCases, saveCases, caseKey, syncCasesFromAudits, updateCase, addCaseHistory,
     saveOverride, exportAllData, get STORES() { return STORES; }, get RETAIL() { return RETAIL; }, get PLAY() { return PLAY; }
   };
