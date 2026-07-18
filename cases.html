@@ -117,6 +117,7 @@
   </div>
 </div>
 
+<script src="assets/js/auth.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/ui.js"></script>
 <script>
@@ -124,7 +125,8 @@ let vertical = "retail";
 let activeCaseKey = null;
 
 async function boot() {
-  renderSidebar("cases.html");
+  await requireAccess("Cases — L&D / ROM / HRBP Only");
+  renderSidebar("cases.html", true);
   await HMAI.init();
   HMAI.syncCasesFromAudits();
 
@@ -137,11 +139,15 @@ async function boot() {
       render();
     });
   });
-  ["fRm","fRom","fSd","fFrom","fTo","fStage"].forEach(id => {
+  document.getElementById("fRm").addEventListener("change", () => { onHierarchyChange("rm"); render(); });
+  document.getElementById("fRom").addEventListener("change", () => { onHierarchyChange("rom"); render(); });
+  document.getElementById("fSd").addEventListener("change", () => { onHierarchyChange("sd"); render(); });
+  ["fFrom","fTo","fStage"].forEach(id => {
     document.getElementById(id).addEventListener("change", render);
   });
   document.getElementById("clearAll").addEventListener("click", () => {
     ["fRm","fRom","fSd","fFrom","fTo","fStage"].forEach(id => document.getElementById(id).value = "");
+    populateFilterOptions();
     render();
   });
 
@@ -154,9 +160,26 @@ async function boot() {
 }
 
 function populateFilterOptions() {
-  fillSelect(document.getElementById("fRm"), HMAI.uniqueValues(vertical, "rm"), "All RMs");
-  fillSelect(document.getElementById("fRom"), HMAI.uniqueValues(vertical, "rom"), "All ROMs");
-  fillSelect(document.getElementById("fSd"), HMAI.uniqueValues(vertical, "sd"), "All SDs");
+  fillSelect(document.getElementById("fRm"), HMAI.cascadingValues(vertical, "rm", {}), "All RMs");
+  fillSelect(document.getElementById("fRom"), HMAI.cascadingValues(vertical, "rom", {}), "All ROMs");
+  fillSelect(document.getElementById("fSd"), HMAI.cascadingValues(vertical, "sd", {}), "All SDs");
+}
+
+function onHierarchyChange(changedLevel) {
+  const rm = document.getElementById("fRm").value || null;
+  const rom = document.getElementById("fRom").value || null;
+  if (changedLevel === "rm") {
+    const romOpts = HMAI.cascadingValues(vertical, "rom", { rm });
+    fillSelect(document.getElementById("fRom"), romOpts, "All ROMs");
+    if (rom && !romOpts.includes(rom)) document.getElementById("fRom").value = "";
+    const sdOpts = HMAI.cascadingValues(vertical, "sd", { rm, rom: document.getElementById("fRom").value || null });
+    fillSelect(document.getElementById("fSd"), sdOpts, "All SDs");
+    document.getElementById("fSd").value = "";
+  } else if (changedLevel === "rom") {
+    const sdOpts = HMAI.cascadingValues(vertical, "sd", { rm, rom });
+    fillSelect(document.getElementById("fSd"), sdOpts, "All SDs");
+    document.getElementById("fSd").value = "";
+  }
 }
 
 function currentFilters() {
@@ -202,7 +225,7 @@ function render() {
       actionBtn = `<span class="small-muted">✔ ${fmtDate(c.history[c.history.length-1]?.at)}</span>`;
     }
     return `<tr>
-      <td><strong>${c.storeName}</strong><div class="small-muted">${c.storeCode}</div></td>
+      <td><strong>${c.storeName}</strong>${c.unmapped ? ' <span class="tag warn">Unmapped</span>' : ''}<div class="small-muted">${c.storeCode}</div></td>
       <td>${scorePill(c.score)}</td>
       <td>${fmtDate(c.date)}</td>
       <td>${c.rm}</td><td>${c.rom}</td><td>${c.sd}</td>

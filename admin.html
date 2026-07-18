@@ -88,13 +88,15 @@
 
   </main>
 </div>
+<script src="assets/js/auth.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/ui.js"></script>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 async function boot() {
-  renderSidebar("admin.html");
+  await requireAccess("Admin — L&D Team Only");
+  renderSidebar("admin.html", true);
   await HMAI.init();
   refreshCounts();
 

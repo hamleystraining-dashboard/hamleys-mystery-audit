@@ -29,59 +29,68 @@ published free on GitHub Pages** and shared publicly / internally as a link.
 Every time you update `assets/data/*.json` (see the Admin workflow below) and
 push, GitHub Pages redeploys automatically within ~1 minute.
 
-## 2. Should Admin & Cases be public too?
+## 2. Who can access what
 
-**No — recommended split:**
+**Public (no login):** `index.html`, `cohort.html` — these read-only pages
+are the ones to link publicly. Their sidebar doesn't even show Admin/Cases,
+so casual visitors never see those exist.
 
-| Page | Who | Where |
-|---|---|---|
-| Overview + Cohort (`index.html`, `cohort.html`) | Everyone (public link) | GitHub Pages |
-| Admin (`admin.html`) | L&D team only | **Local file, or a private/internal link** |
-| Cases (`cases.html`) | L&D + ROMs + HRBP | **Private/internal link**, not the public GitHub Pages URL |
+**Gated (shared password):** `admin.html`, `cases.html` — both are in the
+same repo (GitHub Pages doesn't let you host part of a repo privately), but
+each is now behind a **password screen** (`assets/js/auth.js`) using one
+shared password for L&D, ROMs, and HRBP, as requested. Once someone enters
+it, their browser tab stays unlocked for that session; the two pages' nav
+also only reveal each other, not the public pages' "hidden" sibling issue —
+they're always linked from the sidebar regardless.
 
-Why: GitHub Pages is a static file host — it can't authenticate users, run a
-database, or send email. `admin.html` and `cases.html` currently persist
-their state (uploaded data, case stage, defaulter names) to the **browser's
-local storage**, which is fine for one person working locally, but:
+**Change the password before relying on this:** open any browser console
+and run
+```js
+crypto.subtle.digest("SHA-256", new TextEncoder().encode("your-new-password"))
+  .then(b => console.log(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("")))
+```
+then paste the printed hash into `ACCESS_HASH` in `assets/js/auth.js`. The
+default password is `hamleys2026` — change it.
 
-- it won't sync between an L&D teammate's laptop, a ROM's laptop, and an
-  HRBP's laptop — everyone would see a different, disconnected copy of the
-  case list;
-- there's no real email sending yet — the "Notify ROM" / "Notify HRBP"
-  buttons currently just move the case to the next stage and show a
-  confirmation toast, as a placeholder for the real trigger.
-
-**Two ways to fix this, in order of effort:**
-
-1. **Quickest for now (what's shipped today):** run `admin.html` locally by
-   opening the file directly in a browser (or serving the folder with
-   `python -m http.server` and sharing that link only inside the office
-   network / VPN). Use it, click **Export updated dataset**, commit the
-   downloaded JSON files into `assets/data/`, and push — that refreshes the
-   public Overview & Cohort pages. Good for a single L&D owner managing
-   uploads centrally.
-2. **Recommended once you're ready for multi-user Cases (ROM + HRBP need to
-   use it too), and real email:** point Admin & Cases at a small shared
-   backend instead of localStorage — the cheapest is a **Google Sheet +
-   Apps Script Web App** (free, no server to maintain, and Apps Script can
-   send the ROM/HRBP emails directly via `MailApp`). The two files
-   (`admin.html`, `cases.html`) would swap their `localStorage` calls for
-   `fetch()` calls to your Apps Script URL — the rest of the UI stays the
-   same. Happy to build that next once you confirm this is the direction;
-   it's a self-contained follow-up and doesn't require touching the public
-   Page 1 dashboard at all.
+**Be clear-eyed about what this is and isn't.** This is a deterrent, not
+real security: the hash lives in a public JS file, so anyone determined
+enough could try to crack it offline, and there's no way to tell L&D, ROM,
+and HRBP users apart or revoke one person's access without changing the
+password for everyone. It stops the "someone stumbles on the link" case,
+not a targeted attempt. For real per-person login (and to let Cases sync
+live between an L&D laptop, a ROM's laptop, and HRBP's laptop instead of
+each seeing their own browser's local storage), move Admin & Cases to a
+**Google Sheet + Apps Script Web App** — free, no server to maintain, and
+Apps Script can also send the ROM/HRBP emails directly via `MailApp`. The
+two files would swap their `localStorage` calls for `fetch()` calls to your
+Apps Script URL; the UI stays the same. Say the word and I'll build that
+next — it's a self-contained follow-up that doesn't touch the public pages.
 
 ## 3. Data files
 
-`assets/data/*.json` were generated from the files you shared:
+`assets/data/*.json` were generated from the files you shared **and are
+already live in this build** — you don't need to re-upload anything through
+Admin to see your real data; Overview and Cohort are populated from these
+files out of the box:
 
-- `stores.json` ← `Base_Store_Data_July_2026.xlsx` (Store Name, Store Code, ROM, SD, RM)
-- `retail_audits.json` ← `Mystery_Audit_Scores_2025-26_Section_wise.xlsx`
-- `play_audits.json` ← `Hamleys_PLAY_Audit_Historic_Data_with_Section_wise_scores.xlsx`
+- `stores.json` ← `Base_Store_Data_July_2026.xlsx` (125 stores: Store Name, Store Code, ROM, SD, RM)
+- `retail_audits.json` ← `Mystery_Audit_Scores_2025-26_Section_wise.xlsx` (459 Retail audits)
+- `play_audits.json` ← `Hamleys_PLAY_Audit_Historic_Data_with_Section_wise_scores.xlsx` (43 Play audits)
 
-To refresh with new data:
-- **Bulk historical reload** → Admin page → "Historical Audit Data" upload (pick Retail or Play), matching the same column layout as the files above.
-- **Single new audit** → Admin page → "Upload Audit PDF Report". This parses the section score table from the PDF (tested against the Retail and PLAY sample report formats you provided) and adds it as a new audit. PDF layouts vary a little between waves, so **always check the "Sections parsed" preview** after upload — if a section looks missing, add it manually by editing the exported JSON.
+**"Unmapped" stores:** 28 Retail audit rows reference store codes (mostly
+airport kiosks — e.g. `THP0` Puda Multiplex Jalandhar, `TPV4` Bangalore
+Airport, `TZKZ`/`TZKY` Guwahati Airport) that don't exist in
+`Base_Store_Data_July_2026.xlsx`. Rather than hiding them, they show up
+tagged **"Unmapped"** everywhere (Cohort table, Cases, Overview tracker) —
+their real store name still shows, but RM/ROM/SD show as "Unmapped" since
+there's nothing to map them to, and they're correctly excluded from
+RM/ROM/SD filter results (since filtering by an RM can't include a store
+with no RM). Add these 28 store codes to Base Store Data via Admin (or
+directly in the source Excel + re-export) to resolve them.
+
+Only re-upload through Admin when you have **new or corrected** data:
+- **Bulk historical reload** → Admin → "Historical Audit Data" upload (pick Retail or Play), matching the same column layout as the files above.
+- **Single new audit** → Admin → "Upload Audit PDF Report". This parses the section score table from the PDF (tested against the Retail and PLAY sample report formats you provided) and adds it as a new audit. PDF layouts vary a little between waves, so **always check the "Sections parsed" preview** after upload — if a section looks missing, add it manually by editing the exported JSON.
 - Either way, finish with **Export updated dataset** and commit the 3 JSON files.
 
 ## 4. Cases workflow (Page 3)

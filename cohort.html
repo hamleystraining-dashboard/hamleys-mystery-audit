@@ -72,7 +72,7 @@ let sortKey = "date", sortDir = -1;
 let defaultView = true; // latest-10 mode until a filter is touched
 
 async function boot() {
-  renderSidebar("cohort.html");
+  renderSidebar("cohort.html", false);
   await HMAI.init();
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
@@ -85,7 +85,10 @@ async function boot() {
     });
   });
 
-  ["fRm","fRom","fSd","fStore","fFrom","fTo"].forEach(id => {
+  document.getElementById("fRm").addEventListener("change", () => { onHierarchyChange("rm"); defaultView = false; render(); });
+  document.getElementById("fRom").addEventListener("change", () => { onHierarchyChange("rom"); defaultView = false; render(); });
+  document.getElementById("fSd").addEventListener("change", () => { onHierarchyChange("sd"); defaultView = false; render(); });
+  ["fStore","fFrom","fTo"].forEach(id => {
     document.getElementById(id).addEventListener("change", () => { defaultView = false; render(); });
   });
   document.querySelectorAll(".chip-toggle button").forEach(b => {
@@ -99,6 +102,7 @@ async function boot() {
   });
   document.getElementById("clearAll").addEventListener("click", () => {
     ["fRm","fRom","fSd","fStore","fFrom","fTo"].forEach(id => document.getElementById(id).value = "");
+    populateFilterOptions();
     threshold = "all";
     document.querySelectorAll(".chip-toggle button").forEach(x => x.classList.remove("active"));
     document.querySelector(".chip-toggle button[data-t=all]").classList.add("active");
@@ -117,12 +121,43 @@ async function boot() {
   render();
 }
 
+// Populates every level fresh from scratch (used on load / vertical switch / clear-all).
 function populateFilterOptions() {
-  fillSelect(document.getElementById("fRm"), HMAI.uniqueValues(vertical, "rm"), "All RMs");
-  fillSelect(document.getElementById("fRom"), HMAI.uniqueValues(vertical, "rom"), "All ROMs");
-  fillSelect(document.getElementById("fSd"), HMAI.uniqueValues(vertical, "sd"), "All SDs");
-  const storeNames = Array.from(new Set(HMAI.audits(vertical).map(a => HMAI.storeMeta(a.storeCode).storeName || a.storeName))).sort();
-  fillSelect(document.getElementById("fStore"), storeNames, "All Stores");
+  fillSelect(document.getElementById("fRm"), HMAI.cascadingValues(vertical, "rm", {}), "All RMs");
+  fillSelect(document.getElementById("fRom"), HMAI.cascadingValues(vertical, "rom", {}), "All ROMs");
+  fillSelect(document.getElementById("fSd"), HMAI.cascadingValues(vertical, "sd", {}), "All SDs");
+  fillSelect(document.getElementById("fStore"), HMAI.cascadingValues(vertical, "storeName", {}), "All Stores");
+}
+
+// Re-narrows the options below the level that just changed, keeping their
+// current selection if it's still valid, and clears anything that isn't.
+function onHierarchyChange(changedLevel) {
+  const rm = document.getElementById("fRm").value || null;
+  const rom = document.getElementById("fRom").value || null;
+  const sd = document.getElementById("fSd").value || null;
+
+  if (changedLevel === "rm") {
+    const romOpts = HMAI.cascadingValues(vertical, "rom", { rm });
+    fillSelect(document.getElementById("fRom"), romOpts, "All ROMs");
+    if (rom && !romOpts.includes(rom)) document.getElementById("fRom").value = "";
+    const sdOpts = HMAI.cascadingValues(vertical, "sd", { rm, rom: document.getElementById("fRom").value || null });
+    fillSelect(document.getElementById("fSd"), sdOpts, "All SDs");
+    document.getElementById("fSd").value = "";
+    const storeOpts = HMAI.cascadingValues(vertical, "storeName", { rm });
+    fillSelect(document.getElementById("fStore"), storeOpts, "All Stores");
+    document.getElementById("fStore").value = "";
+  } else if (changedLevel === "rom") {
+    const sdOpts = HMAI.cascadingValues(vertical, "sd", { rm, rom });
+    fillSelect(document.getElementById("fSd"), sdOpts, "All SDs");
+    if (sd && !sdOpts.includes(sd)) document.getElementById("fSd").value = "";
+    const storeOpts = HMAI.cascadingValues(vertical, "storeName", { rm, rom });
+    fillSelect(document.getElementById("fStore"), storeOpts, "All Stores");
+    document.getElementById("fStore").value = "";
+  } else if (changedLevel === "sd") {
+    const storeOpts = HMAI.cascadingValues(vertical, "storeName", { rm, rom, sd });
+    fillSelect(document.getElementById("fStore"), storeOpts, "All Stores");
+    document.getElementById("fStore").value = "";
+  }
 }
 
 function currentFilters() {
@@ -165,7 +200,7 @@ function render() {
   document.getElementById("tableBody").innerHTML = list.map(a => `
     <tr>
       <td>${fmtDate(a.date)}</td>
-      <td><strong>${a.storeNameResolved}</strong></td>
+      <td><strong>${a.storeNameResolved}</strong>${a.unmapped ? ' <span class="tag warn" title="Store code not found in Base Store Data — RM/ROM/SD unknown">Unmapped</span>' : ''}</td>
       <td class="small-muted">${a.storeCode}</td>
       <td>${scorePill(a.score)}</td>
       <td>${a.rm}</td>

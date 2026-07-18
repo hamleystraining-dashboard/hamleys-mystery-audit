@@ -98,7 +98,7 @@ let vertical = "retail";
 let chartSection, chartDist;
 
 async function boot() {
-  renderSidebar("index.html");
+  renderSidebar("index.html", false);
   await HMAI.init();
   HMAI.syncCasesFromAudits();
 
@@ -228,7 +228,7 @@ function renderTracker() {
       return `<div class="step ${cls}"><div class="bar"></div>${s}</div>`;
     }).join("") + `</div>`;
     return `<tr>
-      <td><strong>${c.storeName}</strong><div class="small-muted">${c.storeCode}</div></td>
+      <td><strong>${c.storeName}</strong>${c.unmapped ? ' <span class="tag warn">Unmapped</span>' : ''}<div class="small-muted">${c.storeCode}</div></td>
       <td>${c.vertical === "play" ? "Play" : "Retail"}</td>
       <td>${scorePill(c.score)}</td>
       <td>${fmtDate(c.date)}</td>
