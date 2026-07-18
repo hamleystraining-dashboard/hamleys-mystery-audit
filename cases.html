@@ -7,9 +7,7 @@
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-<div class="app-shell">
-  <nav class="sidebar"></nav>
-  <main class="main">
+<div class="standalone-main">
     <div class="topbar">
       <div>
         <h1 class="page-title">Cases</h1>
@@ -55,14 +53,14 @@
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Store</th><th>Score</th><th>Audit Date</th><th>RM</th><th>ROM</th><th>SD</th><th>Stage</th><th style="min-width:230px;">Action</th>
+            <th>Store</th><th>Score</th><th>Audit Date</th><th>RM</th><th>ROM</th><th>SD</th><th>Stage</th><th style="min-width:230px;">Action</th><th>Trend</th>
           </tr></thead>
           <tbody id="tableBody"></tbody>
         </table>
       </div>
     </div>
 
-  </main>
+
 </div>
 
 <!-- L&D trigger confirm modal -->
@@ -126,8 +124,13 @@ let activeCaseKey = null;
 
 async function boot() {
   await requireAccess("Cases — L&D / ROM / HRBP Only");
-  renderSidebar("cases.html", true);
-  await HMAI.init();
+  renderStandaloneHeader("Cases", "L&D \u2192 ROM \u2192 HRBP escalation workflow");
+  try {
+    await HMAI.init();
+  } catch (err) {
+    showLoadError(err);
+    return;
+  }
   HMAI.syncCasesFromAudits();
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
@@ -231,6 +234,7 @@ function render() {
       <td>${c.rm}</td><td>${c.rom}</td><td>${c.sd}</td>
       <td><span class="tag ${cls}">${label}</span></td>
       <td>${actionBtn}</td>
+      <td><a class="btn btn-ghost btn-sm" href="trend.html?store=${encodeURIComponent(c.storeCode)}&v=${c.vertical}" target="_blank">View</a></td>
     </tr>`;
   }).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:30px;">No cases match these filters</td></tr>`;
 }

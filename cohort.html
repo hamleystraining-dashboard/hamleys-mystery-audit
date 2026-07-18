@@ -55,6 +55,7 @@
             <th data-k="rom">ROM</th>
             <th data-k="sd">SD</th>
             <th data-k="wave">Wave</th>
+            <th>Trend</th>
           </tr></thead>
           <tbody id="tableBody"></tbody>
         </table>
@@ -73,7 +74,14 @@ let defaultView = true; // latest-10 mode until a filter is touched
 
 async function boot() {
   renderSidebar("cohort.html", false);
-  await HMAI.init();
+  try {
+    await HMAI.init();
+  } catch (err) {
+    showLoadError(err);
+    return;
+  }
+
+  applyUrlParams();
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
     b.addEventListener("click", () => {
@@ -119,6 +127,23 @@ async function boot() {
 
   populateFilterOptions();
   render();
+}
+
+function applyUrlParams() {
+  const params = new URLSearchParams(location.search);
+  const v = params.get("v");
+  if (v === "retail" || v === "play") {
+    vertical = v;
+    document.querySelectorAll("#verticalToggle button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
+  }
+  const rm = params.get("rm"), rom = params.get("rom"), sd = params.get("sd");
+  if (rm || rom || sd) {
+    populateFilterOptions();
+    if (rm) { document.getElementById("fRm").value = rm; onHierarchyChange("rm"); }
+    if (rom) { document.getElementById("fRom").value = rom; onHierarchyChange("rom"); }
+    if (sd) { document.getElementById("fSd").value = sd; onHierarchyChange("sd"); }
+    defaultView = false;
+  }
 }
 
 // Populates every level fresh from scratch (used on load / vertical switch / clear-all).
@@ -207,7 +232,8 @@ function render() {
       <td>${a.rom}</td>
       <td>${a.sd}</td>
       <td class="small-muted">${a.wave || "—"}</td>
-    </tr>`).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:30px;">No audits match these filters</td></tr>`;
+      <td><a class="btn btn-ghost btn-sm" href="trend.html?store=${encodeURIComponent(a.storeCode)}&v=${vertical}">View</a></td>
+    </tr>`).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:30px;">No audits match these filters</td></tr>`;
 }
 
 boot();

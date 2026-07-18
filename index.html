@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Overview · Hamleys Mystery Audit Intelligence</title>
 <link rel="stylesheet" href="assets/css/style.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="app-shell">
@@ -14,7 +13,7 @@
     <div class="topbar">
       <div>
         <h1 class="page-title">Overview</h1>
-        <div class="page-sub">India-wide Mystery Audit performance, MTD &amp; trend</div>
+        <div class="page-sub">India-wide Mystery Audit performance for leadership</div>
       </div>
       <div class="seg-toggle" id="verticalToggle">
         <button data-v="retail" class="active retail">Retail</button>
@@ -37,7 +36,7 @@
 
     <div class="grid kpi-row">
       <div class="kpi-card kpi-1">
-        <div class="lbl" id="kpiVerticalLabel">Retail · India Avg (MTD)</div>
+        <div class="lbl" id="kpiVerticalLabel">India Average</div>
         <div class="val" id="kpiMtdAvg">—</div>
         <div class="foot" id="kpiMtdFoot">—</div>
       </div>
@@ -61,16 +60,27 @@
     <div class="two-col">
       <div class="card">
         <div class="section-head">
-          <h3 id="sectionChartTitle">Section-wise Average Scores</h3>
+          <h3>Section-wise Average Scores</h3>
           <span class="tag neutral" id="sectionChartTag">All sections</span>
         </div>
-        <canvas id="sectionChart" height="230"></canvas>
+        <div id="sectionBars"></div>
       </div>
       <div class="card">
         <div class="section-head">
-          <h3>Score Distribution</h3>
+          <h3>Regional Performance</h3>
+          <div class="chip-toggle" id="regionToggle">
+            <button data-g="rm" class="active">RM</button>
+            <button data-g="rom">ROM</button>
+            <button data-g="sd">SD</button>
+          </div>
         </div>
-        <canvas id="distChart" height="230"></canvas>
+        <div class="table-wrap" style="max-height:290px; overflow-y:auto;">
+          <table>
+            <thead><tr><th>Name</th><th>Avg</th><th>Audits</th><th>&lt;80</th></tr></thead>
+            <tbody id="regionBody"></tbody>
+          </table>
+        </div>
+        <p class="small-muted" style="margin-top:10px;">Top 3 highlighted green, bottom 3 red. Click a row to drill into Store Cohort.</p>
       </div>
     </div>
 
@@ -82,7 +92,7 @@
       <div class="table-wrap" id="trackerTableWrap">
         <table>
           <thead><tr>
-            <th>Store</th><th>Vertical</th><th>Score</th><th>Date</th><th>RM</th><th>ROM</th><th>SD</th><th style="min-width:260px;">Process Stage</th>
+            <th>Store</th><th>Vertical</th><th>Score</th><th>Date</th><th>RM</th><th>ROM</th><th>SD</th><th style="min-width:260px;">Process Stage</th><th>Trend</th>
           </tr></thead>
           <tbody id="trackerBody"></tbody>
         </table>
@@ -91,21 +101,35 @@
 
   </main>
 </div>
+<script src="assets/js/auth.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/ui.js"></script>
 <script>
 let vertical = "retail";
-let chartSection, chartDist;
+let regionGroup = "rm";
 
 async function boot() {
-  renderSidebar("index.html", false);
-  await HMAI.init();
+  renderSidebar("index.html");
+  try {
+    await HMAI.init();
+  } catch (err) {
+    showLoadError(err);
+    return;
+  }
   HMAI.syncCasesFromAudits();
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
     b.addEventListener("click", () => {
       vertical = b.dataset.v;
       document.querySelectorAll("#verticalToggle button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      render();
+    });
+  });
+  document.querySelectorAll("#regionToggle button").forEach(b => {
+    b.addEventListener("click", () => {
+      regionGroup = b.dataset.g;
+      document.querySelectorAll("#regionToggle button").forEach(x => x.classList.remove("active"));
       b.classList.add("active");
       render();
     });
@@ -131,7 +155,7 @@ function currentFilters() {
 function render() {
   const filters = currentFilters();
   const label = vertical === "play" ? "Play" : "Retail";
-  document.getElementById("kpiVerticalLabel").textContent = `${label} · India Avg (Selected Range)`;
+  document.getElementById("kpiVerticalLabel").textContent = `${label} · India Average`;
   document.querySelector(".seg-toggle").querySelectorAll("button").forEach(b => {
     b.classList.toggle("active", b.dataset.v === vertical);
   });
@@ -152,74 +176,60 @@ function render() {
   document.getElementById("kpiBelow80").textContent = list.filter(a => a.score < 80).length;
   document.getElementById("kpiBelow60").textContent = list.filter(a => a.score < 60).length;
 
-  renderSectionChart(list);
-  renderDistChart(list);
+  renderSectionBars(list);
+  renderRegionalTable(filters);
   renderTracker();
 }
 
-function renderSectionChart(list) {
-  const sections = HMAI.sectionAverages(list, vertical);
-  const labels = Object.keys(sections);
-  const values = labels.map(l => sections[l]);
-  const colors = ["#E31E2B","#00B2A9","#FFC72C","#7B5CFA","#FF5C8A","#101A3D","#1F9E63","#E8A200","#5B3FE0","#009088","#B8121D","#C21620"];
-
+function renderSectionBars(list) {
   document.getElementById("sectionChartTag").textContent = vertical === "play" ? "PLAY sections" : "Retail sections";
-
-  const ctx = document.getElementById("sectionChart");
-  if (chartSection) chartSection.destroy();
-  chartSection = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: labels.map(l => l.length > 18 ? l.slice(0,18)+"…" : l),
-      datasets: [{
-        data: values,
-        backgroundColor: labels.map((_, i) => colors[i % colors.length]),
-        borderRadius: 6,
-        maxBarThickness: 34,
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false }, tooltip: { callbacks: { title: (items) => labels[items[0].dataIndex] } } },
-      scales: { y: { beginAtZero: true, max: 100, grid: { color: "#F0EDE3" } }, x: { grid: { display: false } } },
-      responsive: true,
-    }
-  });
+  const sections = HMAI.sectionAverages(list, vertical);
+  const colors = ["#E31E2B","#00B2A9","#FFC72C","#7B5CFA","#FF5C8A","#101A3D","#1F9E63","#E8A200","#5B3FE0","#009088","#B8121D","#C21620","#3E8E7E","#D14081"];
+  const entries = Object.entries(sections).filter(([,v]) => v !== null);
+  const wrap = document.getElementById("sectionBars");
+  if (!entries.length) { wrap.innerHTML = `<p class="small-muted">No section data in this range.</p>`; return; }
+  wrap.innerHTML = entries.map(([name, val], i) => {
+    const color = colors[i % colors.length];
+    const tagCls = val < 60 ? "bad" : val < 80 ? "warn" : "good";
+    return `
+    <div style="margin-bottom:12px;">
+      <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:4px;">
+        <span style="color:var(--ink-soft); font-weight:600;">${name}</span>
+        <span class="tag ${tagCls}" style="padding:1px 8px;">${val}%</span>
+      </div>
+      <div style="background:var(--line-soft); border-radius:6px; height:10px; overflow:hidden;">
+        <div style="width:${Math.max(val,2)}%; height:100%; background:${color}; border-radius:6px;"></div>
+      </div>
+    </div>`;
+  }).join("");
 }
 
-function renderDistChart(list) {
-  const buckets = { "< 60": 0, "60–79": 0, "80–89": 0, "90–100": 0 };
-  list.forEach(a => {
-    if (a.score < 60) buckets["< 60"]++;
-    else if (a.score < 80) buckets["60–79"]++;
-    else if (a.score < 90) buckets["80–89"]++;
-    else buckets["90–100"]++;
-  });
-  const ctx = document.getElementById("distChart");
-  if (chartDist) chartDist.destroy();
-  chartDist = new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: Object.keys(buckets),
-      datasets: [{
-        data: Object.values(buckets),
-        backgroundColor: ["#E31E2B", "#FFC72C", "#00B2A9", "#1F9E63"],
-        borderWidth: 3, borderColor: "#fff",
-      }]
-    },
-    options: { plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } }, cutout: "62%" }
-  });
+function renderRegionalTable(filters) {
+  const rows = HMAI.regionalLeaderboard(vertical, regionGroup, filters);
+  const body = document.getElementById("regionBody");
+  if (!rows.length) { body.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--ink-faint);padding:20px;">No data</td></tr>`; return; }
+  body.innerHTML = rows.map((r, i) => {
+    const isTop = i < 3;
+    const isBottom = i >= rows.length - 3 && rows.length > 3;
+    const rowStyle = isTop ? "background:var(--good-bg);" : isBottom ? "background:var(--bad-bg);" : "";
+    const cls = HMAI.scoreTag(r.avg).cls;
+    return `<tr style="${rowStyle} cursor:pointer;" onclick="location.href='cohort.html?${regionGroup}='+encodeURIComponent('${r.name.replace(/'/g,"\\'")}')+'&v=${vertical}'">
+      <td><strong>${r.name}</strong></td>
+      <td><span class="tag ${cls}" style="padding:2px 9px;">${r.avg}%</span></td>
+      <td>${r.count}</td>
+      <td>${r.below80}</td>
+    </tr>`;
+  }).join("");
 }
 
 function renderTracker() {
   const cases = HMAI.getCases().filter(c => c.vertical === vertical).sort((a,b) => new Date(b.date) - new Date(a.date));
   const body = document.getElementById("trackerBody");
   if (!cases.length) {
-    body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:30px;">No stores below 80 in this vertical right now 🎉</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:30px;">No stores below 80 in this vertical right now 🎉</td></tr>`;
     return;
   }
-  const stageMeta = {
-    flagged: 0, ld_triggered: 1, rom_submitted: 2, hrbp_closed: 3
-  };
+  const stageMeta = { flagged: 0, ld_triggered: 1, rom_submitted: 2, hrbp_closed: 3 };
   body.innerHTML = cases.map(c => {
     const stage = stageMeta[c.stage] ?? 0;
     const steps = ["Flagged", "L&D Stage", "ROM Stage", "HRBP Closed"];
@@ -234,6 +244,7 @@ function renderTracker() {
       <td>${fmtDate(c.date)}</td>
       <td>${c.rm}</td><td>${c.rom}</td><td>${c.sd}</td>
       <td>${trackerHtml}</td>
+      <td><a class="btn btn-ghost btn-sm" href="trend.html?store=${encodeURIComponent(c.storeCode)}&v=${c.vertical}">View</a></td>
     </tr>`;
   }).join("");
 }

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trend Data · Hamleys Mystery Audit Intelligence</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar"></nav>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Trend Data</h1>
+        <div class="page-sub">Pick a store to see its last 5 audits and where it's winning or losing marks</div>
+      </div>
+      <div class="seg-toggle" id="verticalToggle">
+        <button data-v="retail" class="active retail">Retail</button>
+        <button data-v="play" class="play">Play</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-field"><label>RM</label><select id="fRm"></select></div>
+      <div class="filter-field"><label>ROM</label><select id="fRom"></select></div>
+      <div class="filter-field"><label>SD</label><select id="fSd"></select></div>
+      <div class="filter-field" style="min-width:220px;"><label>Store</label><select id="fStore"></select></div>
+      <button class="filter-clear" id="clearAll" style="margin-left:auto;">Clear</button>
+    </div>
+
+    <div id="emptyState" class="card empty-state">
+      <div class="ic">📈</div>
+      <h3 style="margin-bottom:6px;">Pick a store to see its trend</h3>
+      <p class="small-muted">Use the filters above, or click "View" next to any store on Overview or Store Cohort.</p>
+    </div>
+
+    <div id="trendContent" style="display:none;">
+      <div class="two-col" style="grid-template-columns: 1.3fr 1fr;">
+        <div class="card">
+          <div class="section-head">
+            <h3 id="storeTitle">Store</h3>
+            <span class="tag neutral" id="storeSub"></span>
+          </div>
+          <div id="trendSvgWrap"></div>
+        </div>
+        <div class="card">
+          <div class="section-head"><h3>Snapshot</h3></div>
+          <div class="grid" style="grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="kpi-card kpi-1" style="min-height:80px;"><div class="lbl">Latest Score</div><div class="val" id="kLatest" style="font-size:24px;">—</div></div>
+            <div class="kpi-card kpi-2" style="min-height:80px;"><div class="lbl">Vs Previous</div><div class="val" id="kDelta" style="font-size:24px;">—</div></div>
+          </div>
+          <hr class="hr">
+          <div class="small-muted">RM: <strong id="mRm">—</strong> &middot; ROM: <strong id="mRom">—</strong> &middot; SD: <strong id="mSd">—</strong></div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-top:18px;">
+        <div class="card" style="border-color:#CFEFDD;">
+          <div class="section-head"><h3 style="color:var(--good);">💪 Strengths</h3><span class="tag good">Top sections</span></div>
+          <div id="strengthsList"></div>
+        </div>
+        <div class="card" style="border-color:#F3C6C6;">
+          <div class="section-head"><h3 style="color:var(--hamleys-red);">⚠ Areas of Concern</h3><span class="tag bad">Lowest sections</span></div>
+          <div id="weaknessesList"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <div class="section-head">
+          <h3>Section Scores — Last 5 Audits</h3>
+          <span class="small-muted" id="auditCountNote"></span>
+        </div>
+        <div class="table-wrap">
+          <table id="matrixTable"></table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+let vertical = "retail";
+let selectedStore = null;
+
+async function boot() {
+  renderSidebar("trend.html", false);
+  try {
+    await HMAI.init();
+  } catch (err) {
+    showLoadError(err);
+    return;
+  }
+
+  document.querySelectorAll("#verticalToggle button").forEach(b => {
+    b.addEventListener("click", () => {
+      vertical = b.dataset.v;
+      document.querySelectorAll("#verticalToggle button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      selectedStore = null;
+      populateFilterOptions();
+      renderStoreSelectOnly();
+      showEmpty();
+    });
+  });
+  document.getElementById("fRm").addEventListener("change", () => onHierarchyChange("rm"));
+  document.getElementById("fRom").addEventListener("change", () => onHierarchyChange("rom"));
+  document.getElementById("fSd").addEventListener("change", () => onHierarchyChange("sd"));
+  document.getElementById("fStore").addEventListener("change", () => {
+    const code = document.getElementById("fStore").value;
+    if (code) { selectedStore = code; renderTrend(); } else { showEmpty(); }
+  });
+  document.getElementById("clearAll").addEventListener("click", () => {
+    ["fRm","fRom","fSd","fStore"].forEach(id => document.getElementById(id).value = "");
+    populateFilterOptions();
+    selectedStore = null;
+    showEmpty();
+  });
+
+  applyUrlParams();
+  populateFilterOptions();
+  if (selectedStore) {
+    document.getElementById("fStore").value = selectedStore;
+    renderTrend();
+  }
+}
+
+function applyUrlParams() {
+  const params = new URLSearchParams(location.search);
+  const v = params.get("v");
+  if (v === "retail" || v === "play") vertical = v;
+  document.querySelectorAll("#verticalToggle button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
+  const store = params.get("store");
+  if (store) selectedStore = store;
+}
+
+function storeNameFor(code) {
+  const s = HMAI.storesWithAudits(vertical).find(x => x.storeCode === code);
+  return s ? s.storeName : "";
+}
+
+function populateFilterOptions() {
+  fillSelect(document.getElementById("fRm"), HMAI.cascadingValues(vertical, "rm", {}), "All RMs");
+  fillSelect(document.getElementById("fRom"), HMAI.cascadingValues(vertical, "rom", {}), "All ROMs");
+  fillSelect(document.getElementById("fSd"), HMAI.cascadingValues(vertical, "sd", {}), "All SDs");
+  renderStoreSelectOnly();
+}
+
+function renderStoreSelectOnly(upstream) {
+  upstream = upstream || {};
+  const stores = HMAI.storesWithAudits(vertical).filter(s => {
+    if (upstream.rm && s.rm !== upstream.rm) return false;
+    if (upstream.rom && s.rom !== upstream.rom) return false;
+    if (upstream.sd && s.sd !== upstream.sd) return false;
+    return true;
+  });
+  const sel = document.getElementById("fStore");
+  sel.innerHTML = `<option value="">Select a store…</option>` + stores.map(s => `<option value="${s.storeCode}">${s.storeName}${s.unmapped ? " (Unmapped)" : ""}</option>`).join("");
+}
+
+function onHierarchyChange(changedLevel) {
+  const rm = document.getElementById("fRm").value || null;
+  const rom = document.getElementById("fRom").value || null;
+  const sd = document.getElementById("fSd").value || null;
+
+  if (changedLevel === "rm") {
+    const romOpts = HMAI.cascadingValues(vertical, "rom", { rm });
+    fillSelect(document.getElementById("fRom"), romOpts, "All ROMs");
+    const sdOpts = HMAI.cascadingValues(vertical, "sd", { rm });
+    fillSelect(document.getElementById("fSd"), sdOpts, "All SDs");
+    renderStoreSelectOnly({ rm });
+  } else if (changedLevel === "rom") {
+    const sdOpts = HMAI.cascadingValues(vertical, "sd", { rm, rom });
+    fillSelect(document.getElementById("fSd"), sdOpts, "All SDs");
+    renderStoreSelectOnly({ rm, rom });
+  } else if (changedLevel === "sd") {
+    renderStoreSelectOnly({ rm, rom, sd });
+  }
+  selectedStore = null;
+  showEmpty();
+}
+
+function showEmpty() {
+  document.getElementById("emptyState").style.display = "block";
+  document.getElementById("trendContent").style.display = "none";
+}
+
+function renderTrend() {
+  const code = document.getElementById("fStore").value;
+  if (!code) { showEmpty(); return; }
+  selectedStore = code;
+
+  const swot = HMAI.sectionSwot(vertical, code, 5);
+  if (!swot.audits.length) { showEmpty(); return; }
+
+  document.getElementById("emptyState").style.display = "none";
+  document.getElementById("trendContent").style.display = "block";
+
+  const meta = HMAI.storeMeta(code, swot.audits[swot.audits.length-1].storeName);
+  document.getElementById("storeTitle").textContent = meta.storeName;
+  document.getElementById("storeSub").textContent = code + (meta.unmapped ? " · Unmapped" : "");
+  document.getElementById("mRm").textContent = meta.rm;
+  document.getElementById("mRom").textContent = meta.rom;
+  document.getElementById("mSd").textContent = meta.sd;
+
+  const scores = swot.audits.map(a => a.score);
+  const latest = scores[scores.length - 1];
+  const prev = scores.length > 1 ? scores[scores.length - 2] : null;
+  document.getElementById("kLatest").textContent = latest + "%";
+  const deltaEl = document.getElementById("kDelta");
+  if (prev !== null) {
+    const d = Math.round((latest - prev) * 10) / 10;
+    deltaEl.textContent = (d > 0 ? "+" : "") + d;
+    deltaEl.style.color = d < 0 ? "#FFD9DC" : "#fff";
+  } else {
+    deltaEl.textContent = "—";
+  }
+
+  renderTrendSvg(swot.audits);
+  renderStrengthsWeaknesses(swot);
+  renderMatrix(swot);
+
+  document.getElementById("auditCountNote").textContent = swot.audits.length + " most recent audits";
+}
+
+function renderTrendSvg(audits) {
+  const w = 560, h = 220, pad = 36;
+  const scores = audits.map(a => a.score);
+  const min = Math.max(0, Math.min(...scores) - 10);
+  const max = Math.min(100, Math.max(...scores) + 10);
+  const xStep = audits.length > 1 ? (w - pad * 2) / (audits.length - 1) : 0;
+  const yFor = v => h - pad - ((v - min) / (max - min || 1)) * (h - pad * 2);
+  const points = scores.map((s, i) => [pad + i * xStep, yFor(s)]);
+
+  const gridLines = [80, 60].filter(v => v >= min && v <= max).map(v => `
+    <line x1="${pad}" y1="${yFor(v)}" x2="${w-pad}" y2="${yFor(v)}" stroke="${v===80?'#FFC72C':'#E31E2B'}" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+    <text x="${w-pad+4}" y="${yFor(v)+4}" font-size="10" fill="#9498AC">${v}</text>`).join("");
+
+  const path = points.map((p,i) => (i===0?"M":"L") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+  const areaPath = path + ` L${points[points.length-1][0]},${h-pad} L${points[0][0]},${h-pad} Z`;
+
+  const dots = points.map((p,i) => {
+    const score = scores[i];
+    const color = score < 60 ? "#E31E2B" : score < 80 ? "#E8A200" : "#1F9E63";
+    return `
+      <circle cx="${p[0]}" cy="${p[1]}" r="5" fill="${color}" stroke="#fff" stroke-width="2"/>
+      <text x="${p[0]}" y="${p[1]-12}" font-size="12" font-weight="700" fill="var(--hamleys-navy)" text-anchor="middle">${score}</text>
+      <text x="${p[0]}" y="${h-pad+18}" font-size="10" fill="#9498AC" text-anchor="middle">${fmtDate(audits[i].date)}</text>`;
+  }).join("");
+
+  document.getElementById("trendSvgWrap").innerHTML = `
+    <svg viewBox="0 0 ${w} ${h+10}" style="width:100%; height:auto;">
+      ${gridLines}
+      <path d="${areaPath}" fill="url(#grad)" opacity="0.12"/>
+      <defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#E31E2B"/><stop offset="100%" stop-color="#E31E2B" stop-opacity="0"/>
+      </linearGradient></defs>
+      <path d="${path}" fill="none" stroke="#E31E2B" stroke-width="2.5"/>
+      ${dots}
+    </svg>`;
+}
+
+function renderStrengthsWeaknesses(swot) {
+  const mk = (s, positive) => `
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--line-soft);">
+      <span style="font-size:13px; font-weight:600; color:var(--ink);">${s.name}</span>
+      <span class="tag ${positive ? "good" : "bad"}">${s.avg}%</span>
+    </div>`;
+  document.getElementById("strengthsList").innerHTML = swot.strengths.map(s => mk(s, true)).join("") || `<p class="small-muted">Not enough data</p>`;
+  document.getElementById("weaknessesList").innerHTML = swot.weaknesses.map(s => mk(s, false)).join("") || `<p class="small-muted">Not enough data</p>`;
+
+  let extra = "";
+  if (swot.mostDeclined) extra += `<p class="small-muted" style="margin-top:8px;">📉 Biggest drop: <strong>${swot.mostDeclined.name}</strong> (${swot.mostDeclined.first}% → ${swot.mostDeclined.last}%)</p>`;
+  document.getElementById("weaknessesList").innerHTML += extra;
+  if (swot.mostImproved) {
+    document.getElementById("strengthsList").innerHTML += `<p class="small-muted" style="margin-top:8px;">📈 Biggest gain: <strong>${swot.mostImproved.name}</strong> (${swot.mostImproved.first}% → ${swot.mostImproved.last}%)</p>`;
+  }
+}
+
+function renderMatrix(swot) {
+  const table = document.getElementById("matrixTable");
+  const sectionNames = swot.sections.map(s => s.name);
+  let thead = `<thead><tr><th>Audit Date</th><th>Overall</th>` + sectionNames.map(n => `<th>${n.length>16?n.slice(0,16)+"…":n}</th>`).join("") + `</tr></thead>`;
+  let tbody = "<tbody>" + swot.audits.map(a => {
+    const cells = sectionNames.map(n => {
+      const v = a.sections[n];
+      if (typeof v !== "number") return `<td class="small-muted">—</td>`;
+      const cls = v < 60 ? "s-bad" : v < 80 ? "s-warn" : "s-good";
+      return `<td><span class="score-pill ${cls}">${v}</span></td>`;
+    }).join("");
+    return `<tr><td>${fmtDate(a.date)}</td><td>${scorePill(a.score)}</td>${cells}</tr>`;
+  }).join("") + "</tbody>";
+  table.innerHTML = thead + tbody;
+}
+
+boot();
+</script>
+</body>
+</html>

@@ -9,25 +9,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
-<div class="app-shell">
-  <nav class="sidebar"></nav>
-  <main class="main">
+<div class="standalone-main">
     <div class="topbar">
       <div>
         <h1 class="page-title">Admin</h1>
         <div class="page-sub">L&amp;D team only — data uploads that power the dashboard</div>
       </div>
-      <span class="tag warn">Run this page locally — not for public sharing</span>
+      <span class="tag warn">Shared password &middot; not for public sharing</span>
     </div>
 
     <div class="card" style="margin-bottom:18px; background:#FFF6DE; border-color:#FFE39A;">
       <strong style="color:#8a6300;">How this fits together</strong>
       <p class="small-muted" style="margin-top:6px; line-height:1.5;">
-        This Admin page and the Cases page write to your browser's local storage — they're meant to be opened
-        locally (or on a private/internal link) by the L&amp;D team, not the public GitHub Pages link.
-        After uploading data here, click <strong>Export updated dataset</strong> and commit the downloaded
+        This page writes to your browser's local storage. After uploading data here, click <strong>Export updated dataset</strong> and commit the downloaded
         JSON files into <code>assets/data/</code> in the repo, then push — that's what refreshes the public
-        Overview and Cohort pages. See the README for the recommended internal-hosting options for Admin &amp; Cases.
+        Overview, Store Cohort and Trend pages. If you opened this page directly from a downloaded file
+        (a <code>file://</code> address), uploads won't load existing data correctly — see the README for how to
+        run it via a tiny local server instead.
       </p>
     </div>
 
@@ -86,7 +84,7 @@
       </div>
     </div>
 
-  </main>
+
 </div>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/data.js"></script>
@@ -96,8 +94,13 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 
 async function boot() {
   await requireAccess("Admin — L&D Team Only");
-  renderSidebar("admin.html", true);
-  await HMAI.init();
+  renderStandaloneHeader("Admin", "Base store data, historical uploads & audit PDFs");
+  try {
+    await HMAI.init();
+  } catch (err) {
+    showLoadError(err);
+    return;
+  }
   refreshCounts();
 
   wireDrop("storeDrop", "storeFile", handleStoreFile);
