@@ -1,0 +1,877 @@
+[
+ {
+  "storeName": "Express Avenue - Chennai",
+  "storeCode": "THD8",
+  "rom": "Divya Lakshmi",
+  "sd": "Divya Lakshmi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Infinty, Malad",
+  "storeCode": "THD9",
+  "rom": "Shirish Mastud",
+  "sd": "Almas Zaidi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Phoenix Marketcity - Blr",
+  "storeCode": "THE0",
+  "rom": "Ashlin Moses",
+  "sd": "Harnest",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Elante - Chandigarh",
+  "storeCode": "THE1",
+  "rom": "Ajay Gill",
+  "sd": "Harsh Sharma",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Alpha One, Ahmedabad",
+  "storeCode": "THE2",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - PMC,Pune",
+  "storeCode": "THE4",
+  "rom": "Chetan Chaudhari",
+  "sd": "Subodh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ambience Vasant Kunj - Delhi",
+  "storeCode": "THE8",
+  "rom": "Ajay Gill",
+  "sd": "Ajay Gill",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Viviana, Thane",
+  "storeCode": "THE9",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Phoenix Marketcity - Chennai",
+  "storeCode": "THF0",
+  "rom": "Divya Lakshmi",
+  "sd": "Damodharan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Brookefields Mall - Coimbatore",
+  "storeCode": "THF1",
+  "rom": "Divya Lakshmi",
+  "sd": "Damodharan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Logic City Centre - Noida",
+  "storeCode": "THF2",
+  "rom": "Lalit Mohan",
+  "sd": "Khubaib",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Quest",
+  "storeCode": "THF4",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - MUMArpt",
+  "storeCode": "THF6",
+  "rom": "Shirish Mastud",
+  "sd": "Nasir Shaikh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - DelhiT3",
+  "storeCode": "THF8",
+  "rom": "Lalit Mohan",
+  "sd": "Khubaib",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ambience Gurgaon Mall",
+  "storeCode": "THF9",
+  "rom": "Ajay Gill",
+  "sd": "Param",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Lulu International Mall - Kochi",
+  "storeCode": "THG0",
+  "rom": "Divya Lakshmi",
+  "sd": "Divya Lakshmi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Treasure Island,Indore",
+  "storeCode": "THG2",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Forum Sujana Mall - Hyd",
+  "storeCode": "THG3",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "1 MG - Lido Mall  - Blr",
+  "storeCode": "THG4",
+  "rom": "Ashlin Moses",
+  "sd": "Harnest",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham.Inorbit Vododara",
+  "storeCode": "THG5",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Nexus Vijaya Mall - Chennai",
+  "storeCode": "THG7",
+  "rom": "Divya Lakshmi",
+  "sd": "Damodharan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Pavilion Mall - Ludhia",
+  "storeCode": "THG8",
+  "rom": "Lalit Mohan",
+  "sd": "Lalit Mohan",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - DB City, Bhopal",
+  "storeCode": "THG9",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Pacific Mall - Delhi",
+  "storeCode": "THH2",
+  "rom": "Ajay Gill",
+  "sd": "Harsh Sharma",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Select City Mall - Delhi",
+  "storeCode": "THH3",
+  "rom": "Ajay Gill",
+  "sd": "Harsh Sharma",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Nexus Seawood",
+  "storeCode": "THH8",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - ICC, Pune",
+  "storeCode": "THI2",
+  "rom": "Chetan Chaudhari",
+  "sd": "Subodh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Prozone mall - Coimbatore",
+  "storeCode": "THI3",
+  "rom": "Divya Lakshmi",
+  "sd": "Damodharan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Siligur",
+  "storeCode": "THI5",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "WTP - Jaipur",
+  "storeCode": "THI7",
+  "rom": "Ajay Gill",
+  "sd": "Shashank Rathore",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - T1 Arrival",
+  "storeCode": "THI8",
+  "rom": "Shirish Mastud",
+  "sd": "Nasir Shaikh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Xperia, Dombivali",
+  "storeCode": "THI9",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Inorbit Mall - Hyd",
+  "storeCode": "THJ0",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Alfa one 1 - Amritsar",
+  "storeCode": "THJ1",
+  "rom": "Lalit Mohan",
+  "sd": "Lalit Mohan",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Oberoi, Goregaon",
+  "storeCode": "THJ2",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - T2 Arrival",
+  "storeCode": "THJ4",
+  "rom": "Shirish Mastud",
+  "sd": "Nasir Shaikh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Mall of India - Noida",
+  "storeCode": "THK0",
+  "rom": "Lalit Mohan",
+  "sd": "Ashish Juyal",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Surat",
+  "storeCode": "THK1",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ardee Mall",
+  "storeCode": "THM0",
+  "rom": "Ajay Gill",
+  "sd": "Param",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Zaquare Kanpur",
+  "storeCode": "THM2",
+  "rom": "Lalit Mohan",
+  "sd": "Ashish Juyal",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Mall De, Goa",
+  "storeCode": "THM8",
+  "rom": "Shirish Mastud",
+  "sd": "Nasir Shaikh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Nucleus",
+  "storeCode": "THN2",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "L&T Mall - Hyd",
+  "storeCode": "THN3",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Utkal",
+  "storeCode": "THN6",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Nexus Shantiniketan Mall - Blr",
+  "storeCode": "THO8",
+  "rom": "Ashlin Moses",
+  "sd": "Harnest",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "UB City - Blr",
+  "storeCode": "THO9",
+  "rom": "Ashlin Moses",
+  "sd": "Harnest",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "VR Mall - Chennai",
+  "storeCode": "THP1",
+  "rom": "Divya Lakshmi",
+  "sd": "Divya Lakshmi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - C21, Indore",
+  "storeCode": "THP2",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Sarath City Capital Mall - Hyd",
+  "storeCode": "THP5",
+  "rom": "Ashlin Moses",
+  "sd": "Ashlin Moses",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Wave Mall - Jammu",
+  "storeCode": "THP7",
+  "rom": "Lalit Mohan",
+  "sd": "Lalit Mohan",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Ambuja, Raipur",
+  "storeCode": "THQ0",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Nexus Centre City - Mys",
+  "storeCode": "THQ2",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Forum",
+  "storeCode": "THQ3",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "D-Address Mall - Vijayawada",
+  "storeCode": "THR0",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - South city",
+  "storeCode": "THR3",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Orion Mall - Blr",
+  "storeCode": "THS5",
+  "rom": "Ashlin Moses",
+  "sd": "Harnest",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham. Golden Icon",
+  "storeCode": "THS6",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - CtyCntr",
+  "storeCode": "THS7",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Gaur City - Noida",
+  "storeCode": "THS8",
+  "rom": "Lalit Mohan",
+  "sd": "Ashish Juyal",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "GSM Mall - Hyd",
+  "storeCode": "TJU3",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "DSL Virtue Mall - Hyd",
+  "storeCode": "TJU4",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Palsssio Mall -  Lucknow",
+  "storeCode": "TJU6",
+  "rom": "Lalit Mohan",
+  "sd": "Ashish Juyal",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Ham.Airia.Grgn",
+  "storeCode": "TJY4",
+  "rom": "Ajay Gill",
+  "sd": "Param",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Vegas Mall  Dwarka",
+  "storeCode": "TLX5",
+  "rom": "Ajay Gill",
+  "sd": "Harsh Sharma",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Airport Departure - Blr",
+  "storeCode": "TPV5",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Gokulam Galleria - Calicut",
+  "storeCode": "TUW4",
+  "rom": "Divya Lakshmi",
+  "sd": "Divya Lakshmi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Walter Main Rd - Vizag",
+  "storeCode": "TWR1",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "HSR Layout - Blr",
+  "storeCode": "TXGB",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ambala-NH1",
+  "storeCode": "TXPH",
+  "rom": "Ajay Gill",
+  "sd": "Harsh Sharma",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Dhillon Plaza",
+  "storeCode": "TXR2",
+  "rom": "Ajay Gill",
+  "sd": "Harsh Sharma",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Indiranagar - Blr",
+  "storeCode": "TXSG",
+  "rom": "Ashlin Moses",
+  "sd": "Harnest",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Banjara Hills  - Hyd",
+  "storeCode": "TXSI",
+  "rom": "Ashlin Moses",
+  "sd": "Ashlin Moses",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Vaishali- Jaipur",
+  "storeCode": "TXUT",
+  "rom": "Ajay Gill",
+  "sd": "Shashank Rathore",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - JWD",
+  "storeCode": "TY4T",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hilite mall - Calicut",
+  "storeCode": "TY7V",
+  "rom": "Divya Lakshmi",
+  "sd": "Divya Lakshmi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys- Dehradun",
+  "storeCode": "TZ8A",
+  "rom": "Lalit Mohan",
+  "sd": "Ashish Juyal",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Vega City Mall - Blr",
+  "storeCode": "TZ8Z",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham -Phoenix Citadel Indore",
+  "storeCode": "T34O",
+  "rom": "Chetan Chaudhari",
+  "sd": "Manmohan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Falcon City - Blr",
+  "storeCode": "T36H",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "T2 Airport - Blr",
+  "storeCode": "T36O",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Lulu Mall - Lucknow",
+  "storeCode": "T38E",
+  "rom": "Lalit Mohan",
+  "sd": "Ashish Juyal",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Lulu Mall Trivandrum",
+  "storeCode": "T42A",
+  "rom": "Divya Lakshmi",
+  "sd": "Divya Lakshmi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham - Goa Airport",
+  "storeCode": "T42C",
+  "rom": "Shirish Mastud",
+  "sd": "Nasir Shaikh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham - Palladium Ahmedabad",
+  "storeCode": "T77X",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.PacificMal",
+  "storeCode": "TF5T",
+  "rom": "Ajay Gill",
+  "sd": "Harsh Sharma",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham.GarudaMall",
+  "storeCode": "TK0G",
+  "rom": "Ashlin Moses",
+  "sd": "Harnest",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - T1A",
+  "storeCode": "TASG",
+  "rom": "Lalit Mohan",
+  "sd": "Khubaib",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Clebration Mall - Udaipur",
+  "storeCode": "TAUN",
+  "rom": "Ajay Gill",
+  "sd": "Shashank Rathore",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham.Marina",
+  "storeCode": "TL6C",
+  "rom": "Divya Lakshmi",
+  "sd": "Damodharan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.CP67 Mall",
+  "storeCode": "T2DD",
+  "rom": "Ajay Gill",
+  "sd": "Ajay Gill",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Mall Of Asia - Blr",
+  "storeCode": "T2MI",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham - Mall of Millienimium, Pune",
+  "storeCode": "T2UO",
+  "rom": "Chetan Chaudhari",
+  "sd": "Subodh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Forum Mall - Kochi",
+  "storeCode": "T2WF",
+  "rom": "Divya Lakshmi",
+  "sd": "Divya Lakshmi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham,Lucknow Dept",
+  "storeCode": "T2DE",
+  "rom": "Lalit Mohan",
+  "sd": "Khubaib",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham, Lucknow Arrival",
+  "storeCode": "T2DK",
+  "rom": "Lalit Mohan",
+  "sd": "Khubaib",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham. DelhiT1D",
+  "storeCode": "T0ZV",
+  "rom": "Lalit Mohan",
+  "sd": "Khubaib",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham - Ahmedabad Arriaval",
+  "storeCode": "T5PF",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham - Rajkot",
+  "storeCode": "T3AA",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.Irisbrdway",
+  "storeCode": "TL6O",
+  "rom": "Ajay Gill",
+  "sd": "Param",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham -  Prozone, Aurangabad",
+  "storeCode": "T6AA",
+  "rom": "Chetan Chaudhari",
+  "sd": "Subodh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "T1 Arrival - Chennai",
+  "storeCode": "T7UJ",
+  "rom": "Divya Lakshmi",
+  "sd": "Damodharan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham - Kurla, PMC",
+  "storeCode": "T8LI",
+  "rom": "Shirish Mastud",
+  "sd": "Almas Zaidi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Unity Elegante Delhi",
+  "storeCode": "TB6V",
+  "rom": "Ajay Gill",
+  "sd": "Harsh Sharma",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham - HSP.FF",
+  "storeCode": "TB2O",
+  "rom": "Shirish Mastud",
+  "sd": "Almas Zaidi",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham - Rcity Mall, Ghatkopar",
+  "storeCode": "T7ZN",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham. Sky City",
+  "storeCode": "TF5Y",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Pacific Mall",
+  "storeCode": "TM1H",
+  "rom": "Ajay Gill",
+  "sd": "Ajay Gill",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Creekside Doraha P",
+  "storeCode": "TBC7",
+  "rom": "Lalit Mohan",
+  "sd": "Lalit Mohan",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Ham.LuluBlr",
+  "storeCode": "TL9A",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham.Lakeshore Hyd",
+  "storeCode": "TBAV",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham.ZoraMall",
+  "storeCode": "TBIM",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.Model Town",
+  "storeCode": "TM1F",
+  "rom": "Lalit Mohan",
+  "sd": "Lalit Mohan",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Ham.KOPA.Pune",
+  "storeCode": "T26L",
+  "rom": "Chetan Chaudhari",
+  "sd": "Subodh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.PMCC",
+  "storeCode": "T61F",
+  "rom": "Divya Lakshmi",
+  "sd": "Damodharan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.MakerMax",
+  "storeCode": "TLY7",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.WorldMark",
+  "storeCode": "TAHY",
+  "rom": "Ajay Gill",
+  "sd": "Param",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Lulu Mall, Lucknow",
+  "storeCode": "T38E",
+  "rom": "Lalit Mohan",
+  "sd": "Ashish Juyal",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Worldmark, Gurgaon",
+  "storeCode": "TAHY",
+  "rom": "Ajay Gill",
+  "sd": "Param",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Mall of Millenium, Pune",
+  "storeCode": "T2UO",
+  "rom": "Chetan Chaudhari",
+  "sd": "Subodh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Phoenix Mall of Asia, Bangalore",
+  "storeCode": "T2MI",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - KOPA, Pune",
+  "storeCode": "T26L",
+  "rom": "Chetan Chaudhari",
+  "sd": "Subodh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Phoenix Market City, Chennai",
+  "storeCode": "T61F",
+  "rom": "Divya Lakshmi",
+  "sd": "Damodharan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Maker Maxity, Mumbai",
+  "storeCode": "TLY7",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Palladium Mall, Ahmedabad",
+  "storeCode": "T77X",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Inorbit Mall, Hyderabad",
+  "storeCode": "THJ0",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
+  "rm": "Bipro"
+ }
+]
