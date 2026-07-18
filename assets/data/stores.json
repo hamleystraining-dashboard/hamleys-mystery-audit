@@ -224,7 +224,7 @@
   "rm": "Yogesh"
  },
  {
-  "storeName": "Hamleys - Inorbit Mall, Hyderabad",
+  "storeName": "Inorbit Mall - Hyd",
   "storeCode": "THJ0",
   "rom": "Ashlin Moses",
   "sd": "Narayana",
@@ -560,7 +560,7 @@
   "rm": "Bipro"
  },
  {
-  "storeName": "Hamleys - Lulu Mall, Lucknow",
+  "storeName": "Lulu Mall - Lucknow",
   "storeCode": "T38E",
   "rom": "Lalit Mohan",
   "sd": "Ashish Juyal",
@@ -581,7 +581,7 @@
   "rm": "Yogesh"
  },
  {
-  "storeName": "Hamleys - Palladium Mall, Ahmedabad",
+  "storeName": "Ham - Palladium Ahmedabad",
   "storeCode": "T77X",
   "rom": "Shirish Mastud",
   "sd": "Virendra Rahevar",
@@ -630,14 +630,14 @@
   "rm": "Bipro"
  },
  {
-  "storeName": "Hamleys - Phoenix Mall of Asia, Bangalore",
+  "storeName": "Mall Of Asia - Blr",
   "storeCode": "T2MI",
   "rom": "Ashlin Moses",
   "sd": "Umesh",
   "rm": "Bipro"
  },
  {
-  "storeName": "Hamleys - Mall of Millenium, Pune",
+  "storeName": "Ham - Mall of Millienimium, Pune",
   "storeCode": "T2UO",
   "rom": "Chetan Chaudhari",
   "sd": "Subodh",
@@ -784,6 +784,62 @@
   "rm": "Bipro"
  },
  {
+  "storeName": "Ham.KOPA.Pune",
+  "storeCode": "T26L",
+  "rom": "Chetan Chaudhari",
+  "sd": "Subodh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.PMCC",
+  "storeCode": "T61F",
+  "rom": "Divya Lakshmi",
+  "sd": "Damodharan",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.MakerMax",
+  "storeCode": "TLY7",
+  "rom": "Shirish Mastud",
+  "sd": "Sudhir Singrakhia",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Ham.WorldMark",
+  "storeCode": "TAHY",
+  "rom": "Ajay Gill",
+  "sd": "Param",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Lulu Mall, Lucknow",
+  "storeCode": "T38E",
+  "rom": "Lalit Mohan",
+  "sd": "Ashish Juyal",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Worldmark, Gurgaon",
+  "storeCode": "TAHY",
+  "rom": "Ajay Gill",
+  "sd": "Param",
+  "rm": "Bipro"
+ },
+ {
+  "storeName": "Hamleys - Mall of Millenium, Pune",
+  "storeCode": "T2UO",
+  "rom": "Chetan Chaudhari",
+  "sd": "Subodh",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Phoenix Mall of Asia, Bangalore",
+  "storeCode": "T2MI",
+  "rom": "Ashlin Moses",
+  "sd": "Umesh",
+  "rm": "Bipro"
+ },
+ {
   "storeName": "Hamleys - KOPA, Pune",
   "storeCode": "T26L",
   "rom": "Chetan Chaudhari",
@@ -805,10 +861,17 @@
   "rm": "Yogesh"
  },
  {
-  "storeName": "Hamleys - Worldmark, Gurgaon",
-  "storeCode": "TAHY",
-  "rom": "Ajay Gill",
-  "sd": "Param",
+  "storeName": "Hamleys - Palladium Mall, Ahmedabad",
+  "storeCode": "T77X",
+  "rom": "Shirish Mastud",
+  "sd": "Virendra Rahevar",
+  "rm": "Yogesh"
+ },
+ {
+  "storeName": "Hamleys - Inorbit Mall, Hyderabad",
+  "storeCode": "THJ0",
+  "rom": "Ashlin Moses",
+  "sd": "Narayana",
   "rm": "Bipro"
  }
 ]

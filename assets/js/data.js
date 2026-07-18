@@ -72,8 +72,8 @@ const HMAI = (() => {
     return Object.values(map);
   }
 
-  function storeMeta(storeCode) {
-    return STORE_INDEX[storeCode] || { storeName: "Unknown", rom: "—", sd: "—", rm: "—" };
+  function storeMeta(storeCode, fallbackName) {
+    return STORE_INDEX[storeCode] || { storeName: fallbackName || storeCode, rom: "Unmapped", sd: "Unmapped", rm: "Unmapped", unmapped: true };
   }
 
   function audits(vertical) {
@@ -130,8 +130,8 @@ const HMAI = (() => {
   }
 
   function withStoreMeta(a) {
-    const m = storeMeta(a.storeCode);
-    return Object.assign({}, a, { rom: m.rom, sd: m.sd, rm: m.rm, storeNameResolved: m.storeName || a.storeName });
+    const m = storeMeta(a.storeCode, a.storeName);
+    return Object.assign({}, a, { rom: m.rom, sd: m.sd, rm: m.rm, unmapped: !!m.unmapped, storeNameResolved: m.storeName || a.storeName });
   }
 
   function filterAudits(vertical, filters) {
@@ -150,7 +150,25 @@ const HMAI = (() => {
   function uniqueValues(vertical, field) {
     const set = new Set();
     audits(vertical).forEach(a => {
-      const m = storeMeta(a.storeCode);
+      const m = storeMeta(a.storeCode, a.storeName);
+      if (m[field] && m[field] !== "Unmapped") set.add(m[field]);
+    });
+    return Array.from(set).sort();
+  }
+
+  // Cascading hierarchy helpers: given filters already chosen upstream
+  // (rm -> rom -> sd -> store), return only the option list valid at the
+  // next level down, scoped to stores that actually have audits in this vertical.
+  function cascadingValues(vertical, field, upstream) {
+    upstream = upstream || {};
+    const set = new Set();
+    audits(vertical).forEach(a => {
+      const m = storeMeta(a.storeCode, a.storeName);
+      if (m.unmapped) return;
+      if (upstream.rm && m.rm !== upstream.rm) return;
+      if (upstream.rom && m.rom !== upstream.rom) return;
+      if (upstream.sd && m.sd !== upstream.sd) return;
+      if (field === "storeName") { if (m.storeName) set.add(m.storeName); return; }
       if (m[field]) set.add(m[field]);
     });
     return Array.from(set).sort();
@@ -184,13 +202,13 @@ const HMAI = (() => {
       audits(v).forEach(a => {
         if (a.score < 80) {
           const key = caseKey(v, a.evalId);
-          const meta = storeMeta(a.storeCode);
+          const meta = storeMeta(a.storeCode, a.storeName);
           if (existingMap[key]) {
             flagged.push(existingMap[key]);
           } else {
             flagged.push({
               key, vertical: v, evalId: a.evalId, storeCode: a.storeCode,
-              storeName: meta.storeName || a.storeName, rom: meta.rom, sd: meta.sd, rm: meta.rm,
+              storeName: meta.storeName || a.storeName, unmapped: !!meta.unmapped, rom: meta.rom, sd: meta.sd, rm: meta.rm,
               date: a.date, score: a.score,
               stage: "flagged", // flagged -> ld_triggered -> rom_submitted -> hrbp_closed
               defaulters: [], actionNotes: "", history: [
@@ -238,7 +256,7 @@ const HMAI = (() => {
 
   return {
     LS_KEYS, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
-    mtd, avg, sectionAverages, filterAudits, uniqueValues, latestPerStore,
+    mtd, avg, sectionAverages, filterAudits, uniqueValues, cascadingValues, latestPerStore,
     getCases, saveCases, caseKey, syncCasesFromAudits, updateCase, addCaseHistory,
     saveOverride, exportAllData, get STORES() { return STORES; }, get RETAIL() { return RETAIL; }, get PLAY() { return PLAY; }
   };

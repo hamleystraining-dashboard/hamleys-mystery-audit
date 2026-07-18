@@ -1,12 +1,10 @@
 /* Shared UI chrome: sidebar nav + toast helper, used by every page. */
 
-function renderSidebar(active) {
-  const links = [
-    { href: "index.html", ic: "\u25A6", label: "Overview" },
-    { href: "cohort.html", ic: "\u25A4", label: "Store Cohort" },
-    { href: "cases.html", ic: "\u26A0", label: "Cases" },
-    { href: "admin.html", ic: "\u2699", label: "Admin", group: "L&D Only" },
-  ];
+// `internal` = true shows the L&D-only nav group (Admin, Cases). Only pass
+// true from admin.html / cases.html themselves, once the password gate has
+// already passed — index.html and cohort.html (the public pages) always
+// call this with internal=false so those links aren't advertised publicly.
+function renderSidebar(active, internal) {
   let html = `
   <div class="brand">
     <div class="brand-mark">H</div>
@@ -16,17 +14,21 @@ function renderSidebar(active) {
     </div>
   </div>
   <div class="nav-group">
-    <div class="nav-label">Dashboards</div>`;
-  ["index.html", "cohort.html", "cases.html"].forEach(href => {
-    const l = links.find(x => x.href === href);
-    html += `<a class="nav-link ${active === href ? "active" : ""}" href="${href}"><span class="ic">${l.ic}</span>${l.label}</a>`;
-  });
-  html += `</div><div class="nav-group"><div class="nav-label">L&amp;D Team</div>`;
-  const admin = links.find(x => x.href === "admin.html");
-  html += `<a class="nav-link ${active === "admin.html" ? "active" : ""}" href="admin.html"><span class="ic">${admin.ic}</span>${admin.label}</a>`;
-  html += `</div>
-  <div class="sidebar-foot">Data refreshed via Admin uploads.<br>Static build &middot; GitHub Pages</div>`;
+    <div class="nav-label">Dashboards</div>
+    <a class="nav-link ${active === "index.html" ? "active" : ""}" href="index.html"><span class="ic">\u25A6</span>Overview</a>
+    <a class="nav-link ${active === "cohort.html" ? "active" : ""}" href="cohort.html"><span class="ic">\u25A4</span>Store Cohort</a>
+  </div>`;
 
+  if (internal) {
+    html += `
+  <div class="nav-group">
+    <div class="nav-label">L&amp;D / ROM / HRBP</div>
+    <a class="nav-link ${active === "cases.html" ? "active" : ""}" href="cases.html"><span class="ic">\u26A0</span>Cases</a>
+    <a class="nav-link ${active === "admin.html" ? "active" : ""}" href="admin.html"><span class="ic">\u2699</span>Admin</a>
+  </div>`;
+  }
+
+  html += `<div class="sidebar-foot">Data refreshed via Admin uploads.<br>Static build &middot; GitHub Pages</div>`;
   document.querySelector(".sidebar").innerHTML = html;
 }
 

@@ -18,16 +18,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 0,
-   "Play Characters": 100,
-   "Greeting": 60,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 73,
-   "Entry Mandates": 88
+   "Play Characters": 100
   },
-  "city": "Pune",
-  "state": "Maharashtra"
+  "city": 60,
+  "state": 100
  },
  {
   "evalId": 12099946,
@@ -48,16 +42,10 @@
    "Play Ambience": 88,
    "Staff Grooming": 86,
    "Dance Performances": "NA",
-   "Play Characters": "NA",
-   "Greeting": 80,
-   "Pre-play Engagement": 0,
-   "Queue Management": 67,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 63
+   "Play Characters": "NA"
   },
-  "city": "Mumbai",
-  "state": "Maharashtra"
+  "city": 80,
+  "state": 0
  },
  {
   "evalId": 12102863,
@@ -78,16 +66,10 @@
    "Play Ambience": 75,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 80,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 93
+   "Play Characters": 100
   },
-  "city": "Lucknow",
-  "state": "Uttar Pradesh"
+  "city": 80,
+  "state": 100
  },
  {
   "evalId": 12102867,
@@ -108,16 +90,10 @@
    "Play Ambience": 75,
    "Staff Grooming": 57,
    "Dance Performances": 0,
-   "Play Characters": 0,
-   "Greeting": 60,
-   "Pre-play Engagement": 33,
-   "Queue Management": 75,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 76
+   "Play Characters": 0
   },
-  "city": "Hyderabad",
-  "state": "Telangana"
+  "city": 60,
+  "state": 33
  },
  {
   "evalId": 12103087,
@@ -138,16 +114,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 0,
-   "Pre-play Engagement": 0,
-   "Queue Management": 0,
-   "Query Management": 0,
-   "Billing Assistance": 60,
-   "Entry Mandates": 50
+   "Play Characters": 100
   },
-  "city": "Gurgaon",
-  "state": "Haryana"
+  "city": 0,
+  "state": 0
  },
  {
   "evalId": 12106980,
@@ -168,16 +138,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 0,
-   "Play Characters": 100,
-   "Greeting": 60,
-   "Pre-play Engagement": 0,
-   "Queue Management": 50,
-   "Query Management": 100,
-   "Billing Assistance": 80,
-   "Entry Mandates": 59
+   "Play Characters": 100
   },
-  "city": "Bangalore",
-  "state": "Karnataka"
+  "city": 60,
+  "state": 0
  },
  {
   "evalId": 12143464,
@@ -198,16 +162,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": "NA",
-   "Play Characters": 0,
-   "Greeting": 60,
-   "Pre-play Engagement": 0,
-   "Queue Management": 0,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 91
+   "Play Characters": 0
   },
-  "city": "Gurgaon",
-  "state": "Haryana"
+  "city": 60,
+  "state": 0
  },
  {
   "evalId": 12145416,
@@ -228,16 +186,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 67,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": "NA",
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 82
+   "Play Characters": 100
   },
-  "city": "Mumbai",
-  "state": "Maharashtra"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12148011,
@@ -258,16 +210,10 @@
    "Play Ambience": 88,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 50,
-   "Greeting": 60,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 50
   },
-  "city": "Ahmedabad",
-  "state": "Gujarat"
+  "city": 60,
+  "state": 100
  },
  {
   "evalId": 12150818,
@@ -288,16 +234,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 0,
-   "Play Characters": 0,
-   "Greeting": 80,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 0
   },
-  "city": "Hyderabad",
-  "state": "Telangana"
+  "city": 80,
+  "state": 100
  },
  {
   "evalId": 12155143,
@@ -318,16 +258,10 @@
    "Play Ambience": 88,
    "Staff Grooming": 100,
    "Dance Performances": 50,
-   "Play Characters": 100,
-   "Greeting": 0,
-   "Pre-play Engagement": 0,
-   "Queue Management": 0,
-   "Query Management": 0,
-   "Billing Assistance": 60,
-   "Entry Mandates": 64
+   "Play Characters": 100
   },
-  "city": "Bangalore",
-  "state": "Karnataka"
+  "city": 0,
+  "state": 0
  },
  {
   "evalId": 12156385,
@@ -348,16 +282,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 88,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 82
+   "Play Characters": 100
   },
-  "city": "Lucknow",
-  "state": "Uttar Pradesh"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12177139,
@@ -378,16 +306,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Pune",
-  "state": "Maharashtra"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12178124,
@@ -408,16 +330,10 @@
    "Play Ambience": 75,
    "Staff Grooming": 100,
    "Dance Performances": 67,
-   "Play Characters": 100,
-   "Greeting": 60,
-   "Pre-play Engagement": 0,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 64
+   "Play Characters": 100
   },
-  "city": "Ahmedabad",
-  "state": "Gujarat"
+  "city": 60,
+  "state": 0
  },
  {
   "evalId": 12183253,
@@ -438,16 +354,10 @@
    "Play Ambience": 88,
    "Staff Grooming": 88,
    "Dance Performances": 100,
-   "Play Characters": 50,
-   "Greeting": 40,
-   "Pre-play Engagement": 0,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 82
+   "Play Characters": 50
   },
-  "city": "Chennai",
-  "state": "Tamil Nadu"
+  "city": 40,
+  "state": 0
  },
  {
   "evalId": 12204669,
@@ -468,16 +378,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 50,
-   "Play Characters": 100,
-   "Greeting": 60,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Hyderabad",
-  "state": "Telangana"
+  "city": 60,
+  "state": 100
  },
  {
   "evalId": 12205781,
@@ -498,16 +402,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 75,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 60,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Lucknow",
-  "state": "Uttar Pradesh"
+  "city": 60,
+  "state": 100
  },
  {
   "evalId": 12206925,
@@ -528,16 +426,10 @@
    "Play Ambience": 75,
    "Staff Grooming": 88,
    "Dance Performances": 50,
-   "Play Characters": 100,
-   "Greeting": 40,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Gurgaon",
-  "state": "Haryana"
+  "city": 40,
+  "state": 100
  },
  {
   "evalId": 12210271,
@@ -558,16 +450,10 @@
    "Play Ambience": 88,
    "Staff Grooming": 75,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 82
+   "Play Characters": 100
   },
-  "city": "Bangalore",
-  "state": "Karnataka"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12218204,
@@ -588,16 +474,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Pune",
-  "state": "Maharashtra"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12222501,
@@ -618,16 +498,10 @@
    "Play Ambience": 75,
    "Staff Grooming": 100,
    "Dance Performances": 67,
-   "Play Characters": 50,
-   "Greeting": 0,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 82
+   "Play Characters": 50
   },
-  "city": "Mumbai",
-  "state": "Maharashtra"
+  "city": 0,
+  "state": 100
  },
  {
   "evalId": 12225486,
@@ -648,16 +522,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 60,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Ahmedabad",
-  "state": "Gujarat"
+  "city": 60,
+  "state": 100
  },
  {
   "evalId": 12226370,
@@ -678,16 +546,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 0,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 82
+   "Play Characters": 0
   },
-  "city": "Chennai",
-  "state": "Tamil Nadu"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12235255,
@@ -708,16 +570,10 @@
    "Play Ambience": 88,
    "Staff Grooming": 100,
    "Dance Performances": 50,
-   "Play Characters": 100,
-   "Greeting": 60,
-   "Pre-play Engagement": 0,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 60,
-   "Entry Mandates": 55
+   "Play Characters": 100
   },
-  "city": "Bangalore",
-  "state": "Karnataka"
+  "city": 60,
+  "state": 0
  },
  {
   "evalId": 12235312,
@@ -738,16 +594,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 80,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Lucknow",
-  "state": "Uttar Pradesh"
+  "city": 80,
+  "state": 100
  },
  {
   "evalId": 12236186,
@@ -768,16 +618,10 @@
    "Play Ambience": 75,
    "Staff Grooming": 100,
    "Dance Performances": "NA",
-   "Play Characters": 0,
-   "Greeting": 60,
-   "Pre-play Engagement": 0,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 60,
-   "Entry Mandates": 73
+   "Play Characters": 0
   },
-  "city": "Gurgaon",
-  "state": "Haryana"
+  "city": 60,
+  "state": 0
  },
  {
   "evalId": 12238085,
@@ -798,16 +642,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 80,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Hyderabad",
-  "state": "Telangana"
+  "city": 80,
+  "state": 100
  },
  {
   "evalId": 12272023,
@@ -828,16 +666,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 0,
-   "Play Characters": 0,
-   "Greeting": 60,
-   "Pre-play Engagement": 100,
-   "Queue Management": "NA",
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 91
+   "Play Characters": 0
   },
-  "city": "Pune",
-  "state": "Maharashtra"
+  "city": 60,
+  "state": 100
  },
  {
   "evalId": 12273517,
@@ -858,16 +690,10 @@
    "Play Ambience": 50,
    "Staff Grooming": 100,
    "Dance Performances": 33,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 64
+   "Play Characters": 100
   },
-  "city": "Mumbai",
-  "state": "Maharashtra"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12273541,
@@ -888,16 +714,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": "NA",
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Ahmedabad",
-  "state": "Gujarat"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12279664,
@@ -918,16 +738,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 0,
-   "Play Characters": 100,
-   "Greeting": 60,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Bangalore",
-  "state": "Karnataka"
+  "city": 60,
+  "state": 100
  },
  {
   "evalId": 12284642,
@@ -948,16 +762,10 @@
    "Play Ambience": 88,
    "Staff Grooming": 100,
    "Dance Performances": 67,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 91
+   "Play Characters": 100
   },
-  "city": "Gurgaon",
-  "state": "Haryana"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12288230,
@@ -978,16 +786,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 80,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Hyderabad",
-  "state": "Telangana"
+  "city": 80,
+  "state": 100
  },
  {
   "evalId": 12288231,
@@ -1008,16 +810,10 @@
    "Play Ambience": 88,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 80,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 91
+   "Play Characters": 100
   },
-  "city": "Lucknow",
-  "state": "Uttar Pradesh"
+  "city": 80,
+  "state": 100
  },
  {
   "evalId": 12320673,
@@ -1038,16 +834,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 50,
-   "Greeting": 60,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 91
+   "Play Characters": 50
   },
-  "city": "Mumbai",
-  "state": "Maharashtra"
+  "city": 60,
+  "state": 100
  },
  {
   "evalId": 12323828,
@@ -1068,16 +858,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 80,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 64
+   "Play Characters": 100
   },
-  "city": "Ahmedabad",
-  "state": "Gujarat"
+  "city": 80,
+  "state": 100
  },
  {
   "evalId": 12332276,
@@ -1098,16 +882,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": "NA",
-   "Play Characters": 0,
-   "Greeting": 60,
-   "Pre-play Engagement": 0,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 91
+   "Play Characters": 0
   },
-  "city": "Chennai",
-  "state": "Tamil Nadu"
+  "city": 60,
+  "state": 0
  },
  {
   "evalId": 12340552,
@@ -1128,16 +906,10 @@
    "Play Ambience": 75,
    "Staff Grooming": 100,
    "Dance Performances": 0,
-   "Play Characters": 0,
-   "Greeting": 0,
-   "Pre-play Engagement": 0,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 64
+   "Play Characters": 0
   },
-  "city": "Pune",
-  "state": "Maharashtra"
+  "city": 0,
+  "state": 0
  },
  {
   "evalId": 12347305,
@@ -1158,16 +930,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 0,
-   "Play Characters": 0,
-   "Greeting": 60,
-   "Pre-play Engagement": 0,
-   "Queue Management": 0,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 82
+   "Play Characters": 0
   },
-  "city": "Bangalore",
-  "state": "Karnataka"
+  "city": 60,
+  "state": 0
  },
  {
   "evalId": 12348495,
@@ -1188,16 +954,10 @@
    "Play Ambience": 88,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Gurgaon",
-  "state": "Haryana"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12350627,
@@ -1218,16 +978,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 60,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Pune",
-  "state": "Maharashtra"
+  "city": 60,
+  "state": 100
  },
  {
   "evalId": 12352588,
@@ -1248,16 +1002,10 @@
    "Play Ambience": 100,
    "Staff Grooming": 100,
    "Dance Performances": 100,
-   "Play Characters": 100,
-   "Greeting": 100,
-   "Pre-play Engagement": 100,
-   "Queue Management": 100,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 100
+   "Play Characters": 100
   },
-  "city": "Lucknow",
-  "state": "Uttar Pradesh"
+  "city": 100,
+  "state": 100
  },
  {
   "evalId": 12355018,
@@ -1278,15 +1026,9 @@
    "Play Ambience": 100,
    "Staff Grooming": 88,
    "Dance Performances": 0,
-   "Play Characters": 50,
-   "Greeting": 0,
-   "Pre-play Engagement": 100,
-   "Queue Management": 0,
-   "Query Management": 100,
-   "Billing Assistance": 100,
-   "Entry Mandates": 82
+   "Play Characters": 50
   },
-  "city": "Hyderabad",
-  "state": "Telangana"
+  "city": 0,
+  "state": 100
  }
 ]
