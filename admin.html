@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Hamleys Mystery Audit Intelligence</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar"></nav>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Admin</h1>
+        <div class="page-sub">L&amp;D team only — data uploads that power the dashboard</div>
+      </div>
+      <span class="tag warn">Run this page locally — not for public sharing</span>
+    </div>
+
+    <div class="card" style="margin-bottom:18px; background:#FFF6DE; border-color:#FFE39A;">
+      <strong style="color:#8a6300;">How this fits together</strong>
+      <p class="small-muted" style="margin-top:6px; line-height:1.5;">
+        This Admin page and the Cases page write to your browser's local storage — they're meant to be opened
+        locally (or on a private/internal link) by the L&amp;D team, not the public GitHub Pages link.
+        After uploading data here, click <strong>Export updated dataset</strong> and commit the downloaded
+        JSON files into <code>assets/data/</code> in the repo, then push — that's what refreshes the public
+        Overview and Cohort pages. See the README for the recommended internal-hosting options for Admin &amp; Cases.
+      </p>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="section-head"><h3>1. Base Store Data</h3><span class="tag neutral" id="storeCount">0 stores loaded</span></div>
+        <p class="small-muted">Excel with columns: Store Name, Store Code, ROM Name, SD Name, RM Name. Used to map every audit to its RM / ROM / SD hierarchy.</p>
+        <div class="upload-box" id="storeDrop">
+          <div style="font-size:26px;">📄</div>
+          <p>Drop the Base Store Data .xlsx here, or</p>
+          <input type="file" id="storeFile" accept=".xlsx,.xls,.csv" style="display:none;">
+          <button class="btn btn-navy btn-sm" onclick="document.getElementById('storeFile').click()">Choose file</button>
+        </div>
+        <div id="storePreview"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-head"><h3>2. Historical Audit Data</h3><span class="tag neutral" id="histCount">0 audits loaded</span></div>
+        <p class="small-muted">Excel export with section-wise scores (Retail or Play). Same structure as the Mystery Shopper export.</p>
+        <div class="filter-field" style="margin-bottom:10px;">
+          <label>Vertical</label>
+          <select id="histVertical"><option value="retail">Retail</option><option value="play">Play</option></select>
+        </div>
+        <div class="upload-box" id="histDrop">
+          <div style="font-size:26px;">📊</div>
+          <p>Drop historical audit .xlsx here, or</p>
+          <input type="file" id="histFile" accept=".xlsx,.xls,.csv" style="display:none;">
+          <button class="btn btn-navy btn-sm" onclick="document.getElementById('histFile').click()">Choose file</button>
+        </div>
+        <div id="histPreview"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="section-head"><h3>3. Upload Audit PDF Report</h3><span class="tag neutral" id="pdfStatus">No file parsed yet</span></div>
+      <p class="small-muted">Upload a single-store audit PDF (Retail or Play format). We extract the overall + section scores and add it as a new audit record. If its score is below 80, it will automatically appear on the Cases page.</p>
+      <div class="filter-field" style="margin-bottom:10px; max-width:200px;">
+        <label>Vertical</label>
+        <select id="pdfVertical"><option value="retail">Retail</option><option value="play">Play</option></select>
+      </div>
+      <div class="upload-box" id="pdfDrop">
+        <div style="font-size:26px;">🧾</div>
+        <p>Drop the audit PDF here, or</p>
+        <input type="file" id="pdfFile" accept=".pdf" style="display:none;">
+        <button class="btn btn-navy btn-sm" onclick="document.getElementById('pdfFile').click()">Choose PDF</button>
+      </div>
+      <div id="pdfPreview"></div>
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="section-head"><h3>Publish</h3></div>
+      <p class="small-muted">Everything above is saved to this browser only, so the public dashboard reflects it, export it and commit the files to <code>assets/data/</code>.</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="exportDataset()">⭳ Export updated dataset (JSON)</button>
+        <button class="btn btn-ghost" onclick="resetOverrides()">Reset local uploads</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+async function boot() {
+  renderSidebar("admin.html");
+  await HMAI.init();
+  refreshCounts();
+
+  wireDrop("storeDrop", "storeFile", handleStoreFile);
+  wireDrop("histDrop", "histFile", handleHistFile);
+  wireDrop("pdfDrop", "pdfFile", handlePdfFile);
+}
+
+function refreshCounts() {
+  document.getElementById("storeCount").textContent = HMAI.STORES.length + " stores loaded";
+  document.getElementById("histCount").textContent = (HMAI.RETAIL.length + HMAI.PLAY.length) + " audits loaded";
+}
+
+function wireDrop(dropId, inputId, handler) {
+  const drop = document.getElementById(dropId);
+  const input = document.getElementById(inputId);
+  input.addEventListener("change", e => e.target.files[0] && handler(e.target.files[0]));
+  ["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("drag"); }));
+  ["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("drag"); }));
+  drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) handler(f); });
+}
+
+function readWorkbook(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, { type: "array", cellDates: true });
+        resolve(wb);
+      } catch (err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function handleStoreFile(file) {
+  const wb = await readWorkbook(file);
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  const [header, ...data] = rows;
+  const idx = {
+    name: header.findIndex(h => /store name/i.test(h)),
+    code: header.findIndex(h => /store code/i.test(h)),
+    rom: header.findIndex(h => /rom/i.test(h)),
+    sd: header.findIndex(h => /sd name/i.test(h)),
+    rm: header.findIndex(h => /^rm name$|rm name/i.test(h)),
+  };
+  const stores = data.filter(r => r[idx.name]).map(r => ({
+    storeName: String(r[idx.name]).trim(),
+    storeCode: String(r[idx.code] || "").trim(),
+    rom: String(r[idx.rom] || "").trim(),
+    sd: String(r[idx.sd] || "").trim(),
+    rm: String(r[idx.rm] || "").trim(),
+  }));
+  HMAI.saveOverride(HMAI.LS_KEYS.stores, stores);
+  await HMAI.init();
+  refreshCounts();
+  document.getElementById("storePreview").innerHTML = `<p class="small-muted" style="margin-top:10px;">✔ Loaded ${stores.length} stores from <strong>${file.name}</strong>. Existing store codes were overwritten, new ones added.</p>`;
+  toast(`${stores.length} stores loaded`);
+}
+
+async function handleHistFile(file) {
+  const vertical = document.getElementById("histVertical").value;
+  const wb = await readWorkbook(file);
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  const [header, ...data] = rows;
+  const fixedCols = ["Sr. No.","Evaluation ID","Wave Name","Location ID","Location Name","Audit Date","Evaluation Score"];
+  const sectionStartIdx = 7;
+  // Find trailing City/State/Zip columns (assume last 3 are City/State/Zip if present)
+  let tailCount = 0;
+  const tailNames = ["Location City","Location State","LocationZip"];
+  tailNames.forEach(n => { if (header.includes(n)) tailCount++; });
+  const sectionEndIdx = header.length - tailCount;
+  const sectionNames = header.slice(sectionStartIdx, sectionEndIdx);
+
+  const audits = data.filter(r => r[1]).map(r => {
+    const sections = {};
+    sectionNames.forEach((n, i) => sections[n] = r[sectionStartIdx + i]);
+    let dateVal = r[5];
+    if (dateVal instanceof Date) dateVal = dateVal.toISOString().slice(0,10);
+    return {
+      evalId: r[1], wave: r[2], storeCode: r[3], storeName: r[4],
+      date: dateVal, score: r[6], sections,
+      city: r[sectionEndIdx], state: r[sectionEndIdx+1],
+    };
+  });
+
+  HMAI.saveOverride(vertical === "play" ? HMAI.LS_KEYS.play : HMAI.LS_KEYS.retail, audits);
+  await HMAI.init();
+  HMAI.syncCasesFromAudits();
+  refreshCounts();
+  document.getElementById("histPreview").innerHTML = `<p class="small-muted" style="margin-top:10px;">✔ Loaded ${audits.length} ${vertical} audits from <strong>${file.name}</strong>.</p>`;
+  toast(`${audits.length} ${vertical} audits loaded`);
+}
+
+async function handlePdfFile(file) {
+  const vertical = document.getElementById("pdfVertical").value;
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const page = await pdf.getPage(1);
+  const content = await page.getTextContent();
+  const text = content.items.map(i => i.str).join(" ");
+
+  // Extract header fields
+  const idMatch = text.match(/ID\s*#\s*(\d{5,})/);
+  const locMatch = text.match(/Location\s+Report Date\s+(.+?)\s+ID#/) || text.match(/Location\s+(Hamleys[^I]+?)\s*ID#/);
+  const codeMatch = text.match(/ID#\s*([A-Z0-9]{4})\b/);
+  const dateMatch = text.match(/Report Date\s+.*?(\d{1,2}\/\d{1,2}\/\d{2,4})/) || text.match(/(\d{1,2}\/\d{1,2}\/\d{2,4})/);
+
+  // Extract section scores: "SECTION NAME  act/pos  pct %  act/pos  pct %  change change%"
+  // We take the "This Evaluation Score" column (first act/pos + first % after the section name)
+  const sectionRegex = /([A-Z][A-Z .'\/-]{3,40})\s+(\d+)\/(\d+)\s+(\d+)\s*%/g;
+  const sections = {};
+  let m;
+  while ((m = sectionRegex.exec(text)) !== null) {
+    const name = m[1].trim();
+    if (/^(SECTIONAL|YOUR SCORE|QUESTION|SHOWING)/i.test(name)) continue;
+    if (!(name in sections)) sections[name] = parseInt(m[4], 10);
+  }
+  const overallMatch = text.match(/OVERALL EXPERIENCE\s*\/\s*--\s*--/);
+  let overall = null;
+  const scoreVals = Object.values(sections);
+  // try to find an explicit overall score near top; else average sections found
+  const overallExplicit = text.match(/Evaluation Score[\s\S]{0,20}?(\d{1,3})\s*%/);
+  if (scoreVals.length) overall = Math.round(scoreVals.reduce((a,b)=>a+b,0) / scoreVals.length);
+
+  const storeCode = codeMatch ? codeMatch[1] : "UNKNOWN";
+  const storeName = HMAI.storeMeta(storeCode).storeName || (locMatch ? locMatch[1].trim() : "Unknown Store");
+  let dateStr = new Date().toISOString().slice(0,10);
+  if (dateMatch) {
+    const parts = dateMatch[1].split("/");
+    if (parts.length === 3) {
+      let [mo, da, yr] = parts;
+      if (yr.length === 2) yr = "20" + yr;
+      dateStr = `${yr}-${mo.padStart(2,"0")}-${da.padStart(2,"0")}`;
+    }
+  }
+
+  const record = {
+    evalId: idMatch ? parseInt(idMatch[1], 10) : Date.now(),
+    wave: "PDF Upload",
+    storeCode, storeName,
+    date: dateStr,
+    score: overall !== null ? overall : 0,
+    sections,
+    city: "", state: "",
+  };
+
+  const key = vertical === "play" ? HMAI.LS_KEYS.play : HMAI.LS_KEYS.retail;
+  const existing = JSON.parse(localStorage.getItem(key) || "[]");
+  existing.push(record);
+  HMAI.saveOverride(key, existing);
+  await HMAI.init();
+  HMAI.syncCasesFromAudits();
+  refreshCounts();
+
+  const tag = record.score < 60 ? "bad" : (record.score < 80 ? "warn" : "good");
+  document.getElementById("pdfStatus").textContent = "Last parsed: " + file.name;
+  document.getElementById("pdfPreview").innerHTML = `
+    <div class="card" style="margin-top:12px; background:var(--line-soft);">
+      <strong>${record.storeName}</strong> <span class="small-muted">(${record.storeCode})</span>
+      <div style="margin:8px 0;"><span class="tag ${tag}">Overall: ${record.score}%</span> <span class="small-muted">${dateStr}</span></div>
+      <div class="small-muted">Sections parsed: ${Object.keys(sections).length ? Object.keys(sections).join(", ") : "none detected — check PDF format"}</div>
+      ${record.score < 80 ? `<p class="small-muted" style="margin-top:8px;">⚠ Score below 80 — this store will now appear on the <a href="cases.html" style="color:var(--hamleys-red); font-weight:700;">Cases page</a>.</p>` : ""}
+    </div>`;
+  toast(`Parsed ${record.storeName} — ${record.score}%`);
+}
+
+function exportDataset() {
+  const data = HMAI.exportAllData();
+  ["stores","retail","play"].forEach(key => {
+    const blob = new Blob([JSON.stringify(data[key], null, 1)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = key === "retail" ? "retail_audits.json" : key === "play" ? "play_audits.json" : "stores.json";
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  toast("Downloaded 3 files — commit them into assets/data/ and push");
+}
+
+function resetOverrides() {
+  if (!confirm("Clear all locally-uploaded data and cases? This cannot be undone.")) return;
+  Object.values(HMAI.LS_KEYS).forEach(k => localStorage.removeItem(k));
+  location.reload();
+}
+
+boot();
+</script>
+</body>
+</html>

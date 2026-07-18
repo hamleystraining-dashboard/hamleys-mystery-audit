@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Store Cohort · Hamleys Mystery Audit Intelligence</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar"></nav>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Store-wise Cohort</h1>
+        <div class="page-sub">Filter audits by RM, ROM, SD, store and score threshold</div>
+      </div>
+      <div class="seg-toggle" id="verticalToggle">
+        <button data-v="retail" class="active retail">Retail</button>
+        <button data-v="play" class="play">Play</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-field"><label>RM</label><select id="fRm"></select></div>
+      <div class="filter-field"><label>ROM</label><select id="fRom"></select></div>
+      <div class="filter-field"><label>SD</label><select id="fSd"></select></div>
+      <div class="filter-field"><label>Store</label><select id="fStore"></select></div>
+      <div class="filter-field"><label>From</label><input type="date" id="fFrom"></div>
+      <div class="filter-field"><label>To</label><input type="date" id="fTo"></div>
+      <div class="filter-field">
+        <label>Threshold</label>
+        <div class="chip-toggle">
+          <button data-t="all" class="active">All</button>
+          <button data-t="80">&lt; 80</button>
+          <button data-t="60">&lt; 60</button>
+        </div>
+      </div>
+      <button class="filter-clear" id="clearAll" style="margin-left:auto;">Clear all filters</button>
+    </div>
+
+    <div class="card">
+      <div class="section-head">
+        <h3 id="tableTitle">Latest 10 Audits Uploaded</h3>
+        <span class="tag neutral" id="resultCount">0 results</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th data-k="date">Audit Date</th>
+            <th data-k="storeNameResolved">Store</th>
+            <th data-k="storeCode">Code</th>
+            <th data-k="score">Score</th>
+            <th data-k="rm">RM</th>
+            <th data-k="rom">ROM</th>
+            <th data-k="sd">SD</th>
+            <th data-k="wave">Wave</th>
+          </tr></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+let vertical = "retail";
+let threshold = "all";
+let sortKey = "date", sortDir = -1;
+let defaultView = true; // latest-10 mode until a filter is touched
+
+async function boot() {
+  renderSidebar("cohort.html");
+  await HMAI.init();
+
+  document.querySelectorAll("#verticalToggle button").forEach(b => {
+    b.addEventListener("click", () => {
+      vertical = b.dataset.v;
+      document.querySelectorAll("#verticalToggle button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      populateFilterOptions();
+      render();
+    });
+  });
+
+  ["fRm","fRom","fSd","fStore","fFrom","fTo"].forEach(id => {
+    document.getElementById(id).addEventListener("change", () => { defaultView = false; render(); });
+  });
+  document.querySelectorAll(".chip-toggle button").forEach(b => {
+    b.addEventListener("click", () => {
+      threshold = b.dataset.t;
+      document.querySelectorAll(".chip-toggle button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      defaultView = false;
+      render();
+    });
+  });
+  document.getElementById("clearAll").addEventListener("click", () => {
+    ["fRm","fRom","fSd","fStore","fFrom","fTo"].forEach(id => document.getElementById(id).value = "");
+    threshold = "all";
+    document.querySelectorAll(".chip-toggle button").forEach(x => x.classList.remove("active"));
+    document.querySelector(".chip-toggle button[data-t=all]").classList.add("active");
+    defaultView = true;
+    render();
+  });
+  document.querySelectorAll("thead th[data-k]").forEach(th => {
+    th.addEventListener("click", () => {
+      const k = th.dataset.k;
+      if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = -1; }
+      render();
+    });
+  });
+
+  populateFilterOptions();
+  render();
+}
+
+function populateFilterOptions() {
+  fillSelect(document.getElementById("fRm"), HMAI.uniqueValues(vertical, "rm"), "All RMs");
+  fillSelect(document.getElementById("fRom"), HMAI.uniqueValues(vertical, "rom"), "All ROMs");
+  fillSelect(document.getElementById("fSd"), HMAI.uniqueValues(vertical, "sd"), "All SDs");
+  const storeNames = Array.from(new Set(HMAI.audits(vertical).map(a => HMAI.storeMeta(a.storeCode).storeName || a.storeName))).sort();
+  fillSelect(document.getElementById("fStore"), storeNames, "All Stores");
+}
+
+function currentFilters() {
+  const store = document.getElementById("fStore").value;
+  return {
+    rm: document.getElementById("fRm").value || null,
+    rom: document.getElementById("fRom").value || null,
+    sd: document.getElementById("fSd").value || null,
+    from: document.getElementById("fFrom").value || null,
+    to: document.getElementById("fTo").value || null,
+    below80: threshold === "80",
+    below60: threshold === "60",
+    _storeName: store || null,
+  };
+}
+
+function render() {
+  document.querySelector(".seg-toggle").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
+
+  let list;
+  if (defaultView) {
+    list = HMAI.latestPerStore(vertical, 10);
+    document.getElementById("tableTitle").textContent = "Latest 10 Audits Uploaded";
+  } else {
+    const f = currentFilters();
+    list = HMAI.filterAudits(vertical, f);
+    if (f._storeName) list = list.filter(a => (HMAI.storeMeta(a.storeCode).storeName || a.storeName) === f._storeName);
+    document.getElementById("tableTitle").textContent = "Filtered Audit Results";
+  }
+
+  list = list.slice().sort((a, b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (sortKey === "date") { av = new Date(av); bv = new Date(bv); }
+    if (av < bv) return sortDir;
+    if (av > bv) return -sortDir;
+    return 0;
+  });
+
+  document.getElementById("resultCount").textContent = list.length + " results";
+  document.getElementById("tableBody").innerHTML = list.map(a => `
+    <tr>
+      <td>${fmtDate(a.date)}</td>
+      <td><strong>${a.storeNameResolved}</strong></td>
+      <td class="small-muted">${a.storeCode}</td>
+      <td>${scorePill(a.score)}</td>
+      <td>${a.rm}</td>
+      <td>${a.rom}</td>
+      <td>${a.sd}</td>
+      <td class="small-muted">${a.wave || "—"}</td>
+    </tr>`).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:30px;">No audits match these filters</td></tr>`;
+}
+
+boot();
+</script>
+</body>
+</html>
