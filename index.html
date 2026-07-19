@@ -280,7 +280,7 @@ function renderTracker() {
       const cls = i < stage ? "done" : (i === stage ? "current" : "");
       return `<div class="step ${cls}"><div class="bar"></div>${s}</div>`;
     }).join("") + `</div>`;
-    const reasonTag = c.triggerReason ? `<div class="small-muted" style="margin-top:4px;">${HMAI.TRIGGER_REASONS[c.triggerReason]}</div>` : "";
+    const reasonTag = c.triggerReason ? `<div class="small-muted" style="margin-top:6px; white-space:normal;">${HMAI.TRIGGER_REASONS[c.triggerReason]}</div>` : "";
     return `<tr>
       <td><strong>${c.storeName}</strong>${c.unmapped ? ' <span class="tag warn">Unmapped</span>' : ''}<div class="small-muted">${c.storeCode}</div></td>
       <td>${c.vertical === "play" ? "Play" : "Retail"}</td>

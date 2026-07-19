@@ -196,10 +196,10 @@ function render() {
     if (c.stage === "flagged") {
       actionBtn = `<button class="btn btn-primary btn-sm" onclick="openLd('${c.key}')">Trigger L&amp;D Action</button>`;
     } else if (c.stage === "ld_triggered") {
-      actionBtn = `<span class="small-muted">${HMAI.TRIGGER_REASONS[c.triggerReason] || "—"}<br>Waiting on ROM</span>`;
+      actionBtn = `<span class="small-muted" style="white-space:normal;">${HMAI.TRIGGER_REASONS[c.triggerReason] || "—"}<br>Waiting on ROM</span>`;
     } else if (c.stage === "rom_submitted") {
       const closedCount = (c.employees || []).filter(e => e.closed).length;
-      actionBtn = `<span class="small-muted">${(c.employees||[]).length} employee(s) &middot; ${closedCount} closed<br>Waiting on HRBP</span>`;
+      actionBtn = `<span class="small-muted" style="white-space:normal;">${(c.employees||[]).length} employee(s) &middot; ${closedCount} closed<br>Waiting on HRBP</span>`;
     } else {
       actionBtn = `<span class="small-muted">✔ ${fmtDate(c.history[c.history.length-1]?.at)}</span>`;
     }
