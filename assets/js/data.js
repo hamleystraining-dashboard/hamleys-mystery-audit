@@ -291,7 +291,16 @@ const HMAI = (() => {
           const key = caseKey(v, a.evalId);
           const meta = storeMeta(a.storeCode, a.storeName);
           if (existingMap[key]) {
-            flagged.push(existingMap[key]);
+            // Refresh the store/RM/ROM/SD mapping in case Base Store Data was
+            // re-uploaded since this case was created — otherwise a case
+            // created while a store was "Unmapped" stays Unmapped forever,
+            // even after the mapping is fixed. Workflow progress (stage,
+            // employees, history, triggerReason) is preserved as-is.
+            const c = existingMap[key];
+            c.storeName = meta.storeName || a.storeName;
+            c.unmapped = !!meta.unmapped;
+            c.rom = meta.rom; c.sd = meta.sd; c.rm = meta.rm;
+            flagged.push(c);
           } else {
             flagged.push({
               key, vertical: v, evalId: a.evalId, storeCode: a.storeCode,
