@@ -252,7 +252,21 @@ const HMAI = (() => {
     };
   }
 
-  // ---- Cases (Page 3) ---------------------------------------------------
+  // ---- Cases (Page 3: L&D trigger, ROM defaulters, HRBP closure) ----------
+  const TRIGGER_REASONS = {
+    "80_first": "Below 80 — First Time",
+    "80_consecutive": "Below 80 — Consecutive",
+    "60_first": "Below 60 — First Time",
+    "60_consecutive": "Below 60 — Consecutive",
+  };
+  const ROM_ACTIONS = [
+    "Warning Letter",
+    "Termination Letter",
+    "Warning Letter + No Incentive (this month)",
+    "Warning Letter + No Incentive (2nd month with low score)",
+    "50% PLI Deduction for the Quarter",
+  ];
+
   function getCases() {
     return readOverride(LS_KEYS.cases) || [];
   }
@@ -284,7 +298,9 @@ const HMAI = (() => {
               storeName: meta.storeName || a.storeName, unmapped: !!meta.unmapped, rom: meta.rom, sd: meta.sd, rm: meta.rm,
               date: a.date, score: a.score,
               stage: "flagged", // flagged -> ld_triggered -> rom_submitted -> hrbp_closed
-              defaulters: [], actionNotes: "", history: [
+              triggerReason: null, // set by L&D: one of TRIGGER_REASONS keys
+              employees: [],       // set by ROM: [{id,name,designation,code,action,closed,closedAt,closureNote}]
+              history: [
                 { stage: "flagged", at: new Date().toISOString(), by: "System", note: "Auto-flagged: score below 80" }
               ]
             });
@@ -315,6 +331,54 @@ const HMAI = (() => {
     return cases[idx];
   }
 
+  function genEmployeeId() {
+    return "emp_" + Math.random().toString(36).slice(2, 9);
+  }
+
+  // ROM adds one defaulter row at a time (id assigned here so the UI can
+  // reference it immediately for edits/removal before "Send to HR").
+  function addEmployee(key, employee) {
+    const cases = getCases();
+    const idx = cases.findIndex(c => c.key === key);
+    if (idx === -1) return null;
+    cases[idx].employees = cases[idx].employees || [];
+    const row = Object.assign({ id: genEmployeeId(), closed: false, closedAt: null, closedBy: null, closureNote: "" }, employee);
+    cases[idx].employees.push(row);
+    saveCases(cases);
+    return cases[idx];
+  }
+
+  function removeEmployee(key, employeeId) {
+    const cases = getCases();
+    const idx = cases.findIndex(c => c.key === key);
+    if (idx === -1) return null;
+    cases[idx].employees = (cases[idx].employees || []).filter(e => e.id !== employeeId);
+    saveCases(cases);
+    return cases[idx];
+  }
+
+  // HRBP closes one employee's action; once every employee on the case is
+  // closed, the case itself auto-advances to hrbp_closed.
+  function closeEmployee(key, employeeId, closureNote) {
+    const cases = getCases();
+    const idx = cases.findIndex(c => c.key === key);
+    if (idx === -1) return null;
+    const emp = (cases[idx].employees || []).find(e => e.id === employeeId);
+    if (!emp) return null;
+    emp.closed = true;
+    emp.closedAt = new Date().toISOString();
+    emp.closedBy = "HRBP";
+    emp.closureNote = closureNote || "";
+    const allClosed = cases[idx].employees.length > 0 && cases[idx].employees.every(e => e.closed);
+    if (allClosed && cases[idx].stage !== "hrbp_closed") {
+      cases[idx].stage = "hrbp_closed";
+      cases[idx].history = cases[idx].history || [];
+      cases[idx].history.push({ stage: "hrbp_closed", at: new Date().toISOString(), by: "HRBP", note: "All employee actions closed" });
+    }
+    saveCases(cases);
+    return cases[idx];
+  }
+
   // ---- Admin uploads ------------------------------------------------------
   function saveOverride(key, data) {
     localStorage.setItem(key, JSON.stringify(data));
@@ -336,10 +400,11 @@ const HMAI = (() => {
   }
 
   return {
-    LS_KEYS, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
+    LS_KEYS, TRIGGER_REASONS, ROM_ACTIONS, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
     mtd, avg, sectionAverages, filterAudits, uniqueValues, cascadingValues, latestPerStore,
     regionalLeaderboard, storeAuditHistory, sectionSwot, storesWithAudits,
     getCases, saveCases, caseKey, syncCasesFromAudits, updateCase, addCaseHistory,
+    addEmployee, removeEmployee, closeEmployee,
     saveOverride, exportAllData, get STORES() { return STORES; }, get RETAIL() { return RETAIL; }, get PLAY() { return PLAY; }
   };
 })();
