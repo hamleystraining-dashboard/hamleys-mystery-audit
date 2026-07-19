@@ -268,12 +268,12 @@ tbody tr:hover { background: var(--line-soft); }
 .tracker { display: flex; align-items: flex-start; gap: 0; margin-top: 10px; min-width: 230px; white-space: normal; }
 .tracker .step {
   flex: 1; text-align: center; font-size: 10px; font-weight: 700; line-height: 1.25;
-  color: var(--ink-faint); position: relative; padding-top: 16px; white-space: normal; word-break: break-word;
+  color: var(--ink-faint); position: relative; padding-top: 30px; white-space: normal; word-break: break-word;
 }
 .tracker .step::before {
   content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
   width: 22px; height: 22px; border-radius: 50%; background: var(--line-soft);
-  border: 2px solid var(--line);
+  border: 2px solid var(--line); z-index: 1;
 }
 .tracker .step.done::before { background: var(--good); border-color: var(--good); }
 .tracker .step.current::before { background: var(--hamleys-gold); border-color: var(--hamleys-gold); box-shadow: 0 0 0 4px rgba(255,199,44,0.25); }

@@ -60,11 +60,11 @@ const HMAI = (() => {
   }
 
   function mergeStores(base, override) {
+    // A Base Store Data upload REPLACES the list entirely, not a union with
+    // the originally-bundled file — otherwise closed/renamed stores from the
+    // shipped assets/data/stores.json would keep reappearing forever.
     if (!override || !override.length) return base;
-    const map = {};
-    base.forEach(s => map[s.storeCode] = s);
-    override.forEach(s => map[s.storeCode] = s); // override wins
-    return Object.values(map);
+    return override;
   }
 
   function mergeAudits(base, override) {
@@ -253,6 +253,11 @@ const HMAI = (() => {
   }
 
   // ---- Cases (Page 3: L&D trigger, ROM defaulters, HRBP closure) ----------
+  // Every function below is async and dual-mode: if HMAI_CASES_API is set
+  // (assets/js/config.js), it calls the deployed Apps Script Web App so
+  // every user shares one live Sheet and real emails go out. If it's left
+  // empty, everything falls back to this browser's local storage only —
+  // useful for testing UI changes without touching the real Sheet/emails.
   const TRIGGER_REASONS = {
     "80_first": "Below 80 — First Time",
     "80_consecutive": "Below 80 — Consecutive",
@@ -267,7 +272,30 @@ const HMAI = (() => {
     "50% PLI Deduction for the Quarter",
   ];
 
-  function getCases() {
+  function remoteConfigured() {
+    return typeof HMAI_CASES_API !== "undefined" && HMAI_CASES_API;
+  }
+
+  async function apiPost(action, payload) {
+    const res = await fetch(HMAI_CASES_API, {
+      method: "POST",
+      // text/plain avoids a CORS preflight against Apps Script, which
+      // doesn't implement one — the script parses the JSON body itself.
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action, payload }),
+    });
+    const data = await res.json();
+    if (data && data.error) throw new Error(data.error);
+    return data;
+  }
+
+  async function apiGetAll() {
+    const res = await fetch(HMAI_CASES_API + "?action=list");
+    return res.json();
+  }
+
+  async function getCases() {
+    if (remoteConfigured()) return apiGetAll();
     return readOverride(LS_KEYS.cases) || [];
   }
 
@@ -279,63 +307,58 @@ const HMAI = (() => {
 
   // Rebuild the case list from current audit data: any audit scoring <80 gets
   // a case record if one doesn't already exist. Existing case progress is preserved.
-  function syncCasesFromAudits() {
-    const existing = getCases();
-    const existingMap = {};
-    existing.forEach(c => existingMap[c.key] = c);
-
-    const flagged = [];
+  async function syncCasesFromAudits() {
+    const candidates = [];
     ["retail", "play"].forEach(v => {
       audits(v).forEach(a => {
         if (a.score < 80) {
-          const key = caseKey(v, a.evalId);
           const meta = storeMeta(a.storeCode, a.storeName);
-          if (existingMap[key]) {
-            // Refresh the store/RM/ROM/SD mapping in case Base Store Data was
-            // re-uploaded since this case was created — otherwise a case
-            // created while a store was "Unmapped" stays Unmapped forever,
-            // even after the mapping is fixed. Workflow progress (stage,
-            // employees, history, triggerReason) is preserved as-is.
-            const c = existingMap[key];
-            c.storeName = meta.storeName || a.storeName;
-            c.unmapped = !!meta.unmapped;
-            c.rom = meta.rom; c.sd = meta.sd; c.rm = meta.rm;
-            flagged.push(c);
-          } else {
-            flagged.push({
-              key, vertical: v, evalId: a.evalId, storeCode: a.storeCode,
-              storeName: meta.storeName || a.storeName, unmapped: !!meta.unmapped, rom: meta.rom, sd: meta.sd, rm: meta.rm,
-              date: a.date, score: a.score,
-              stage: "flagged", // flagged -> ld_triggered -> rom_submitted -> hrbp_closed
-              triggerReason: null, // set by L&D: one of TRIGGER_REASONS keys
-              employees: [],       // set by ROM: [{id,name,designation,code,action,closed,closedAt,closureNote}]
-              history: [
-                { stage: "flagged", at: new Date().toISOString(), by: "System", note: "Auto-flagged: score below 80" }
-              ]
-            });
-          }
+          candidates.push({
+            key: caseKey(v, a.evalId), vertical: v, evalId: a.evalId, storeCode: a.storeCode,
+            storeName: meta.storeName || a.storeName, unmapped: !!meta.unmapped,
+            rom: meta.rom, sd: meta.sd, rm: meta.rm, date: a.date, score: a.score,
+          });
         }
+      });
+    });
+
+    if (remoteConfigured()) {
+      return apiPost("sync", { candidates });
+    }
+
+    // Local-storage fallback: same upsert logic, run in the browser.
+    const existing = readOverride(LS_KEYS.cases) || [];
+    const existingMap = {};
+    existing.forEach(c => existingMap[c.key] = c);
+    const flagged = candidates.map(c => {
+      if (existingMap[c.key]) {
+        const existingCase = existingMap[c.key];
+        existingCase.storeName = c.storeName;
+        existingCase.unmapped = c.unmapped;
+        existingCase.rom = c.rom; existingCase.sd = c.sd; existingCase.rm = c.rm;
+        return existingCase;
+      }
+      return Object.assign({}, c, {
+        stage: "flagged", triggerReason: null, employees: [],
+        history: [{ stage: "flagged", at: new Date().toISOString(), by: "System", note: "Auto-flagged: score below 80" }],
       });
     });
     saveCases(flagged);
     return flagged;
   }
 
-  function updateCase(key, patch) {
-    const cases = getCases();
-    const idx = cases.findIndex(c => c.key === key);
-    if (idx === -1) return null;
-    cases[idx] = Object.assign({}, cases[idx], patch);
-    saveCases(cases);
-    return cases[idx];
-  }
+  // L&D picks a reason and triggers the case; notifies the ROM by email
+  // when the backend is configured.
+  async function triggerLdAction(key, reason) {
+    if (remoteConfigured()) return apiPost("triggerLD", { key, reason });
 
-  function addCaseHistory(key, entry) {
-    const cases = getCases();
+    const cases = readOverride(LS_KEYS.cases) || [];
     const idx = cases.findIndex(c => c.key === key);
     if (idx === -1) return null;
+    cases[idx].stage = "ld_triggered";
+    cases[idx].triggerReason = reason;
     cases[idx].history = cases[idx].history || [];
-    cases[idx].history.push(Object.assign({ at: new Date().toISOString() }, entry));
+    cases[idx].history.push({ stage: "ld_triggered", at: new Date().toISOString(), by: "L&D Team", note: "Reason: " + TRIGGER_REASONS[reason] + " (local mode — no email sent, see google-apps-script/SETUP.md)" });
     saveCases(cases);
     return cases[idx];
   }
@@ -346,8 +369,10 @@ const HMAI = (() => {
 
   // ROM adds one defaulter row at a time (id assigned here so the UI can
   // reference it immediately for edits/removal before "Send to HR").
-  function addEmployee(key, employee) {
-    const cases = getCases();
+  async function addEmployee(key, employee) {
+    if (remoteConfigured()) return apiPost("addEmployee", { key, employee });
+
+    const cases = readOverride(LS_KEYS.cases) || [];
     const idx = cases.findIndex(c => c.key === key);
     if (idx === -1) return null;
     cases[idx].employees = cases[idx].employees || [];
@@ -357,8 +382,10 @@ const HMAI = (() => {
     return cases[idx];
   }
 
-  function removeEmployee(key, employeeId) {
-    const cases = getCases();
+  async function removeEmployee(key, employeeId) {
+    if (remoteConfigured()) return apiPost("removeEmployee", { key, employeeId });
+
+    const cases = readOverride(LS_KEYS.cases) || [];
     const idx = cases.findIndex(c => c.key === key);
     if (idx === -1) return null;
     cases[idx].employees = (cases[idx].employees || []).filter(e => e.id !== employeeId);
@@ -366,10 +393,28 @@ const HMAI = (() => {
     return cases[idx];
   }
 
+  // ROM sends the completed defaulter list to HR; notifies HRBP by email
+  // when the backend is configured.
+  async function sendToHR(key) {
+    if (remoteConfigured()) return apiPost("sendToHR", { key });
+
+    const cases = readOverride(LS_KEYS.cases) || [];
+    const idx = cases.findIndex(c => c.key === key);
+    if (idx === -1) return null;
+    if (!(cases[idx].employees || []).length) throw new Error("Add at least one employee before sending to HR");
+    cases[idx].stage = "rom_submitted";
+    cases[idx].history = cases[idx].history || [];
+    cases[idx].history.push({ stage: "rom_submitted", at: new Date().toISOString(), by: "ROM", note: `${cases[idx].employees.length} employee(s) submitted (local mode — no email sent, see google-apps-script/SETUP.md)` });
+    saveCases(cases);
+    return cases[idx];
+  }
+
   // HRBP closes one employee's action; once every employee on the case is
   // closed, the case itself auto-advances to hrbp_closed.
-  function closeEmployee(key, employeeId, closureNote) {
-    const cases = getCases();
+  async function closeEmployee(key, employeeId, closureNote) {
+    if (remoteConfigured()) return apiPost("closeEmployee", { key, employeeId, closureNote });
+
+    const cases = readOverride(LS_KEYS.cases) || [];
     const idx = cases.findIndex(c => c.key === key);
     if (idx === -1) return null;
     const emp = (cases[idx].employees || []).find(e => e.id === employeeId);
@@ -412,7 +457,7 @@ const HMAI = (() => {
     LS_KEYS, TRIGGER_REASONS, ROM_ACTIONS, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
     mtd, avg, sectionAverages, filterAudits, uniqueValues, cascadingValues, latestPerStore,
     regionalLeaderboard, storeAuditHistory, sectionSwot, storesWithAudits,
-    getCases, saveCases, caseKey, syncCasesFromAudits, updateCase, addCaseHistory,
+    getCases, saveCases, caseKey, syncCasesFromAudits, triggerLdAction, sendToHR,
     addEmployee, removeEmployee, closeEmployee,
     saveOverride, exportAllData, get STORES() { return STORES; }, get RETAIL() { return RETAIL; }, get PLAY() { return PLAY; }
   };
