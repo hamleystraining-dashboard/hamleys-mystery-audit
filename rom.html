@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROM Action · Hamleys Mystery Audit Intelligence</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="standalone-main">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">ROM Action</h1>
+        <div class="page-sub">Cases where L&amp;D has triggered an action — add defaulters and route to HRBP</div>
+      </div>
+      <div class="seg-toggle" id="verticalToggle">
+        <button data-v="retail" class="active retail">Retail</button>
+        <button data-v="play" class="play">Play</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-field"><label>ROM</label><select id="fRom"></select></div>
+      <span class="small-muted" id="resultCount" style="margin-left:auto;"></span>
+    </div>
+
+    <div id="caseListWrap"></div>
+
+</div>
+
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+let vertical = "retail";
+
+async function boot() {
+  await requireAccess("ROM Action — L&D / ROM Only");
+  renderStandaloneHeader("ROM Action", "Add defaulter names & action, then send to HRBP");
+  try {
+    await HMAI.init();
+  } catch (err) {
+    showLoadError(err);
+    return;
+  }
+
+  document.querySelectorAll("#verticalToggle button").forEach(b => {
+    b.addEventListener("click", () => {
+      vertical = b.dataset.v;
+      document.querySelectorAll("#verticalToggle button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      populateRomFilter();
+      render();
+    });
+  });
+  document.getElementById("fRom").addEventListener("change", render);
+
+  populateRomFilter();
+  render();
+}
+
+function populateRomFilter() {
+  const roms = HMAI.getCases().filter(c => c.vertical === vertical && c.stage === "ld_triggered")
+    .map(c => c.rom).filter((v,i,a) => a.indexOf(v) === i).sort();
+  fillSelect(document.getElementById("fRom"), roms, "All ROMs");
+}
+
+function render() {
+  document.querySelector(".seg-toggle").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
+  const romFilter = document.getElementById("fRom").value;
+  let cases = HMAI.getCases().filter(c => c.vertical === vertical && c.stage === "ld_triggered");
+  if (romFilter) cases = cases.filter(c => c.rom === romFilter);
+  cases.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  document.getElementById("resultCount").textContent = cases.length + " case(s) awaiting ROM action";
+
+  const wrap = document.getElementById("caseListWrap");
+  if (!cases.length) {
+    wrap.innerHTML = `<div class="card empty-state"><div class="ic">✅</div><h3>Nothing waiting on you right now</h3><p class="small-muted">Cases appear here once L&D triggers an action.</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = cases.map(c => caseCardHtml(c)).join("");
+
+  // wire up per-case interactions after render
+  cases.forEach(c => wireCase(c.key));
+}
+
+function caseCardHtml(c) {
+  const employees = c.employees || [];
+  return `
+  <div class="card" style="margin-bottom:16px;" id="card_${c.key}">
+    <div class="section-head">
+      <div>
+        <h3>${c.storeName} <span class="small-muted" style="font-weight:400;">(${c.storeCode})</span></h3>
+        <span class="tag warn" style="margin-top:6px;">${HMAI.TRIGGER_REASONS[c.triggerReason] || "Reason not set"}</span>
+      </div>
+      <div style="text-align:right;">
+        ${scorePill(c.score)}
+        <div class="small-muted" style="margin-top:4px;">${fmtDate(c.date)} &middot; RM: ${c.rm} &middot; SD: ${c.sd}</div>
+      </div>
+    </div>
+    <hr class="hr">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Employee Name</th><th>Designation</th><th>Employee Code</th><th>Action</th><th></th></tr></thead>
+        <tbody id="empBody_${c.key}">
+          ${employees.map(e => empRowHtml(e)).join("")}
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; align-items:flex-end;">
+      <div class="field-row" style="margin:0;"><label>Name</label><input type="text" id="name_${c.key}" placeholder="Employee name"></div>
+      <div class="field-row" style="margin:0;"><label>Designation</label><input type="text" id="desig_${c.key}" placeholder="e.g. Fun Consultant"></div>
+      <div class="field-row" style="margin:0;"><label>Employee Code</label><input type="text" id="code_${c.key}" placeholder="e.g. HML1234"></div>
+      <div class="field-row" style="margin:0; min-width:220px;">
+        <label>Action</label>
+        <select id="action_${c.key}">
+          <option value="">Select action…</option>
+          ${HMAI.ROM_ACTIONS.map(a => `<option value="${a}">${a}</option>`).join("")}
+        </select>
+      </div>
+      <button class="btn btn-navy btn-sm" onclick="addEmployeeRow('${c.key}')">+ Add</button>
+    </div>
+    <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+      <button class="btn btn-primary" onclick="sendToHr('${c.key}')">Send to HR</button>
+    </div>
+  </div>`;
+}
+
+function empRowHtml(e) {
+  return `<tr id="emprow_${e.id}">
+    <td>${e.name}</td><td>${e.designation}</td><td>${e.code}</td><td>${e.action}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="removeEmployeeRow('${e.caseKey}','${e.id}')">Remove</button></td>
+  </tr>`;
+}
+
+function wireCase(key) {
+  // Enter key adds a row from the name field for convenience
+  const nameInput = document.getElementById(`name_${key}`);
+  if (nameInput) nameInput.addEventListener("keydown", e => { if (e.key === "Enter") addEmployeeRow(key); });
+}
+
+function addEmployeeRow(key) {
+  const name = document.getElementById(`name_${key}`).value.trim();
+  const designation = document.getElementById(`desig_${key}`).value.trim();
+  const code = document.getElementById(`code_${key}`).value.trim();
+  const action = document.getElementById(`action_${key}`).value;
+  if (!name || !designation || !code || !action) {
+    toast("Fill in name, designation, employee code and action before adding");
+    return;
+  }
+  HMAI.addEmployee(key, { name, designation, code, action, caseKey: key });
+  document.getElementById(`name_${key}`).value = "";
+  document.getElementById(`desig_${key}`).value = "";
+  document.getElementById(`code_${key}`).value = "";
+  document.getElementById(`action_${key}`).value = "";
+  render();
+}
+
+function removeEmployeeRow(key, empId) {
+  HMAI.removeEmployee(key, empId);
+  render();
+}
+
+function sendToHr(key) {
+  const c = HMAI.getCases().find(x => x.key === key);
+  if (!c || !(c.employees || []).length) {
+    toast("Add at least one employee before sending to HR");
+    return;
+  }
+  HMAI.updateCase(key, { stage: "rom_submitted" });
+  HMAI.addCaseHistory(key, { stage: "rom_submitted", by: "ROM", note: `${c.employees.length} employee(s) submitted. HRBP notified.` });
+  toast("Sent to HRBP");
+  render();
+}
+
+boot();
+</script>
+</body>
+</html>

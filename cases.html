@@ -3,20 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cases · Hamleys Mystery Audit Intelligence</title>
+<title>Cases (L&D) · Hamleys Mystery Audit Intelligence</title>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 <div class="standalone-main">
     <div class="topbar">
       <div>
-        <h1 class="page-title">Cases</h1>
-        <div class="page-sub">Stores below threshold &middot; L&amp;D &rarr; ROM &rarr; HRBP escalation</div>
+        <h1 class="page-title">Cases — L&amp;D Trigger</h1>
+        <div class="page-sub">Stores below threshold &middot; choose a reason to hand off to the ROM</div>
       </div>
       <div class="seg-toggle" id="verticalToggle">
         <button data-v="retail" class="active retail">Retail</button>
         <button data-v="play" class="play">Play</button>
       </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px; background:#EAF4FF; border-color:#CFE3FA;">
+      <p class="small-muted" style="margin:0; line-height:1.5;">
+        This page is for <strong>L&amp;D</strong> to trigger the first step only. Once triggered, the case moves to
+        <a href="rom.html" style="color:var(--hamleys-navy); font-weight:700;">the ROM page</a> for defaulter details, then to
+        <a href="hrbp.html" style="color:var(--hamleys-navy); font-weight:700;">the HRBP page</a> to close it out.
+        All three stages show up live on the <a href="index.html" style="color:var(--hamleys-navy); font-weight:700;">Overview</a> tracker.
+      </p>
     </div>
 
     <div class="filter-bar">
@@ -30,19 +39,19 @@
         <select id="fStage">
           <option value="">All stages</option>
           <option value="flagged">Flagged (no action yet)</option>
-          <option value="ld_triggered">L&amp;D Stage</option>
-          <option value="rom_submitted">ROM Stage</option>
-          <option value="hrbp_closed">HRBP Closed</option>
+          <option value="ld_triggered">With ROM</option>
+          <option value="rom_submitted">With HRBP</option>
+          <option value="hrbp_closed">Closed</option>
         </select>
       </div>
       <button class="filter-clear" id="clearAll" style="margin-left:auto;">Clear all</button>
     </div>
 
     <div class="grid kpi-row" style="grid-template-columns: repeat(4,1fr);">
-      <div class="kpi-card kpi-1"><div class="lbl">Open Cases</div><div class="val" id="kOpen">—</div><div class="foot">not yet closed by HRBP</div></div>
-      <div class="kpi-card kpi-2"><div class="lbl">Awaiting L&amp;D Trigger</div><div class="val" id="kFlagged">—</div><div class="foot">no action started</div></div>
-      <div class="kpi-card kpi-3"><div class="lbl">With ROM</div><div class="val" id="kRom">—</div><div class="foot">defaulters pending</div></div>
-      <div class="kpi-card kpi-4"><div class="lbl">Closed by HRBP</div><div class="val" id="kClosed">—</div><div class="foot">process complete</div></div>
+      <div class="kpi-card kpi-1"><div class="lbl">Awaiting L&amp;D Trigger</div><div class="val" id="kFlagged">—</div><div class="foot">no action started</div></div>
+      <div class="kpi-card kpi-2"><div class="lbl">With ROM</div><div class="val" id="kRom">—</div><div class="foot">defaulters pending</div></div>
+      <div class="kpi-card kpi-3"><div class="lbl">With HRBP</div><div class="val" id="kHrbp">—</div><div class="foot">action pending closure</div></div>
+      <div class="kpi-card kpi-4"><div class="lbl">Closed</div><div class="val" id="kClosed">—</div><div class="foot">process complete</div></div>
     </div>
 
     <div class="card">
@@ -60,7 +69,6 @@
       </div>
     </div>
 
-
 </div>
 
 <!-- L&D trigger confirm modal -->
@@ -69,48 +77,20 @@
     <h3 style="margin-bottom:6px;">Trigger L&amp;D Action</h3>
     <p class="small-muted" id="ldModalCopy"></p>
     <hr class="hr">
-    <p class="small-muted">This notifies the store's ROM by email to identify defaulters and route the corrective action to HRBP.</p>
+    <div class="field-row">
+      <label>Reason for trigger</label>
+      <select id="ldReason">
+        <option value="">Select a reason…</option>
+        <option value="80_first">Below 80 — First Time</option>
+        <option value="80_consecutive">Below 80 — Consecutive</option>
+        <option value="60_first">Below 60 — First Time</option>
+        <option value="60_consecutive">Below 60 — Consecutive</option>
+      </select>
+    </div>
+    <p class="small-muted">This determines what actions the ROM and HRBP will see for this case. Once triggered, the ROM is notified.</p>
     <div style="display:flex; gap:10px; margin-top:18px; justify-content:flex-end;">
       <button class="btn btn-ghost" onclick="closeModal('ldModal')">Cancel</button>
       <button class="btn btn-primary" id="ldConfirmBtn">Notify ROM</button>
-    </div>
-  </div>
-</div>
-
-<!-- ROM submission modal -->
-<div class="modal-bg" id="romModal">
-  <div class="modal">
-    <h3 style="margin-bottom:6px;">ROM: Submit Defaulters &amp; Action</h3>
-    <p class="small-muted" id="romModalCopy"></p>
-    <hr class="hr">
-    <div class="field-row">
-      <label>Defaulter name(s)</label>
-      <input type="text" id="romDefaulters" placeholder="e.g. Store Manager, FC on shift">
-    </div>
-    <div class="field-row">
-      <label>Corrective action / notes for HRBP</label>
-      <textarea id="romAction" rows="3" placeholder="Describe the action being routed to HRBP"></textarea>
-    </div>
-    <div style="display:flex; gap:10px; margin-top:14px; justify-content:flex-end;">
-      <button class="btn btn-ghost" onclick="closeModal('romModal')">Cancel</button>
-      <button class="btn btn-primary" id="romConfirmBtn">Submit to HRBP</button>
-    </div>
-  </div>
-</div>
-
-<!-- HRBP close modal -->
-<div class="modal-bg" id="hrbpModal">
-  <div class="modal">
-    <h3 style="margin-bottom:6px;">HRBP: Close Case</h3>
-    <p class="small-muted" id="hrbpModalCopy"></p>
-    <hr class="hr">
-    <div class="field-row">
-      <label>Closure notes</label>
-      <textarea id="hrbpNotes" rows="3" placeholder="Action taken, outcome"></textarea>
-    </div>
-    <div style="display:flex; gap:10px; margin-top:14px; justify-content:flex-end;">
-      <button class="btn btn-ghost" onclick="closeModal('hrbpModal')">Cancel</button>
-      <button class="btn btn-primary" id="hrbpConfirmBtn">Close Case</button>
     </div>
   </div>
 </div>
@@ -123,8 +103,8 @@ let vertical = "retail";
 let activeCaseKey = null;
 
 async function boot() {
-  await requireAccess("Cases — L&D / ROM / HRBP Only");
-  renderStandaloneHeader("Cases", "L&D \u2192 ROM \u2192 HRBP escalation workflow");
+  await requireAccess("Cases (L&D) — L&D Team Only");
+  renderStandaloneHeader("Cases — L&D Trigger", "First step of the L&D \u2192 ROM \u2192 HRBP workflow");
   try {
     await HMAI.init();
   } catch (err) {
@@ -155,8 +135,6 @@ async function boot() {
   });
 
   document.getElementById("ldConfirmBtn").addEventListener("click", confirmLd);
-  document.getElementById("romConfirmBtn").addEventListener("click", confirmRom);
-  document.getElementById("hrbpConfirmBtn").addEventListener("click", confirmHrbp);
 
   populateFilterOptions();
   render();
@@ -174,14 +152,11 @@ function onHierarchyChange(changedLevel) {
   if (changedLevel === "rm") {
     const romOpts = HMAI.cascadingValues(vertical, "rom", { rm });
     fillSelect(document.getElementById("fRom"), romOpts, "All ROMs");
-    if (rom && !romOpts.includes(rom)) document.getElementById("fRom").value = "";
     const sdOpts = HMAI.cascadingValues(vertical, "sd", { rm, rom: document.getElementById("fRom").value || null });
     fillSelect(document.getElementById("fSd"), sdOpts, "All SDs");
-    document.getElementById("fSd").value = "";
   } else if (changedLevel === "rom") {
     const sdOpts = HMAI.cascadingValues(vertical, "sd", { rm, rom });
     fillSelect(document.getElementById("fSd"), sdOpts, "All SDs");
-    document.getElementById("fSd").value = "";
   }
 }
 
@@ -207,9 +182,9 @@ function render() {
   if (f.from || f.to) cases = cases.filter(c => HMAI.inDateRange(c.date, f.from, f.to));
   cases.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-  document.getElementById("kOpen").textContent = cases.filter(c => c.stage !== "hrbp_closed").length;
   document.getElementById("kFlagged").textContent = cases.filter(c => c.stage === "flagged").length;
-  document.getElementById("kRom").textContent = cases.filter(c => c.stage === "rom_submitted").length;
+  document.getElementById("kRom").textContent = cases.filter(c => c.stage === "ld_triggered").length;
+  document.getElementById("kHrbp").textContent = cases.filter(c => c.stage === "rom_submitted").length;
   document.getElementById("kClosed").textContent = cases.filter(c => c.stage === "hrbp_closed").length;
   document.getElementById("resultCount").textContent = cases.length + " cases";
 
@@ -221,9 +196,10 @@ function render() {
     if (c.stage === "flagged") {
       actionBtn = `<button class="btn btn-primary btn-sm" onclick="openLd('${c.key}')">Trigger L&amp;D Action</button>`;
     } else if (c.stage === "ld_triggered") {
-      actionBtn = `<button class="btn btn-teal btn-sm" onclick="openRom('${c.key}')">ROM: Submit Defaulters</button>`;
+      actionBtn = `<span class="small-muted">${HMAI.TRIGGER_REASONS[c.triggerReason] || "—"}<br>Waiting on ROM</span>`;
     } else if (c.stage === "rom_submitted") {
-      actionBtn = `<button class="btn btn-navy btn-sm" onclick="openHrbp('${c.key}')">HRBP: Close Case</button>`;
+      const closedCount = (c.employees || []).filter(e => e.closed).length;
+      actionBtn = `<span class="small-muted">${(c.employees||[]).length} employee(s) &middot; ${closedCount} closed<br>Waiting on HRBP</span>`;
     } else {
       actionBtn = `<span class="small-muted">✔ ${fmtDate(c.history[c.history.length-1]?.at)}</span>`;
     }
@@ -236,7 +212,7 @@ function render() {
       <td>${actionBtn}</td>
       <td><a class="btn btn-ghost btn-sm" href="trend.html?store=${encodeURIComponent(c.storeCode)}&v=${c.vertical}" target="_blank">View</a></td>
     </tr>`;
-  }).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:30px;">No cases match these filters</td></tr>`;
+  }).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:30px;">No cases match these filters</td></tr>`;
 }
 
 function findCase(key) { return HMAI.getCases().find(c => c.key === key); }
@@ -245,48 +221,16 @@ function openLd(key) {
   activeCaseKey = key;
   const c = findCase(key);
   document.getElementById("ldModalCopy").textContent = `${c.storeName} (${c.storeCode}) scored ${c.score} on ${fmtDate(c.date)}. ROM: ${c.rom}.`;
+  document.getElementById("ldReason").value = "";
   document.getElementById("ldModal").classList.add("open");
 }
 function confirmLd() {
-  HMAI.updateCase(activeCaseKey, { stage: "ld_triggered" });
-  HMAI.addCaseHistory(activeCaseKey, { stage: "ld_triggered", by: "L&D Team", note: `Email notification sent to ROM.` });
+  const reason = document.getElementById("ldReason").value;
+  if (!reason) { toast("Please select a reason for the trigger"); return; }
+  HMAI.updateCase(activeCaseKey, { stage: "ld_triggered", triggerReason: reason });
+  HMAI.addCaseHistory(activeCaseKey, { stage: "ld_triggered", by: "L&D Team", note: `Reason: ${HMAI.TRIGGER_REASONS[reason]}. Email notification sent to ROM.` });
   closeModal("ldModal");
-  toast("ROM notified by email — case moved to L&D stage");
-  render();
-}
-
-function openRom(key) {
-  activeCaseKey = key;
-  const c = findCase(key);
-  document.getElementById("romModalCopy").textContent = `${c.storeName} (${c.storeCode}) · ${c.rom}`;
-  document.getElementById("romDefaulters").value = "";
-  document.getElementById("romAction").value = "";
-  document.getElementById("romModal").classList.add("open");
-}
-function confirmRom() {
-  const defaulters = document.getElementById("romDefaulters").value.trim();
-  const action = document.getElementById("romAction").value.trim();
-  if (!defaulters) { toast("Please enter defaulter name(s)"); return; }
-  HMAI.updateCase(activeCaseKey, { stage: "rom_submitted", defaulters, actionNotes: action });
-  HMAI.addCaseHistory(activeCaseKey, { stage: "rom_submitted", by: "ROM", note: `Defaulters: ${defaulters}. Action: ${action || "—"}` });
-  closeModal("romModal");
-  toast("Submitted — HRBP notified by email");
-  render();
-}
-
-function openHrbp(key) {
-  activeCaseKey = key;
-  const c = findCase(key);
-  document.getElementById("hrbpModalCopy").textContent = `${c.storeName} (${c.storeCode}) · Defaulters: ${c.defaulters || "—"}`;
-  document.getElementById("hrbpNotes").value = "";
-  document.getElementById("hrbpModal").classList.add("open");
-}
-function confirmHrbp() {
-  const notes = document.getElementById("hrbpNotes").value.trim();
-  HMAI.updateCase(activeCaseKey, { stage: "hrbp_closed", closureNotes: notes });
-  HMAI.addCaseHistory(activeCaseKey, { stage: "hrbp_closed", by: "HRBP", note: notes || "Case closed" });
-  closeModal("hrbpModal");
-  toast("Case closed by HRBP");
+  toast("ROM notified by email — case moved to ROM stage");
   render();
 }
 

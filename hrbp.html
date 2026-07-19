@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HRBP Action · Hamleys Mystery Audit Intelligence</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="standalone-main">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">HRBP Action</h1>
+        <div class="page-sub">Cases the ROM has submitted — close each employee's action</div>
+      </div>
+      <div class="seg-toggle" id="verticalToggle">
+        <button data-v="retail" class="active retail">Retail</button>
+        <button data-v="play" class="play">Play</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <span class="small-muted" id="resultCount"></span>
+    </div>
+
+    <div id="caseListWrap"></div>
+
+</div>
+
+<!-- Close employee modal -->
+<div class="modal-bg" id="closeModal">
+  <div class="modal">
+    <h3 style="margin-bottom:6px;">Mark Action Taken &amp; Closed</h3>
+    <p class="small-muted" id="closeModalCopy"></p>
+    <hr class="hr">
+    <div class="field-row">
+      <label>Closure notes (optional)</label>
+      <textarea id="closeNotes" rows="3" placeholder="Any detail on what was done"></textarea>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:14px; justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeModalEl('closeModal')">Cancel</button>
+      <button class="btn btn-primary" id="closeConfirmBtn">Confirm Closed</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+let vertical = "retail";
+let activeCaseKey = null;
+let activeEmpId = null;
+
+async function boot() {
+  await requireAccess("HRBP Action — L&D / HRBP Only");
+  renderStandaloneHeader("HRBP Action", "Close out employee actions submitted by the ROM");
+  try {
+    await HMAI.init();
+  } catch (err) {
+    showLoadError(err);
+    return;
+  }
+
+  document.querySelectorAll("#verticalToggle button").forEach(b => {
+    b.addEventListener("click", () => {
+      vertical = b.dataset.v;
+      document.querySelectorAll("#verticalToggle button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      render();
+    });
+  });
+  document.getElementById("closeConfirmBtn").addEventListener("click", confirmClose);
+
+  render();
+}
+
+function render() {
+  document.querySelector(".seg-toggle").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
+  let cases = HMAI.getCases().filter(c => c.vertical === vertical && (c.stage === "rom_submitted" || (c.stage === "hrbp_closed" && (c.employees||[]).some(e=>e.closed))));
+  // Show open (rom_submitted) cases first; fully closed ones stay visible briefly for confirmation but sorted last
+  cases.sort((a,b) => (a.stage === "rom_submitted" ? -1 : 1) - (b.stage === "rom_submitted" ? -1 : 1) || new Date(b.date) - new Date(a.date));
+
+  const openCount = cases.filter(c => c.stage === "rom_submitted").length;
+  document.getElementById("resultCount").textContent = openCount + " case(s) with pending employee actions";
+
+  const wrap = document.getElementById("caseListWrap");
+  if (!cases.length) {
+    wrap.innerHTML = `<div class="card empty-state"><div class="ic">✅</div><h3>Nothing waiting on HRBP right now</h3><p class="small-muted">Cases appear here once a ROM sends defaulter details.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = cases.map(c => caseCardHtml(c)).join("");
+}
+
+function caseCardHtml(c) {
+  const employees = c.employees || [];
+  const closedCount = employees.filter(e => e.closed).length;
+  const allClosed = closedCount === employees.length && employees.length > 0;
+  return `
+  <div class="card" style="margin-bottom:16px; ${allClosed ? 'opacity:0.75;' : ''}">
+    <div class="section-head">
+      <div>
+        <h3>${c.storeName} <span class="small-muted" style="font-weight:400;">(${c.storeCode})</span></h3>
+        <span class="tag warn" style="margin-top:6px;">${HMAI.TRIGGER_REASONS[c.triggerReason] || "Reason not set"}</span>
+        ${allClosed ? '<span class="tag good" style="margin-top:6px; margin-left:6px;">Case Closed</span>' : ''}
+      </div>
+      <div style="text-align:right;">
+        ${scorePill(c.score)}
+        <div class="small-muted" style="margin-top:4px;">${fmtDate(c.date)} &middot; RM: ${c.rm} &middot; ROM: ${c.rom} &middot; SD: ${c.sd}</div>
+      </div>
+    </div>
+    <hr class="hr">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Employee Name</th><th>Designation</th><th>Employee Code</th><th>Action</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          ${employees.map(e => `<tr>
+            <td>${e.name}</td><td>${e.designation}</td><td>${e.code}</td><td>${e.action}</td>
+            <td>${e.closed ? `<span class="tag good">Closed ${fmtDate(e.closedAt)}</span>` : `<span class="tag warn">Pending</span>`}</td>
+            <td>${e.closed ? "" : `<button class="btn btn-primary btn-sm" onclick="openClose('${c.key}','${e.id}')">Action Taken &amp; Closed</button>`}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+    <p class="small-muted" style="margin-top:10px;">${closedCount} of ${employees.length} closed${allClosed ? " — case moved to Closed on the tracker." : ""}</p>
+  </div>`;
+}
+
+function openClose(key, empId) {
+  activeCaseKey = key; activeEmpId = empId;
+  const c = HMAI.getCases().find(x => x.key === key);
+  const emp = (c.employees || []).find(e => e.id === empId);
+  document.getElementById("closeModalCopy").textContent = `${emp.name} (${emp.code}) — ${emp.action}`;
+  document.getElementById("closeNotes").value = "";
+  document.getElementById("closeModal").classList.add("open");
+}
+
+function confirmClose() {
+  const notes = document.getElementById("closeNotes").value.trim();
+  HMAI.closeEmployee(activeCaseKey, activeEmpId, notes);
+  closeModalEl("closeModal");
+  toast("Marked closed");
+  render();
+}
+
+function closeModalEl(id) { document.getElementById(id).classList.remove("open"); }
+
+boot();
+</script>
+</body>
+</html>

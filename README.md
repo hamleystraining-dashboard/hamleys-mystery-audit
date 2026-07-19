@@ -9,12 +9,14 @@ can be published free on GitHub Pages.
 ├── cohort.html      Store Cohort — RM/ROM/SD/store/date/score filters, latest 10 audits
 ├── trend.html        Trend Data — last-5-audit trend + strengths/weaknesses per store
 ├── admin.html         Standalone, password-gated — L&D data uploads (not in the public nav)
-├── cases.html          Standalone, password-gated — L&D → ROM → HRBP case workflow (not in the public nav)
+├── cases.html          Standalone, password-gated — L&D: trigger a case, pick the reason
+├── rom.html             Standalone, password-gated — ROM: add defaulters + action, send to HR
+├── hrbp.html             Standalone, password-gated — HRBP: close each employee's action
 ├── assets/
 │   ├── css/style.css
 │   ├── js/data.js     data loading, filtering, cases, leaderboard & SWOT logic
 │   ├── js/ui.js        sidebar / standalone header + shared widgets
-│   ├── js/auth.js       shared password gate for admin.html & cases.html
+│   ├── js/auth.js       shared password gate for admin/cases/rom/hrbp
 │   └── data/           stores.json, retail_audits.json, play_audits.json (your real data)
 ```
 
@@ -49,11 +51,13 @@ Pages redeploys automatically within ~1 minute.
 **Public, no login:** `index.html`, `cohort.html`, `trend.html`. Their sidebar shows only
 these three tabs — Admin and Cases are never listed, so casual visitors don't know they exist.
 
-**Gated, one shared password:** `admin.html` and `cases.html`. Each opens behind a full-page
-password screen (`assets/js/auth.js`), as requested, one password shared across L&D, ROMs,
-and HRBP. They're deliberately **standalone tools**, not extra tabs bolted onto the main
-dashboard — no sidebar linking to Overview/Cohort/Trend, and no link between Admin and
-Cases either. Each just has a small "Exit to Dashboard" / "Log out" pair in its header.
+**Gated, one shared password:** `admin.html`, `cases.html`, `rom.html`, `hrbp.html`. Each
+opens behind its own full-page password screen (`assets/js/auth.js`), all sharing the same
+password across L&D, ROMs, and HRBP as requested. They're deliberately **standalone
+tools**, not extra tabs bolted onto the main dashboard — no sidebar linking to
+Overview/Cohort/Trend, and no cross-links between them either (Cases links forward to ROM
+and HRBP in its intro copy, but that's it). Each just has a small "Exit to Dashboard" /
+"Log out" pair in its header.
 
 **Change the password before relying on this.** Open any browser console and run:
 ```js
@@ -100,19 +104,33 @@ Only re-upload through Admin when you have **new or corrected** data:
 
 ## 4. Cases workflow
 
-Any audit scoring below 80 is auto-flagged. Stage order:
-`Flagged → L&D Stage → ROM Stage → HRBP Closed`
+Any audit scoring below 80 is auto-flagged. The workflow is now **three separate pages**,
+one per role, each behind the same shared password — not one page with buttons for
+everyone:
 
-1. **Flagged** — new low-score audit appears automatically.
-2. L&D clicks **Trigger L&D Action** → stage becomes **L&D Stage** (ROM notified — see note below).
-3. ROM opens the case, enters defaulter name(s) + action notes, clicks **Submit to HRBP** →
-   stage becomes **ROM Stage** (HRBP notified).
-4. HRBP reviews, adds closure notes, clicks **Close Case** → stage becomes **HRBP Closed**.
+`Flagged → L&D Stage (cases.html) → ROM Stage (rom.html) → HRBP Closed (hrbp.html)`
 
-This stage is shown live on the **Overview** page's Action Tracker table. Note: since this
-is a static site with no backend yet, the "notify" steps currently just advance the stage
-and show a confirmation toast — there's no real email being sent. That's exactly what the
-Google Sheets + Apps Script upgrade in §2 would add.
+1. **`cases.html` (L&D):** case appears automatically once a store scores below 80.
+   L&D clicks **Trigger L&D Action** and must pick a **reason**:
+   `Below 80 — First Time` / `Below 80 — Consecutive` / `Below 60 — First Time` /
+   `Below 60 — Consecutive`. This is what ROM and HRBP see next, and is meant to drive
+   which action is appropriate. Case moves to **ROM Stage**.
+2. **`rom.html` (ROM):** shows every case waiting on this ROM — store name, code, and the
+   reason L&D selected, pulled in automatically. ROM fills in **Name / Designation /
+   Employee Code / Action** (Warning Letter, Termination Letter, Warning + No Incentive
+   this month, Warning + No Incentive 2nd month, or 50% PLI Deduction for the Quarter) and
+   clicks **+ Add** — repeatable for multiple employees on the same case. Once all
+   defaulters are listed, **Send to HR** moves the case to **HRBP Stage**.
+3. **`hrbp.html` (HRBP):** shows store name, code, trigger reason, and the table of
+   employees with the action ROM selected for each. Each employee gets its own
+   **Action Taken & Closed** button. Once every employee on a case is closed, the case
+   itself automatically flips to **Closed** — no separate "close case" step needed.
+
+All three stages, plus the trigger reason, show up live on the **Overview** page's Action
+Tracker. Note: since this is a static site with no backend yet, "ROM notified" / "HRBP
+notified" currently just advance the stage and show a confirmation toast — no real email
+is sent. That's exactly what the Google Sheets + Apps Script upgrade in §2 would add,
+which we're tackling next.
 
 ## 5. Trend Data page
 
