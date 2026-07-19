@@ -23,6 +23,13 @@
 
     <div class="filter-bar">
       <div class="filter-field">
+        <label>Financial Year</label>
+        <div class="chip-toggle" id="fyToggle">
+          <button data-fy="2025-26">FY 2025-26</button>
+          <button data-fy="2026-27">FY 2026-27</button>
+        </div>
+      </div>
+      <div class="filter-field">
         <label>From</label>
         <input type="date" id="fFrom">
       </div>
@@ -134,14 +141,48 @@ async function boot() {
       render();
     });
   });
-  document.getElementById("fFrom").addEventListener("change", render);
-  document.getElementById("fTo").addEventListener("change", render);
+  document.querySelectorAll("#fyToggle button").forEach(b => {
+    b.addEventListener("click", () => applyFY(b.dataset.fy));
+  });
+  document.getElementById("fFrom").addEventListener("change", () => { clearFyActive(); render(); });
+  document.getElementById("fTo").addEventListener("change", () => { clearFyActive(); render(); });
   document.getElementById("clearDates").addEventListener("click", () => {
     document.getElementById("fFrom").value = "";
     document.getElementById("fTo").value = "";
+    clearFyActive();
     render();
   });
 
+  // Default the landing page to the financial year containing the most
+  // recent audit (not necessarily "today"'s FY — the dataset may lag behind
+  // the calendar), so it's never blank on first load.
+  applyFY(currentFyLabel());
+}
+
+// India FY runs Apr 1 → Mar 31. "2025-26" means Apr 2025 – Mar 2026.
+function fyRange(label) {
+  const startYear = 2000 + parseInt(label.split("-")[0].slice(-2), 10);
+  const from = `${startYear}-04-01`;
+  const to = `${startYear + 1}-03-31`;
+  return { from, to };
+}
+function currentFyLabel() {
+  const allDates = HMAI.audits(vertical).map(a => new Date(a.date)).filter(d => !isNaN(d));
+  const anchor = allDates.length ? new Date(Math.max(...allDates)) : new Date();
+  const y = anchor.getFullYear(), m = anchor.getMonth(); // 0-indexed, April = 3
+  const startYear = m >= 3 ? y : y - 1;
+  return `${startYear}-${String((startYear + 1) % 100).padStart(2,"0")}`;
+}
+function clearFyActive() {
+  document.querySelectorAll("#fyToggle button").forEach(b => b.classList.remove("active"));
+}
+function applyFY(label) {
+  const { from, to } = fyRange(label);
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById("fFrom").value = from;
+  // Don't default "To" beyond today for the current, still-in-progress FY.
+  document.getElementById("fTo").value = to > today ? today : to;
+  document.querySelectorAll("#fyToggle button").forEach(b => b.classList.toggle("active", b.dataset.fy === label));
   render();
 }
 
@@ -163,7 +204,9 @@ function render() {
   let list = HMAI.audits(vertical);
   if (filters.from || filters.to) {
     list = list.filter(a => HMAI.inDateRange(a.date, filters.from, filters.to));
-    document.getElementById("rangeSummary").textContent = `Showing ${filters.from || "start"} → ${filters.to || "today"}`;
+    const activeFy = document.querySelector("#fyToggle button.active");
+    const fyPrefix = activeFy ? `FY ${activeFy.dataset.fy} · ` : "";
+    document.getElementById("rangeSummary").textContent = `${fyPrefix}Showing ${filters.from || "start"} → ${filters.to || "today"}`;
   } else {
     list = HMAI.mtd(vertical);
     document.getElementById("rangeSummary").textContent = "Showing month-to-date (default) — set a range to override";
