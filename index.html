@@ -108,6 +108,7 @@
 
   </main>
 </div>
+<script src="assets/js/config.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/ui.js"></script>
@@ -123,7 +124,7 @@ async function boot() {
     showLoadError(err);
     return;
   }
-  HMAI.syncCasesFromAudits();
+  await HMAI.syncCasesFromAudits();
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
     b.addEventListener("click", () => {
@@ -193,7 +194,7 @@ function currentFilters() {
   };
 }
 
-function render() {
+async function render() {
   const filters = currentFilters();
   const label = vertical === "play" ? "Play" : "Retail";
   document.getElementById("kpiVerticalLabel").textContent = `${label} · India Average`;
@@ -221,7 +222,7 @@ function render() {
 
   renderSectionBars(list);
   renderRegionalTable(filters);
-  renderTracker();
+  await renderTracker();
 }
 
 function renderSectionBars(list) {
@@ -265,8 +266,9 @@ function renderRegionalTable(filters) {
   }).join("");
 }
 
-function renderTracker() {
-  const cases = HMAI.getCases().filter(c => c.vertical === vertical).sort((a,b) => new Date(b.date) - new Date(a.date));
+async function renderTracker() {
+  const allCases = await HMAI.getCases();
+  const cases = allCases.filter(c => c.vertical === vertical).sort((a,b) => new Date(b.date) - new Date(a.date));
   const body = document.getElementById("trackerBody");
   if (!cases.length) {
     body.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:30px;">No stores below 80 in this vertical right now 🎉</td></tr>`;

@@ -140,25 +140,68 @@ async function handleStoreFile(file) {
   const wb = await readWorkbook(file);
   const sheet = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-  const [header, ...data] = rows;
+
+  // Auto-find the header row: scan the first 5 rows for one that contains
+  // recognizable column names, rather than always assuming row 0 — some
+  // exports add a title row above the real header.
+  const norm = v => String(v || "").replace(/\s+/g, " ").trim().toLowerCase();
+  let headerRowIdx = -1, header = null;
+  for (let i = 0; i < Math.min(5, rows.length); i++) {
+    const candidate = (rows[i] || []).map(norm);
+    if (candidate.some(h => h.includes("store name")) && candidate.some(h => h.includes("store code"))) {
+      headerRowIdx = i; header = candidate;
+      break;
+    }
+  }
+  if (headerRowIdx === -1) {
+    toast("Couldn't find a header row with 'Store Name' and 'Store Code' columns — check the file format");
+    document.getElementById("storePreview").innerHTML = `<p class="small-muted" style="margin-top:10px; color:var(--hamleys-red);">✘ Couldn't detect the header row in <strong>${file.name}</strong>. Expected columns: Store Name, Store Code, ROM Name, SD Name, RM Name (in any order, row 1–5). No changes were made.</p>`;
+    return;
+  }
+  const data = rows.slice(headerRowIdx + 1);
+
   const idx = {
-    name: header.findIndex(h => /store name/i.test(h)),
-    code: header.findIndex(h => /store code/i.test(h)),
-    rom: header.findIndex(h => /rom/i.test(h)),
-    sd: header.findIndex(h => /sd name/i.test(h)),
-    rm: header.findIndex(h => /^rm name$|rm name/i.test(h)),
+    name: header.findIndex(h => h.includes("store name")),
+    code: header.findIndex(h => h.includes("store code")),
+    rom: header.findIndex(h => h.includes("rom")),
+    sd: header.findIndex(h => h.includes("sd name") || h === "sd"),
+    rm: header.findIndex(h => h.includes("rm name") || h === "rm"),
   };
-  const stores = data.filter(r => r[idx.name]).map(r => ({
-    storeName: String(r[idx.name]).trim(),
-    storeCode: String(r[idx.code] || "").trim(),
-    rom: String(r[idx.rom] || "").trim(),
-    sd: String(r[idx.sd] || "").trim(),
-    rm: String(r[idx.rm] || "").trim(),
-  }));
+
+  const seenCodes = new Set();
+  let skippedNoName = 0, skippedDupeCode = 0;
+  const stores = [];
+  data.forEach(r => {
+    const name = idx.name > -1 ? String(r[idx.name] || "").trim() : "";
+    if (!name) { skippedNoName++; return; }
+    const code = idx.code > -1 ? String(r[idx.code] || "").trim() : "";
+    if (code && seenCodes.has(code)) { skippedDupeCode++; return; }
+    if (code) seenCodes.add(code);
+    stores.push({
+      storeName: name,
+      storeCode: code,
+      rom: idx.rom > -1 ? String(r[idx.rom] || "").trim() : "",
+      sd: idx.sd > -1 ? String(r[idx.sd] || "").trim() : "",
+      rm: idx.rm > -1 ? String(r[idx.rm] || "").trim() : "",
+    });
+  });
+
+  if (!stores.length) {
+    toast("Parsed 0 valid stores — no changes were made. Check that Store Name/Store Code cells aren't blank.");
+    document.getElementById("storePreview").innerHTML = `<p class="small-muted" style="margin-top:10px; color:var(--hamleys-red);">✘ Found a header row but every data row was missing a Store Name, so 0 stores were parsed from <strong>${file.name}</strong>. No changes were made — your previous ${HMAI.STORES.length} stores are untouched.</p>`;
+    return;
+  }
+
+  // This REPLACES the store list entirely (not a merge) — upload the full,
+  // current Base Store Data each time, not just the stores that changed.
   HMAI.saveOverride(HMAI.LS_KEYS.stores, stores);
   await HMAI.init();
+  HMAI.syncCasesFromAudits(); // refresh any cases that were "Unmapped" against the new mapping
   refreshCounts();
-  document.getElementById("storePreview").innerHTML = `<p class="small-muted" style="margin-top:10px;">✔ Loaded ${stores.length} stores from <strong>${file.name}</strong>. Existing store codes were overwritten, new ones added.</p>`;
+  const notes = [];
+  if (skippedNoName) notes.push(`${skippedNoName} row(s) skipped (no store name)`);
+  if (skippedDupeCode) notes.push(`${skippedDupeCode} row(s) skipped (duplicate store code)`);
+  document.getElementById("storePreview").innerHTML = `<p class="small-muted" style="margin-top:10px;">✔ Loaded ${stores.length} stores from <strong>${file.name}</strong> (replaces the previous list entirely).${notes.length ? " " + notes.join(", ") + "." : ""}</p>`;
   toast(`${stores.length} stores loaded`);
 }
 

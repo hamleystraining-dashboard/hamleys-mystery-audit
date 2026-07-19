@@ -44,6 +44,7 @@
   </div>
 </div>
 
+<script src="assets/js/config.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/ui.js"></script>
@@ -63,21 +64,21 @@ async function boot() {
   }
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
-    b.addEventListener("click", () => {
+    b.addEventListener("click", async () => {
       vertical = b.dataset.v;
       document.querySelectorAll("#verticalToggle button").forEach(x => x.classList.remove("active"));
       b.classList.add("active");
-      render();
+      await render();
     });
   });
   document.getElementById("closeConfirmBtn").addEventListener("click", confirmClose);
 
-  render();
+  await render();
 }
 
-function render() {
+async function render() {
   document.querySelector(".seg-toggle").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
-  let cases = HMAI.getCases().filter(c => c.vertical === vertical && (c.stage === "rom_submitted" || (c.stage === "hrbp_closed" && (c.employees||[]).some(e=>e.closed))));
+  let cases = (await HMAI.getCases()).filter(c => c.vertical === vertical && (c.stage === "rom_submitted" || (c.stage === "hrbp_closed" && (c.employees||[]).some(e=>e.closed))));
   // Show open (rom_submitted) cases first; fully closed ones stay visible briefly for confirmation but sorted last
   cases.sort((a,b) => (a.stage === "rom_submitted" ? -1 : 1) - (b.stage === "rom_submitted" ? -1 : 1) || new Date(b.date) - new Date(a.date));
 
@@ -126,21 +127,29 @@ function caseCardHtml(c) {
   </div>`;
 }
 
-function openClose(key, empId) {
+async function openClose(key, empId) {
   activeCaseKey = key; activeEmpId = empId;
-  const c = HMAI.getCases().find(x => x.key === key);
+  const c = (await HMAI.getCases()).find(x => x.key === key);
   const emp = (c.employees || []).find(e => e.id === empId);
   document.getElementById("closeModalCopy").textContent = `${emp.name} (${emp.code}) — ${emp.action}`;
   document.getElementById("closeNotes").value = "";
   document.getElementById("closeModal").classList.add("open");
 }
 
-function confirmClose() {
+async function confirmClose() {
   const notes = document.getElementById("closeNotes").value.trim();
-  HMAI.closeEmployee(activeCaseKey, activeEmpId, notes);
-  closeModalEl("closeModal");
-  toast("Marked closed");
-  render();
+  const btn = document.getElementById("closeConfirmBtn");
+  btn.disabled = true; btn.textContent = "Saving…";
+  try {
+    await HMAI.closeEmployee(activeCaseKey, activeEmpId, notes);
+    closeModalEl("closeModal");
+    toast("Marked closed");
+    await render();
+  } catch (err) {
+    toast(err.message || "Couldn't mark closed");
+  } finally {
+    btn.disabled = false; btn.textContent = "Confirm Closed";
+  }
 }
 
 function closeModalEl(id) { document.getElementById(id).classList.remove("open"); }

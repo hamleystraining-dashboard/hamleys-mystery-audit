@@ -127,10 +127,10 @@ everyone:
    itself automatically flips to **Closed** — no separate "close case" step needed.
 
 All three stages, plus the trigger reason, show up live on the **Overview** page's Action
-Tracker. Note: since this is a static site with no backend yet, "ROM notified" / "HRBP
-notified" currently just advance the stage and show a confirmation toast — no real email
-is sent. That's exactly what the Google Sheets + Apps Script upgrade in §2 would add,
-which we're tackling next.
+Tracker. By default (no backend configured) "ROM notified" / "HRBP notified" just advance
+the stage and show a confirmation toast, with no real email — that's local/offline mode.
+**See §7 below to turn on the real Google Sheets + Apps Script backend**, which makes
+Cases/ROM/HRBP shared across everyone's browser and sends real email at each step.
 
 ## 5. Trend Data page
 
@@ -145,3 +145,24 @@ Colour system and type are Hamleys-branded (toy-store red / navy / gold / teal),
 KPI cards, section bars, score pills and the trend chart — see `assets/css/style.css` for the
 token list at the top of the file. All charts are hand-built SVG/CSS (no external chart
 library), so nothing depends on a CDN being reachable.
+## 7. Turning on real email + a shared backend
+
+Right now Cases/ROM/HRBP data lives in each browser's local storage — fine for testing,
+but it means an L&D laptop, a ROM's laptop, and an HRBP's laptop each see their own
+disconnected copy, and no real email is sent. `google-apps-script/` contains a complete,
+ready-to-deploy fix:
+
+- `google-apps-script/Code.gs` — a Google Apps Script Web App backed by a Google Sheet.
+  Handles all the same case actions (sync, trigger, add/remove employee, send to HR, close),
+  and sends real email via `MailApp` as `hamleystraining@gmail.com` when L&D triggers a case
+  or a ROM sends one to HR.
+- `google-apps-script/SETUP.md` — step-by-step deployment instructions (create the Sheet,
+  paste the script, deploy as a Web App, get the URL).
+
+Once deployed, paste your Web App URL into `assets/js/config.js`:
+```js
+const HMAI_CASES_API = "https://script.google.com/macros/s/AKfycb.../exec";
+```
+Commit and push — `cases.html`, `rom.html`, and `hrbp.html` automatically switch from local
+storage to the shared Sheet, with real email at each handoff. Leave `HMAI_CASES_API` empty
+to keep using local-only mode (e.g. for testing UI changes without emailing anyone for real).

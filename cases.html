@@ -95,6 +95,7 @@
   </div>
 </div>
 
+<script src="assets/js/config.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/ui.js"></script>
@@ -111,7 +112,7 @@ async function boot() {
     showLoadError(err);
     return;
   }
-  HMAI.syncCasesFromAudits();
+  await HMAI.syncCasesFromAudits();
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
     b.addEventListener("click", () => {
@@ -171,10 +172,10 @@ function currentFilters() {
   };
 }
 
-function render() {
+async function render() {
   document.querySelector(".seg-toggle").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
   const f = currentFilters();
-  let cases = HMAI.getCases().filter(c => c.vertical === vertical);
+  let cases = (await HMAI.getCases()).filter(c => c.vertical === vertical);
   if (f.rm) cases = cases.filter(c => c.rm === f.rm);
   if (f.rom) cases = cases.filter(c => c.rom === f.rom);
   if (f.sd) cases = cases.filter(c => c.sd === f.sd);
@@ -215,23 +216,30 @@ function render() {
   }).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:30px;">No cases match these filters</td></tr>`;
 }
 
-function findCase(key) { return HMAI.getCases().find(c => c.key === key); }
+async function findCase(key) { return (await HMAI.getCases()).find(c => c.key === key); }
 
-function openLd(key) {
+async function openLd(key) {
   activeCaseKey = key;
-  const c = findCase(key);
+  const c = await findCase(key);
   document.getElementById("ldModalCopy").textContent = `${c.storeName} (${c.storeCode}) scored ${c.score} on ${fmtDate(c.date)}. ROM: ${c.rom}.`;
   document.getElementById("ldReason").value = "";
   document.getElementById("ldModal").classList.add("open");
 }
-function confirmLd() {
+async function confirmLd() {
   const reason = document.getElementById("ldReason").value;
   if (!reason) { toast("Please select a reason for the trigger"); return; }
-  HMAI.updateCase(activeCaseKey, { stage: "ld_triggered", triggerReason: reason });
-  HMAI.addCaseHistory(activeCaseKey, { stage: "ld_triggered", by: "L&D Team", note: `Reason: ${HMAI.TRIGGER_REASONS[reason]}. Email notification sent to ROM.` });
-  closeModal("ldModal");
-  toast("ROM notified by email — case moved to ROM stage");
-  render();
+  const btn = document.getElementById("ldConfirmBtn");
+  btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    await HMAI.triggerLdAction(activeCaseKey, reason);
+    closeModal("ldModal");
+    toast(typeof HMAI_CASES_API !== "undefined" && HMAI_CASES_API ? "ROM notified by email — case moved to ROM stage" : "Case moved to ROM stage (local mode — no email sent)");
+    await render();
+  } catch (err) {
+    toast("Couldn't trigger: " + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Notify ROM";
+  }
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove("open"); }

@@ -28,6 +28,7 @@
 
 </div>
 
+<script src="assets/js/config.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/ui.js"></script>
@@ -45,30 +46,30 @@ async function boot() {
   }
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
-    b.addEventListener("click", () => {
+    b.addEventListener("click", async () => {
       vertical = b.dataset.v;
       document.querySelectorAll("#verticalToggle button").forEach(x => x.classList.remove("active"));
       b.classList.add("active");
-      populateRomFilter();
-      render();
+      await populateRomFilter();
+      await render();
     });
   });
   document.getElementById("fRom").addEventListener("change", render);
 
-  populateRomFilter();
-  render();
+  await populateRomFilter();
+  await render();
 }
 
-function populateRomFilter() {
-  const roms = HMAI.getCases().filter(c => c.vertical === vertical && c.stage === "ld_triggered")
+async function populateRomFilter() {
+  const roms = (await HMAI.getCases()).filter(c => c.vertical === vertical && c.stage === "ld_triggered")
     .map(c => c.rom).filter((v,i,a) => a.indexOf(v) === i).sort();
   fillSelect(document.getElementById("fRom"), roms, "All ROMs");
 }
 
-function render() {
+async function render() {
   document.querySelector(".seg-toggle").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
   const romFilter = document.getElementById("fRom").value;
-  let cases = HMAI.getCases().filter(c => c.vertical === vertical && c.stage === "ld_triggered");
+  let cases = (await HMAI.getCases()).filter(c => c.vertical === vertical && c.stage === "ld_triggered");
   if (romFilter) cases = cases.filter(c => c.rom === romFilter);
   cases.sort((a,b) => new Date(b.date) - new Date(a.date));
 
@@ -105,7 +106,7 @@ function caseCardHtml(c) {
       <table>
         <thead><tr><th>Employee Name</th><th>Designation</th><th>Employee Code</th><th>Action</th><th></th></tr></thead>
         <tbody id="empBody_${c.key}">
-          ${employees.map(e => empRowHtml(e)).join("")}
+          ${employees.map(e => empRowHtml(e, c.key)).join("")}
         </tbody>
       </table>
     </div>
@@ -123,15 +124,15 @@ function caseCardHtml(c) {
       <button class="btn btn-navy btn-sm" onclick="addEmployeeRow('${c.key}')">+ Add</button>
     </div>
     <div style="display:flex; justify-content:flex-end; margin-top:16px;">
-      <button class="btn btn-primary" onclick="sendToHr('${c.key}')">Send to HR</button>
+      <button class="btn btn-primary" onclick="sendToHr('${c.key}', this)">Send to HR</button>
     </div>
   </div>`;
 }
 
-function empRowHtml(e) {
+function empRowHtml(e, key) {
   return `<tr id="emprow_${e.id}">
     <td>${e.name}</td><td>${e.designation}</td><td>${e.code}</td><td>${e.action}</td>
-    <td><button class="btn btn-ghost btn-sm" onclick="removeEmployeeRow('${e.caseKey}','${e.id}')">Remove</button></td>
+    <td><button class="btn btn-ghost btn-sm" onclick="removeEmployeeRow('${key}','${e.id}')">Remove</button></td>
   </tr>`;
 }
 
@@ -141,7 +142,7 @@ function wireCase(key) {
   if (nameInput) nameInput.addEventListener("keydown", e => { if (e.key === "Enter") addEmployeeRow(key); });
 }
 
-function addEmployeeRow(key) {
+async function addEmployeeRow(key) {
   const name = document.getElementById(`name_${key}`).value.trim();
   const designation = document.getElementById(`desig_${key}`).value.trim();
   const code = document.getElementById(`code_${key}`).value.trim();
@@ -150,29 +151,25 @@ function addEmployeeRow(key) {
     toast("Fill in name, designation, employee code and action before adding");
     return;
   }
-  HMAI.addEmployee(key, { name, designation, code, action, caseKey: key });
-  document.getElementById(`name_${key}`).value = "";
-  document.getElementById(`desig_${key}`).value = "";
-  document.getElementById(`code_${key}`).value = "";
-  document.getElementById(`action_${key}`).value = "";
-  render();
+  await HMAI.addEmployee(key, { name, designation, code, action });
+  await render();
 }
 
-function removeEmployeeRow(key, empId) {
-  HMAI.removeEmployee(key, empId);
-  render();
+async function removeEmployeeRow(key, empId) {
+  await HMAI.removeEmployee(key, empId);
+  await render();
 }
 
-function sendToHr(key) {
-  const c = HMAI.getCases().find(x => x.key === key);
-  if (!c || !(c.employees || []).length) {
-    toast("Add at least one employee before sending to HR");
-    return;
+async function sendToHr(key, btn) {
+  btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    await HMAI.sendToHR(key);
+    toast(typeof HMAI_CASES_API !== "undefined" && HMAI_CASES_API ? "Sent to HRBP — email notification sent" : "Sent to HRBP (local mode — no email sent)");
+    await render();
+  } catch (err) {
+    toast(err.message || "Couldn't send to HR");
+    btn.disabled = false; btn.textContent = "Send to HR";
   }
-  HMAI.updateCase(key, { stage: "rom_submitted" });
-  HMAI.addCaseHistory(key, { stage: "rom_submitted", by: "ROM", note: `${c.employees.length} employee(s) submitted. HRBP notified.` });
-  toast("Sent to HRBP");
-  render();
 }
 
 boot();
