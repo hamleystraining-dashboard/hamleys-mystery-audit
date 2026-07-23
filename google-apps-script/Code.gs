@@ -207,9 +207,11 @@ function triggerLD(key, reason) {
   appendHistory(key, { stage: "ld_triggered", by: "L&D Team", note: "Reason: " + (TRIGGER_REASONS[reason] || reason) });
 
   const romEmail = lookupEmail(c.rom, "ROM");
+  const rmEmail = lookupEmail(c.rm, "RM"); // RM is the ROM's reporting manager — CC'd for visibility
   if (romEmail) {
     MailApp.sendEmail({
       to: romEmail,
+      cc: rmEmail || undefined,
       name: "Hamleys L&D",
       subject: `Action required: ${c.storeName} (${c.storeCode}) — ${TRIGGER_REASONS[reason] || reason}`,
       htmlBody: `
@@ -255,10 +257,12 @@ function sendToHR(key) {
   appendHistory(key, { stage: "rom_submitted", by: "ROM", note: `${c.employees.length} employee(s) submitted.` });
 
   const hrbpEmail = lookupEmail("HRBP", "HRBP");
+  const hrHeadEmail = lookupEmail("HR Head", "HR Head"); // CC'd for visibility
   if (hrbpEmail) {
     const rows = c.employees.map(e => `<tr><td>${e.name}</td><td>${e.designation}</td><td>${e.code}</td><td>${e.action}</td></tr>`).join("");
     MailApp.sendEmail({
       to: hrbpEmail,
+      cc: hrHeadEmail || undefined,
       name: "Hamleys L&D",
       subject: `Action pending: ${c.storeName} (${c.storeCode}) — ${c.employees.length} employee(s)`,
       htmlBody: `
