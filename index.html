@@ -277,9 +277,10 @@ async function renderTracker() {
   const stageMeta = { flagged: 0, ld_triggered: 1, rom_submitted: 2, hrbp_closed: 3 };
   body.innerHTML = cases.map(c => {
     const stage = stageMeta[c.stage] ?? 0;
+    const isFullyClosed = c.stage === "hrbp_closed";
     const steps = ["Flagged", "L&D Stage", "ROM Stage", "HRBP Closed"];
     const trackerHtml = `<div class="tracker">` + steps.map((s, i) => {
-      const cls = i < stage ? "done" : (i === stage ? "current" : "");
+      const cls = isFullyClosed ? "done" : (i < stage ? "done" : (i === stage ? "current" : ""));
       return `<div class="step ${cls}"><div class="bar"></div>${s}</div>`;
     }).join("") + `</div>`;
     const reasonTag = c.triggerReason ? `<div class="small-muted" style="margin-top:6px; white-space:normal;">${HMAI.TRIGGER_REASONS[c.triggerReason]}</div>` : "";
