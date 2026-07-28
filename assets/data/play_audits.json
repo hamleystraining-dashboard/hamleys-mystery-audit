@@ -1030,5 +1030,221 @@
   },
   "city": 0,
   "state": 100
+ },
+ {
+  "evalId": "4/28/26",
+  "wave": "T38E - Hamleys - Lulu Mall, Lucknow",
+  "storeCode": "99.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "4/26/26",
+  "wave": "TAHY - Hamleys - Worldmark, Gurgaon",
+  "storeCode": "87.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "4/25/26",
+  "wave": "T2UO - Hamleys - Mall of Millenium, Pune",
+  "storeCode": "96.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "4/21/26",
+  "wave": "T2MI - Hamleys - Phoenix Mall of Asia, Bangalore",
+  "storeCode": "67.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "4/11/26",
+  "wave": "T26L - Hamleys - KOPA, Pune",
+  "storeCode": "57.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "4/9/26",
+  "wave": "T61F - Hamleys - Phoenix Market City, Chennai",
+  "storeCode": "71.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "3/22/26",
+  "wave": "TLY7 - Hamleys - Maker Maxity, Mumbai",
+  "storeCode": "85.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "3/21/26",
+  "wave": "T77X - Hamleys - Palladium Mall, Ahmedabad",
+  "storeCode": "90.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "2/22/26",
+  "wave": "THJ0 - Hamleys - Inorbit Mall, Hyderabad",
+  "storeCode": "93.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "2/13/26",
+  "wave": "T38E - Hamleys - Lulu Mall, Lucknow",
+  "storeCode": "96.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "2/7/26",
+  "wave": "T2MI - Hamleys - Phoenix Mall of Asia, Bangalore",
+  "storeCode": "92.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "1/27/26",
+  "wave": "TLY7 - Hamleys - Maker Maxity, Mumbai",
+  "storeCode": "75.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "1/23/26",
+  "wave": "T77X - Hamleys - Palladium Mall, Ahmedabad",
+  "storeCode": "100.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "1/19/26",
+  "wave": "T26L - Hamleys - KOPA, Pune",
+  "storeCode": "82.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "11/30/25",
+  "wave": "T2MI - Hamleys - Phoenix Mall of Asia, Bangalore",
+  "storeCode": "58.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "11/29/25",
+  "wave": "T38E - Hamleys - Lulu Mall, Lucknow",
+  "storeCode": "96.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "11/28/25",
+  "wave": "T26L - Hamleys - KOPA, Pune",
+  "storeCode": "94.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "11/23/25",
+  "wave": "T61F - Hamleys - Phoenix Market City, Chennai",
+  "storeCode": "82.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "11/18/25",
+  "wave": "T77X - Hamleys - Palladium Mall, Ahmedabad",
+  "storeCode": "97.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "11/15/25",
+  "wave": "TLY7 - Hamleys - Maker Maxity, Mumbai",
+  "storeCode": "80.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "10/31/25",
+  "wave": "T2MI - Hamleys - Phoenix Mall of Asia, Bangalore",
+  "storeCode": "83.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "10/30/25",
+  "wave": "TAHY - Hamleys - Worldmark, Gurgaon",
+  "storeCode": "83.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "10/25/25",
+  "wave": "THJ0 - Hamleys - Inorbit Mall, Hyderabad",
+  "storeCode": "93.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "10/12/25",
+  "wave": "T77X - Hamleys - Palladium Mall, Ahmedabad",
+  "storeCode": "83.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "10/5/25",
+  "wave": "T61F - Hamleys - Phoenix Market City, Chennai",
+  "storeCode": "85.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "9/27/25",
+  "wave": "T26L - Hamleys - KOPA, Pune",
+  "storeCode": "96.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "9/1/25",
+  "wave": "T38E - Hamleys - Lulu Mall, Lucknow",
+  "storeCode": "96.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "8/30/25",
+  "wave": "THJ0 - Hamleys - Inorbit Mall, Hyderabad",
+  "storeCode": "81.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "8/27/25",
+  "wave": "T77X - Hamleys - Palladium Mall, Ahmedabad",
+  "storeCode": "88.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "8/23/25",
+  "wave": "TAHY - Hamleys - Worldmark, Gurgaon",
+  "storeCode": "71.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "8/14/25",
+  "wave": "TLY7 - Hamleys - Maker Maxity, Mumbai",
+  "storeCode": "86.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "6/28/25",
+  "wave": "THJ0 - Hamleys - Inorbit Mall, Hyderabad",
+  "storeCode": "74.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "6/27/25",
+  "wave": "T38E - Hamleys - Lulu Mall, Lucknow",
+  "storeCode": "91.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "6/25/25",
+  "wave": "TAHY - Hamleys - Worldmark, Gurgaon",
+  "storeCode": "57.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "6/24/25",
+  "wave": "TLY7 - Hamleys - Maker Maxity, Mumbai",
+  "storeCode": "71.00%",
+  "sections": {}
+ },
+ {
+  "evalId": "6/22/25",
+  "wave": "T26L - Hamleys - KOPA, Pune",
+  "storeCode": "84.00%",
+  "sections": {}
  }
 ]
