@@ -112,7 +112,11 @@ async function boot() {
     showLoadError(err);
     return;
   }
-  await HMAI.syncCasesFromAudits();
+  try {
+    await HMAI.syncCasesFromAudits();
+  } catch (err) {
+    toast("Couldn't sync new cases with the backend (" + (err.message || "network error") + ") — showing whatever was last loaded");
+  }
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
     b.addEventListener("click", () => {

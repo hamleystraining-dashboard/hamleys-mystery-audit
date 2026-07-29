@@ -124,7 +124,10 @@ async function boot() {
     showLoadError(err);
     return;
   }
-  await HMAI.syncCasesFromAudits();
+  // Overview only READS the case list (for the tracker table) — it doesn't
+  // create/refresh cases. That happens on cases.html, the L&D page, so the
+  // public dashboard never has to make a slow write call to the backend
+  // just to load, and one failed network call there can't blank this page.
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
     b.addEventListener("click", () => {
@@ -267,7 +270,13 @@ function renderRegionalTable(filters) {
 }
 
 async function renderTracker() {
-  const allCases = await HMAI.getCases();
+  let allCases;
+  try {
+    allCases = await HMAI.getCases();
+  } catch (err) {
+    document.getElementById("trackerBody").innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--hamleys-red);padding:30px;">Couldn't load the case tracker (${err.message || "network error"}). The rest of the page is unaffected.</td></tr>`;
+    return;
+  }
   const cases = allCases.filter(c => c.vertical === vertical).sort((a,b) => new Date(b.date) - new Date(a.date));
   const body = document.getElementById("trackerBody");
   if (!cases.length) {
