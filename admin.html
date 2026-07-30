@@ -60,17 +60,19 @@
     </div>
 
     <div class="card" style="margin-top:18px;">
-      <div class="section-head"><h3>3. Upload Audit PDF Report</h3><span class="tag neutral" id="pdfStatus">No file parsed yet</span></div>
-      <p class="small-muted">Upload a single-store audit PDF (Retail or Play format). We extract the overall + section scores and add it as a new audit record. If its score is below 80, it will automatically appear on the Cases page.</p>
-      <div class="filter-field" style="margin-bottom:10px; max-width:200px;">
-        <label>Vertical</label>
-        <select id="pdfVertical"><option value="retail">Retail</option><option value="play">Play</option></select>
-      </div>
+      <div class="section-head"><h3>3. Upload Audit PDF Reports</h3><span class="tag neutral" id="pdfStatus">No files parsed yet</span></div>
+      <p class="small-muted">Upload as many audit PDFs at once as you like (100+ is fine) — Retail and Play can be mixed together, each file is auto-detected by which section names it contains. We extract the overall + section scores and add each as a new audit record. Any store scoring below 80 automatically appears on the Cases page.</p>
       <div class="upload-box" id="pdfDrop">
         <div style="font-size:26px;">🧾</div>
-        <p>Drop the audit PDF here, or</p>
-        <input type="file" id="pdfFile" accept=".pdf" style="display:none;">
-        <button class="btn btn-navy btn-sm" onclick="document.getElementById('pdfFile').click()">Choose PDF</button>
+        <p>Drop audit PDFs here (select multiple), or</p>
+        <input type="file" id="pdfFile" accept=".pdf" multiple style="display:none;">
+        <button class="btn btn-navy btn-sm" onclick="document.getElementById('pdfFile').click()">Choose PDFs</button>
+      </div>
+      <div id="pdfProgress" style="display:none; margin-top:14px;">
+        <div style="background:var(--line-soft); border-radius:8px; height:10px; overflow:hidden;">
+          <div id="pdfProgressBar" style="width:0%; height:100%; background:var(--hamleys-teal); transition:width 0.2s;"></div>
+        </div>
+        <p class="small-muted" id="pdfProgressText" style="margin-top:6px;">Processing…</p>
       </div>
       <div id="pdfPreview"></div>
     </div>
@@ -105,7 +107,7 @@ async function boot() {
 
   wireDrop("storeDrop", "storeFile", handleStoreFile);
   wireDrop("histDrop", "histFile", handleHistFile);
-  wireDrop("pdfDrop", "pdfFile", handlePdfFile);
+  wireDrop("pdfDrop", "pdfFile", handlePdfFiles, true);
 }
 
 function refreshCounts() {
@@ -113,13 +115,19 @@ function refreshCounts() {
   document.getElementById("histCount").textContent = (HMAI.RETAIL.length + HMAI.PLAY.length) + " audits loaded";
 }
 
-function wireDrop(dropId, inputId, handler) {
+function wireDrop(dropId, inputId, handler, multi) {
   const drop = document.getElementById(dropId);
   const input = document.getElementById(inputId);
-  input.addEventListener("change", e => e.target.files[0] && handler(e.target.files[0]));
+  input.addEventListener("change", e => {
+    if (!e.target.files.length) return;
+    handler(multi ? e.target.files : e.target.files[0]);
+  });
   ["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("drag"); }));
   ["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("drag"); }));
-  drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) handler(f); });
+  drop.addEventListener("drop", e => {
+    if (!e.dataTransfer.files.length) return;
+    handler(multi ? e.dataTransfer.files : e.dataTransfer.files[0]);
+  });
 }
 
 function readWorkbook(file) {
@@ -251,22 +259,34 @@ async function handleHistFile(file) {
   toast(`${audits.length} ${vertical} audits loaded`);
 }
 
-async function handlePdfFile(file) {
-  const vertical = document.getElementById("pdfVertical").value;
+// Known section names per vertical (from the bundled datasets) — used to
+// auto-detect whether a given PDF is a Retail or PLAY audit report, since
+// we no longer ask the user to pick a vertical when uploading in bulk.
+const RETAIL_SECTION_HINTS = ["HAMLEYS FIRST IMPRESSION", "APPROACHING RIGHT", "MEETING THY NEEDS", "LOST IN DEMOS", "ENGAGING TILL EXPERIENCE", "YOU COME FIRST", "SEEING THEM OFF"];
+const PLAY_SECTION_HINTS = ["ATTRACTION", "ENTRY ASSISTANCE", "OUT FOR PLAY", "MAGIC PILLARS", "CSD BIRTHDAY ENQUIRY", "PLAY AMBIENCE", "DANCE PERFORMANCES", "PLAY CHARACTERS", "PRE-PLAY ENGAGEMENT", "ENTRY MANDATES"];
+
+function detectVertical(sectionNames) {
+  const upper = sectionNames.map(n => n.toUpperCase());
+  const retailScore = RETAIL_SECTION_HINTS.filter(h => upper.some(n => n.includes(h))).length;
+  const playScore = PLAY_SECTION_HINTS.filter(h => upper.some(n => n.includes(h))).length;
+  if (retailScore === 0 && playScore === 0) return null; // couldn't tell
+  return playScore > retailScore ? "play" : "retail";
+}
+
+// Parses one PDF into a record + detected vertical. Does NOT save anything —
+// callers batch up records and save once per vertical for speed.
+async function parseAuditPdf(file) {
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   const page = await pdf.getPage(1);
   const content = await page.getTextContent();
   const text = content.items.map(i => i.str).join(" ");
 
-  // Extract header fields
   const idMatch = text.match(/ID\s*#\s*(\d{5,})/);
   const locMatch = text.match(/Location\s+Report Date\s+(.+?)\s+ID#/) || text.match(/Location\s+(Hamleys[^I]+?)\s*ID#/);
   const codeMatch = text.match(/ID#\s*([A-Z0-9]{4})\b/);
   const dateMatch = text.match(/Report Date\s+.*?(\d{1,2}\/\d{1,2}\/\d{2,4})/) || text.match(/(\d{1,2}\/\d{1,2}\/\d{2,4})/);
 
-  // Extract section scores: "SECTION NAME  act/pos  pct %  act/pos  pct %  change change%"
-  // We take the "This Evaluation Score" column (first act/pos + first % after the section name)
   const sectionRegex = /([A-Z][A-Z .'\/-]{3,40})\s+(\d+)\/(\d+)\s+(\d+)\s*%/g;
   const sections = {};
   let m;
@@ -275,12 +295,8 @@ async function handlePdfFile(file) {
     if (/^(SECTIONAL|YOUR SCORE|QUESTION|SHOWING)/i.test(name)) continue;
     if (!(name in sections)) sections[name] = parseInt(m[4], 10);
   }
-  const overallMatch = text.match(/OVERALL EXPERIENCE\s*\/\s*--\s*--/);
-  let overall = null;
   const scoreVals = Object.values(sections);
-  // try to find an explicit overall score near top; else average sections found
-  const overallExplicit = text.match(/Evaluation Score[\s\S]{0,20}?(\d{1,3})\s*%/);
-  if (scoreVals.length) overall = Math.round(scoreVals.reduce((a,b)=>a+b,0) / scoreVals.length);
+  const overall = scoreVals.length ? Math.round(scoreVals.reduce((a,b)=>a+b,0) / scoreVals.length) : null;
 
   const storeCode = codeMatch ? codeMatch[1] : "UNKNOWN";
   const storeName = HMAI.storeMeta(storeCode).storeName || (locMatch ? locMatch[1].trim() : "Unknown Store");
@@ -294,34 +310,79 @@ async function handlePdfFile(file) {
     }
   }
 
+  const vertical = detectVertical(Object.keys(sections));
   const record = {
-    evalId: idMatch ? parseInt(idMatch[1], 10) : Date.now(),
-    wave: "PDF Upload",
-    storeCode, storeName,
-    date: dateStr,
-    score: overall !== null ? overall : 0,
-    sections,
-    city: "", state: "",
+    evalId: idMatch ? parseInt(idMatch[1], 10) : (Date.now() + Math.floor(Math.random()*1000)),
+    wave: "PDF Upload", storeCode, storeName, date: dateStr,
+    score: overall !== null ? overall : 0, sections, city: "", state: "",
   };
+  return { record, vertical, sectionCount: Object.keys(sections).length, fileName: file.name };
+}
 
-  const key = vertical === "play" ? HMAI.LS_KEYS.play : HMAI.LS_KEYS.retail;
-  const existing = JSON.parse(localStorage.getItem(key) || "[]");
-  existing.push(record);
-  HMAI.saveOverride(key, existing);
+async function handlePdfFiles(fileList) {
+  const files = Array.from(fileList);
+  if (!files.length) return;
+
+  document.getElementById("pdfProgress").style.display = "block";
+  document.getElementById("pdfPreview").innerHTML = "";
+  const bar = document.getElementById("pdfProgressBar");
+  const progressText = document.getElementById("pdfProgressText");
+
+  const results = { retail: [], play: [], undetected: [], failed: [] };
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    progressText.textContent = `Processing ${i+1} of ${files.length}: ${file.name}`;
+    bar.style.width = Math.round(((i) / files.length) * 100) + "%";
+    try {
+      const { record, vertical, sectionCount, fileName } = await parseAuditPdf(file);
+      if (!vertical) {
+        results.undetected.push({ fileName, reason: sectionCount ? "found sections but couldn't tell Retail vs Play" : "no section scores found — check PDF format" });
+      } else {
+        results[vertical].push(record);
+      }
+    } catch (err) {
+      results.failed.push({ fileName: file.name, reason: err.message || "couldn't read PDF" });
+    }
+    // Yield to the browser so the progress bar actually repaints between files.
+    await new Promise(r => setTimeout(r, 0));
+  }
+  bar.style.width = "100%";
+  progressText.textContent = `Done — processed ${files.length} file(s).`;
+
+  // Save once per vertical (not once per file) — much faster for 100+ PDFs.
+  ["retail", "play"].forEach(v => {
+    if (!results[v].length) return;
+    const key = v === "play" ? HMAI.LS_KEYS.play : HMAI.LS_KEYS.retail;
+    const existing = JSON.parse(localStorage.getItem(key) || "[]");
+    results[v].forEach(record => existing.push(record));
+    HMAI.saveOverride(key, existing);
+  });
+
   await HMAI.init();
-  HMAI.syncCasesFromAudits();
+  await HMAI.syncCasesFromAudits();
   refreshCounts();
 
-  const tag = record.score < 60 ? "bad" : (record.score < 80 ? "warn" : "good");
-  document.getElementById("pdfStatus").textContent = "Last parsed: " + file.name;
-  document.getElementById("pdfPreview").innerHTML = `
-    <div class="card" style="margin-top:12px; background:var(--line-soft);">
-      <strong>${record.storeName}</strong> <span class="small-muted">(${record.storeCode})</span>
-      <div style="margin:8px 0;"><span class="tag ${tag}">Overall: ${record.score}%</span> <span class="small-muted">${dateStr}</span></div>
-      <div class="small-muted">Sections parsed: ${Object.keys(sections).length ? Object.keys(sections).join(", ") : "none detected — check PDF format"}</div>
-      ${record.score < 80 ? `<p class="small-muted" style="margin-top:8px;">⚠ Score below 80 — this store will now appear on the <a href="cases.html" style="color:var(--hamleys-red); font-weight:700;">Cases page</a>.</p>` : ""}
-    </div>`;
-  toast(`Parsed ${record.storeName} — ${record.score}%`);
+  const below80 = [...results.retail, ...results.play].filter(r => r.score < 80).length;
+  document.getElementById("pdfStatus").textContent = `${results.retail.length + results.play.length} audit(s) loaded from ${files.length} file(s)`;
+
+  let html = `<div class="card" style="margin-top:12px; background:var(--line-soft);">`;
+  html += `<p><strong>${results.retail.length}</strong> Retail audit(s) and <strong>${results.play.length}</strong> Play audit(s) added.`;
+  if (below80) html += ` <span class="tag warn">${below80} below 80</span> — these will appear on <a href="cases.html" style="color:var(--hamleys-red); font-weight:700;">Cases</a>.`;
+  html += `</p>`;
+  if (results.undetected.length) {
+    html += `<div style="margin-top:10px;"><strong style="color:var(--hamleys-red);">${results.undetected.length} file(s) couldn't be auto-detected as Retail or Play:</strong><ul style="margin:6px 0 0 18px; padding:0;">`;
+    html += results.undetected.map(u => `<li>${u.fileName} — ${u.reason}</li>`).join("");
+    html += `</ul><p class="small-muted">These were skipped entirely — nothing was added for them.</p></div>`;
+  }
+  if (results.failed.length) {
+    html += `<div style="margin-top:10px;"><strong style="color:var(--hamleys-red);">${results.failed.length} file(s) failed to parse:</strong><ul style="margin:6px 0 0 18px; padding:0;">`;
+    html += results.failed.map(f => `<li>${f.fileName} — ${f.reason}</li>`).join("");
+    html += `</ul></div>`;
+  }
+  html += `</div>`;
+  document.getElementById("pdfPreview").innerHTML = html;
+  toast(`${results.retail.length + results.play.length} audits loaded from ${files.length} files`);
 }
 
 function exportDataset() {

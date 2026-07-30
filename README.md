@@ -97,9 +97,13 @@ whenever convenient to resolve them.
 
 Only re-upload through Admin when you have **new or corrected** data:
 - **Bulk historical reload** → Admin → "Historical Audit Data" upload (pick Retail or Play).
-- **Single new audit** → Admin → "Upload Audit PDF Report" — parses the section score
-  table from the PDF and adds it as a new audit; always check the "Sections parsed"
-  preview afterwards, since PDF layouts vary slightly between waves.
+- **New audit PDFs** → Admin → "Upload Audit PDF Reports" — select or drag in as many PDFs
+  at once as you like (100+ is fine, Retail and Play can be mixed in the same batch). Each
+  file is auto-detected as Retail or Play by which section names it contains, parsed for
+  its overall + section scores, and added as a new audit record. Files it can't confidently
+  tell apart, or can't parse at all, are listed separately with a reason and skipped rather
+  than guessed — check that list after a big batch. PDF layouts vary slightly between
+  waves, so it's worth spot-checking a few results against the source PDFs.
 - Either way, finish with **Export updated dataset** and commit the 3 JSON files.
 
 ## 4. Cases workflow
