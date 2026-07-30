@@ -168,23 +168,31 @@ async function handleStoreFile(file) {
     rm: header.findIndex(h => h.includes("rm name") || h === "rm"),
   };
 
-  const seenCodes = new Set();
-  let skippedNoName = 0, skippedDupeCode = 0;
-  const stores = [];
+  const byCode = new Map(); // storeCode -> store (later rows overwrite earlier ones)
+  const noCode = [];         // stores with a name but no code, kept as-is (can't dedupe without a code)
+  const duplicates = [];     // { code, keptName, droppedName } for the preview
+  let skippedNoName = 0;
   data.forEach(r => {
     const name = idx.name > -1 ? String(r[idx.name] || "").trim() : "";
     if (!name) { skippedNoName++; return; }
     const code = idx.code > -1 ? String(r[idx.code] || "").trim() : "";
-    if (code && seenCodes.has(code)) { skippedDupeCode++; return; }
-    if (code) seenCodes.add(code);
-    stores.push({
+    const store = {
       storeName: name,
       storeCode: code,
       rom: idx.rom > -1 ? String(r[idx.rom] || "").trim() : "",
       sd: idx.sd > -1 ? String(r[idx.sd] || "").trim() : "",
       rm: idx.rm > -1 ? String(r[idx.rm] || "").trim() : "",
-    });
+    };
+    if (!code) { noCode.push(store); return; }
+    if (byCode.has(code)) {
+      // Same store code seen twice in this file — most likely an old row left
+      // behind after a rename. Keep the LATER row (the more likely current
+      // name), but record what was dropped so it's visible, not silent.
+      duplicates.push({ code, droppedName: byCode.get(code).storeName, keptName: name });
+    }
+    byCode.set(code, store); // last occurrence wins
   });
+  const stores = [...byCode.values(), ...noCode];
 
   if (!stores.length) {
     toast("Parsed 0 valid stores — no changes were made. Check that Store Name/Store Code cells aren't blank.");
@@ -200,8 +208,11 @@ async function handleStoreFile(file) {
   refreshCounts();
   const notes = [];
   if (skippedNoName) notes.push(`${skippedNoName} row(s) skipped (no store name)`);
-  if (skippedDupeCode) notes.push(`${skippedDupeCode} row(s) skipped (duplicate store code)`);
-  document.getElementById("storePreview").innerHTML = `<p class="small-muted" style="margin-top:10px;">✔ Loaded ${stores.length} stores from <strong>${file.name}</strong> (replaces the previous list entirely).${notes.length ? " " + notes.join(", ") + "." : ""}</p>`;
+  let dupeDetail = "";
+  if (duplicates.length) {
+    dupeDetail = `<div style="margin-top:8px;"><strong>${duplicates.length} store code(s) appeared twice in the file</strong> — kept the row that appeared later, dropped the earlier one:<ul style="margin:6px 0 0 18px; padding:0;">${duplicates.map(d => `<li>${d.code}: kept "${d.keptName}", dropped "${d.droppedName}"</li>`).join("")}</ul>These are very likely the same store re-listed under an old name — worth deleting the old row from your master file so this doesn't come up again.</div>`;
+  }
+  document.getElementById("storePreview").innerHTML = `<p class="small-muted" style="margin-top:10px;">✔ Loaded ${stores.length} stores from <strong>${file.name}</strong> (replaces the previous list entirely).${notes.length ? " " + notes.join(", ") + "." : ""}</p>${dupeDetail}`;
   toast(`${stores.length} stores loaded`);
 }
 
