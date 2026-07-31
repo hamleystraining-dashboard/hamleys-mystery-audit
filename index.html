@@ -94,7 +94,7 @@
     <div class="card" style="margin-top:18px;">
       <div class="section-head">
         <h3>Action Tracker — Stores Below 80</h3>
-        <span class="small-muted">Stage of the L&amp;D &rarr; ROM &rarr; HRBP escalation workflow</span>
+        <span class="small-muted">Scoped to the date range selected above &middot; L&amp;D &rarr; ROM &rarr; HRBP escalation workflow</span>
       </div>
       <div class="table-wrap" id="trackerTableWrap">
         <table>
@@ -232,7 +232,7 @@ async function render() {
 
   renderSectionBars(list);
   renderRegionalTable(filters);
-  await renderTracker();
+  await renderTracker(filters);
 }
 
 function renderSectionBars(list) {
@@ -276,7 +276,8 @@ function renderRegionalTable(filters) {
   }).join("");
 }
 
-async function renderTracker() {
+async function renderTracker(filters) {
+  filters = filters || {};
   let allCases;
   try {
     allCases = await HMAI.getCases();
@@ -284,10 +285,14 @@ async function renderTracker() {
     document.getElementById("trackerBody").innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--hamleys-red);padding:30px;">Couldn't load the case tracker (${err.message || "network error"}). The rest of the page is unaffected.</td></tr>`;
     return;
   }
-  const cases = allCases.filter(c => c.vertical === vertical).sort((a,b) => new Date(b.date) - new Date(a.date));
+  let cases = allCases.filter(c => c.vertical === vertical);
+  if (filters.from || filters.to) {
+    cases = cases.filter(c => HMAI.inDateRange(c.date, filters.from, filters.to));
+  }
+  cases.sort((a,b) => new Date(b.date) - new Date(a.date));
   const body = document.getElementById("trackerBody");
   if (!cases.length) {
-    body.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:30px;">No stores below 80 in this vertical right now 🎉</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:30px;">No stores below 80 in this vertical for the selected date range 🎉</td></tr>`;
     return;
   }
   const stageMeta = { flagged: 0, ld_triggered: 1, rom_submitted: 2, hrbp_closed: 3 };
