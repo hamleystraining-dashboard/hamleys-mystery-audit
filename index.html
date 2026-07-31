@@ -124,10 +124,17 @@ async function boot() {
     showLoadError(err);
     return;
   }
-  // Overview only READS the case list (for the tracker table) — it doesn't
-  // create/refresh cases. That happens on cases.html, the L&D page, so the
-  // public dashboard never has to make a slow write call to the backend
-  // just to load, and one failed network call there can't blank this page.
+  // Overview rebuilds the case list itself (not just cases.html) so the
+  // Action Tracker is always correct, even if nobody has opened cases.html
+  // yet or local storage was just reset. This is wrapped so a failed sync
+  // (e.g. a slow/unreachable backend) never blanks the rest of the page —
+  // worst case the tracker table shows a small error and everything else
+  // above it still works.
+  try {
+    await HMAI.syncCasesFromAudits();
+  } catch (err) {
+    console.warn("Case sync failed on Overview load:", err);
+  }
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
     b.addEventListener("click", () => {
