@@ -329,6 +329,28 @@ async function handlePdfFiles(fileList) {
   const progressText = document.getElementById("pdfProgressText");
 
   const results = { retail: [], play: [], undetected: [], failed: [] };
+  let idCollisions = 0;
+
+  // Seed with every evalId already in play, per vertical, so a newly parsed
+  // PDF can never silently overwrite an existing record — whether that
+  // existing record came from the shipped data, a previous upload, or an
+  // earlier file in *this same* batch. Extracted "ID#" values from PDFs are
+  // not guaranteed unique across different report templates/waves, so this
+  // check happens regardless of where the ID came from.
+  const usedIds = {
+    retail: new Set(HMAI.audits("retail").map(a => String(a.evalId))),
+    play: new Set(HMAI.audits("play").map(a => String(a.evalId))),
+  };
+  function assignUniqueEvalId(vertical, candidateId) {
+    let id = String(candidateId);
+    if (!usedIds[vertical].has(id)) { usedIds[vertical].add(id); return candidateId; }
+    idCollisions++;
+    let n = 2;
+    while (usedIds[vertical].has(id + "_dup" + n)) n++;
+    id = id + "_dup" + n;
+    usedIds[vertical].add(id);
+    return id;
+  }
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
@@ -339,6 +361,7 @@ async function handlePdfFiles(fileList) {
       if (!vertical) {
         results.undetected.push({ fileName, reason: sectionCount ? "found sections but couldn't tell Retail vs Play" : "no section scores found — check PDF format" });
       } else {
+        record.evalId = assignUniqueEvalId(vertical, record.evalId);
         results[vertical].push(record);
       }
     } catch (err) {
@@ -379,6 +402,9 @@ async function handlePdfFiles(fileList) {
     html += `<div style="margin-top:10px;"><strong style="color:var(--hamleys-red);">${results.failed.length} file(s) failed to parse:</strong><ul style="margin:6px 0 0 18px; padding:0;">`;
     html += results.failed.map(f => `<li>${f.fileName} — ${f.reason}</li>`).join("");
     html += `</ul></div>`;
+  }
+  if (idCollisions) {
+    html += `<p class="small-muted" style="margin-top:10px;">ℹ ${idCollisions} file(s) shared a report ID with another audit already in the system — each was still kept as a separate record with an adjusted internal ID, nothing was overwritten.</p>`;
   }
   html += `</div>`;
   document.getElementById("pdfPreview").innerHTML = html;
