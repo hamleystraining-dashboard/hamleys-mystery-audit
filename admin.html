@@ -330,13 +330,19 @@ async function handlePdfFiles(fileList) {
 
   const results = { retail: [], play: [], undetected: [], failed: [] };
   let idCollisions = 0;
+  let updatedExisting = 0;
 
-  // Seed with every evalId already in play, per vertical, so a newly parsed
-  // PDF can never silently overwrite an existing record — whether that
-  // existing record came from the shipped data, a previous upload, or an
-  // earlier file in *this same* batch. Extracted "ID#" values from PDFs are
-  // not guaranteed unique across different report templates/waves, so this
-  // check happens regardless of where the ID came from.
+  // Two layers of protection, applied in order:
+  // 1. Same-audit dedup, keyed by store + date (the real identity of "this
+  //    audit"). Re-uploading the same PDF — on purpose, or by accident —
+  //    UPDATES that existing record in place instead of adding a duplicate.
+  // 2. evalId collision guard, for whatever's left, so two genuinely
+  //    different audits can never silently overwrite each other in storage
+  //    just because their extracted/fallback report IDs happened to match.
+  const existingByAuditKey = { retail: new Map(), play: new Map() };
+  ["retail", "play"].forEach(v => {
+    HMAI.audits(v).forEach(a => existingByAuditKey[v].set(a.storeCode + "|" + a.date, a.evalId));
+  });
   const usedIds = {
     retail: new Set(HMAI.audits("retail").map(a => String(a.evalId))),
     play: new Set(HMAI.audits("play").map(a => String(a.evalId))),
@@ -361,7 +367,18 @@ async function handlePdfFiles(fileList) {
       if (!vertical) {
         results.undetected.push({ fileName, reason: sectionCount ? "found sections but couldn't tell Retail vs Play" : "no section scores found — check PDF format" });
       } else {
-        record.evalId = assignUniqueEvalId(vertical, record.evalId);
+        const auditKey = record.storeCode + "|" + record.date;
+        const existingId = existingByAuditKey[vertical].get(auditKey);
+        if (existingId !== undefined) {
+          // Same store, same date, already on file — treat this as an
+          // update to that record (e.g. a re-upload or a corrected PDF),
+          // not a new one.
+          record.evalId = existingId;
+          updatedExisting++;
+        } else {
+          record.evalId = assignUniqueEvalId(vertical, record.evalId);
+          existingByAuditKey[vertical].set(auditKey, record.evalId);
+        }
         results[vertical].push(record);
       }
     } catch (err) {
@@ -374,12 +391,16 @@ async function handlePdfFiles(fileList) {
   progressText.textContent = `Done — processed ${files.length} file(s).`;
 
   // Save once per vertical (not once per file) — much faster for 100+ PDFs.
+  // Records are merged by evalId: anything reusing an existing evalId (a
+  // same-store-same-date match above) replaces that record in place;
+  // everything else is appended as new.
   ["retail", "play"].forEach(v => {
     if (!results[v].length) return;
     const key = v === "play" ? HMAI.LS_KEYS.play : HMAI.LS_KEYS.retail;
     const existing = JSON.parse(localStorage.getItem(key) || "[]");
-    results[v].forEach(record => existing.push(record));
-    HMAI.saveOverride(key, existing);
+    const byId = new Map(existing.map(r => [String(r.evalId), r]));
+    results[v].forEach(record => byId.set(String(record.evalId), record));
+    HMAI.saveOverride(key, Array.from(byId.values()));
   });
 
   await HMAI.init();
@@ -402,6 +423,9 @@ async function handlePdfFiles(fileList) {
     html += `<div style="margin-top:10px;"><strong style="color:var(--hamleys-red);">${results.failed.length} file(s) failed to parse:</strong><ul style="margin:6px 0 0 18px; padding:0;">`;
     html += results.failed.map(f => `<li>${f.fileName} — ${f.reason}</li>`).join("");
     html += `</ul></div>`;
+  }
+  if (updatedExisting) {
+    html += `<p class="small-muted" style="margin-top:10px;">↻ ${updatedExisting} file(s) matched a store+date already on file and updated that existing record — no duplicates created.</p>`;
   }
   if (idCollisions) {
     html += `<p class="small-muted" style="margin-top:10px;">ℹ ${idCollisions} file(s) shared a report ID with another audit already in the system — each was still kept as a separate record with an adjusted internal ID, nothing was overwritten.</p>`;
