@@ -1030,5 +1030,81 @@
   },
   "city": 0,
   "state": 100
+ },
+ {
+  "evalId": 1785744028331,
+  "wave": "PDF Upload",
+  "storeCode": "TLY7",
+  "storeName": "Hamleys - Maker Maxity, Mumbai",
+  "date": "2026-07-11",
+  "score": 70,
+  "sections": {
+   "ATTRACTION": 82,
+   "WELCOME": 67,
+   "ENTRY ASSISTANCE": 80,
+   "SAFETY   /   --   -- OUT FOR PLAY": 70,
+   "MAGIC PILLARS": 67,
+   "EXIT": 33,
+   "CSD BIRTHDAY ENQUIRY": 88
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785744028375,
+  "wave": "PDF Upload",
+  "storeCode": "T38E",
+  "storeName": "Hamleys - Lulu Mall, Lucknow",
+  "date": "2026-07-12",
+  "score": 100,
+  "sections": {
+   "ATTRACTION": 100,
+   "WELCOME": 100,
+   "ENTRY ASSISTANCE": 100,
+   "SAFETY   /   --   -- OUT FOR PLAY": 100,
+   "MAGIC PILLARS": 100,
+   "EXIT": 100,
+   "CSD BIRTHDAY ENQUIRY": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785744029135,
+  "wave": "PDF Upload",
+  "storeCode": "T77X",
+  "storeName": "Hamleys - Palladium Mall, Ahmedabad",
+  "date": "2026-07-10",
+  "score": 90,
+  "sections": {
+   "ATTRACTION": 89,
+   "WELCOME": 67,
+   "ENTRY ASSISTANCE": 80,
+   "SAFETY   /   --   -- OUT FOR PLAY": 91,
+   "MAGIC PILLARS": 100,
+   "EXIT": 100,
+   "CSD BIRTHDAY ENQUIRY": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785744028629,
+  "wave": "PDF Upload",
+  "storeCode": "T2UO",
+  "storeName": "Hamleys - Mall of Millenium, Pune",
+  "date": "2026-07-04",
+  "score": 89,
+  "sections": {
+   "ATTRACTION": 95,
+   "WELCOME": 71,
+   "ENTRY ASSISTANCE": 93,
+   "SAFETY   /   --   -- OUT FOR PLAY": 64,
+   "MAGIC PILLARS": 100,
+   "EXIT": 100,
+   "CSD BIRTHDAY ENQUIRY": 100
+  },
+  "city": "",
+  "state": ""
  }
 ]
