@@ -77,11 +77,38 @@
       <div id="pdfPreview"></div>
     </div>
 
+    <div class="card" style="margin-top:18px; border-color:#CFEFDD;">
+      <div class="section-head"><h3>Publish — goes live for everyone</h3><span class="tag neutral" id="githubTokenStatus">Not connected</span></div>
+      <p class="small-muted">This is the permanent fix for "I see it, my colleague doesn't": clicking this pushes your changes
+        straight to the live GitHub Pages site — no downloading files or dragging them into GitHub by hand, and
+        nothing gets forgotten. It's still one person's action publishing for everyone (that's the right model for
+        this data — it's periodically updated by L&amp;D, not something many people edit at once), it's just no
+        longer a manual multi-step process someone can skip.</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button class="btn btn-primary" id="publishGithubBtn" onclick="publishToGitHub()">🚀 Publish directly to GitHub</button>
+        <button class="btn btn-ghost" onclick="forgetGithubToken()">Forget saved token</button>
+      </div>
+      <p class="small-muted" id="publishResult" style="margin-top:10px;"></p>
+      <details style="margin-top:12px;">
+        <summary style="cursor:pointer; font-size:12.5px; font-weight:700; color:var(--ink-soft);">First time? How to get a token</summary>
+        <div class="small-muted" style="margin-top:8px; line-height:1.6;">
+          <ol style="margin:0; padding-left:18px;">
+            <li>Go to <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" style="color:var(--hamleys-navy); font-weight:700;">github.com/settings/personal-access-tokens/new</a> (log in as whichever GitHub account owns the repo)</li>
+            <li><strong>Repository access</strong> → "Only select repositories" → choose <code>hamleys-mystery-audit</code></li>
+            <li><strong>Permissions</strong> → "Repository permissions" → set <strong>Contents</strong> to <strong>Read and write</strong> (leave everything else as "No access")</li>
+            <li>Click <strong>Generate token</strong>, then copy it (starts with <code>github_pat_...</code>) — GitHub only shows it once</li>
+            <li>Click <strong>Publish directly to GitHub</strong> above and paste it in when asked</li>
+          </ol>
+          <p style="margin-top:8px;">The token is kept only in this browser tab's memory for this session — it's never written to any file, never committed, and disappears when you close the tab (or click "Forget saved token"). Scope it to just this one repository, and only give Contents write access, so even if it leaked it couldn't do much.</p>
+        </div>
+      </details>
+    </div>
+
     <div class="card" style="margin-top:18px;">
-      <div class="section-head"><h3>Publish</h3></div>
-      <p class="small-muted">Everything above is saved to this browser only, so the public dashboard reflects it, export it and commit the files to <code>assets/data/</code>.</p>
+      <div class="section-head"><h3>Manual fallback</h3></div>
+      <p class="small-muted">If you'd rather not set up a token, this still works exactly as before: download the files, then drag them into GitHub yourself.</p>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="exportDataset()">⭳ Export updated dataset (JSON)</button>
+        <button class="btn btn-ghost" onclick="exportDataset()">⭳ Export updated dataset (JSON)</button>
         <button class="btn btn-ghost" onclick="resetOverrides()">Reset local uploads</button>
       </div>
     </div>
@@ -104,10 +131,18 @@ async function boot() {
     return;
   }
   refreshCounts();
+  updateTokenStatus();
 
   wireDrop("storeDrop", "storeFile", handleStoreFile);
   wireDrop("histDrop", "histFile", handleHistFile);
   wireDrop("pdfDrop", "pdfFile", handlePdfFiles, true);
+}
+
+function updateTokenStatus() {
+  const el = document.getElementById("githubTokenStatus");
+  const has = !!sessionStorage.getItem("hmai_gh_token");
+  el.textContent = has ? "Token saved this session" : "Not connected";
+  el.className = "tag " + (has ? "good" : "neutral");
 }
 
 function refreshCounts() {
@@ -288,15 +323,27 @@ async function parseAuditPdf(file) {
   const dateMatch = text.match(/Report Date\s+.*?(\d{1,2}\/\d{1,2}\/\d{2,4})/) || text.match(/(\d{1,2}\/\d{1,2}\/\d{2,4})/);
 
   const sectionRegex = /([A-Z][A-Z .'\/-]{3,40})\s+(\d+)\/(\d+)\s+(\d+)\s*%/g;
-  const sections = {};
+  const sections = {};       // name -> percent, for the section-wise display/matrix
+  const sectionPoints = {};  // name -> {act, pos}, for computing the true overall score
   let m;
   while ((m = sectionRegex.exec(text)) !== null) {
     const name = m[1].trim();
     if (/^(SECTIONAL|YOUR SCORE|QUESTION|SHOWING)/i.test(name)) continue;
-    if (!(name in sections)) sections[name] = parseInt(m[4], 10);
+    if (!(name in sections)) {
+      sections[name] = parseInt(m[4], 10);
+      sectionPoints[name] = { act: parseInt(m[2], 10), pos: parseInt(m[3], 10) };
+    }
   }
-  const scoreVals = Object.values(sections);
-  const overall = scoreVals.length ? Math.round(scoreVals.reduce((a,b)=>a+b,0) / scoreVals.length) : null;
+  // The report's real "Overall" is total points scored ÷ total points
+  // possible across all sections — NOT an average of the section
+  // percentages (sections have different point totals, so a plain average
+  // silently under- or over-states the true score whenever they're
+  // unequal — verified against a real report where this made a 13-point
+  // difference: 30% our old way vs. the report's actual 43%).
+  const pointTotals = Object.values(sectionPoints);
+  const sumAct = pointTotals.reduce((s, p) => s + p.act, 0);
+  const sumPos = pointTotals.reduce((s, p) => s + p.pos, 0);
+  const overall = sumPos > 0 ? Math.round((sumAct / sumPos) * 100) : null;
 
   const storeCode = codeMatch ? codeMatch[1] : "UNKNOWN";
   const storeName = HMAI.storeMeta(storeCode).storeName || (locMatch ? locMatch[1].trim() : "Unknown Store");
@@ -451,6 +498,99 @@ function resetOverrides() {
   if (!confirm("Clear all locally-uploaded data and cases? This cannot be undone.")) return;
   Object.values(HMAI.LS_KEYS).forEach(k => localStorage.removeItem(k));
   location.reload();
+}
+
+// ---- Direct-to-GitHub publish ---------------------------------------------
+// Writes assets/data/*.json straight to the repo via GitHub's REST API,
+// replacing the "download 3 files, drag them into GitHub, commit" dance.
+// The token lives only in sessionStorage (this tab, this session) — never
+// written to a file, never committed anywhere.
+const GITHUB_OWNER = "hamleystraining-dashboard";
+const GITHUB_REPO = "hamleys-mystery-audit";
+const GITHUB_BRANCH = "main";
+
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = "";
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  return btoa(binary);
+}
+
+async function githubGetSha(path, token) {
+  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
+  });
+  if (res.status === 404) return null; // file doesn't exist yet in the repo
+  if (res.status === 401 || res.status === 403) throw new Error("GitHub rejected the token (expired, wrong scope, or wrong repo access)");
+  if (!res.ok) throw new Error(`Couldn't read ${path} from GitHub (HTTP ${res.status})`);
+  const data = await res.json();
+  return data.sha;
+}
+
+async function githubPutFile(path, content, token, message) {
+  const sha = await githubGetSha(path, token);
+  const body = { message, content: utf8ToBase64(content), branch: GITHUB_BRANCH };
+  if (sha) body.sha = sha; // required by GitHub's API when updating an existing file
+  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `GitHub API error ${res.status} on ${path}`);
+  }
+  return res.json();
+}
+
+async function publishToGitHub() {
+  let token = sessionStorage.getItem("hmai_gh_token");
+  if (!token) {
+    token = prompt("Paste your GitHub Personal Access Token (Contents: Read and write, scoped to this repo). Kept only in this browser tab for this session — never saved to a file.");
+    if (!token) return;
+    sessionStorage.setItem("hmai_gh_token", token);
+    updateTokenStatus();
+  }
+
+  const data = HMAI.exportAllData();
+  const files = [
+    { path: "assets/data/stores.json", content: JSON.stringify(data.stores, null, 1) },
+    { path: "assets/data/retail_audits.json", content: JSON.stringify(data.retail, null, 1) },
+    { path: "assets/data/play_audits.json", content: JSON.stringify(data.play, null, 1) },
+  ];
+
+  const btn = document.getElementById("publishGithubBtn");
+  const resultEl = document.getElementById("publishResult");
+  btn.disabled = true;
+  btn.textContent = "Publishing…";
+  resultEl.textContent = "";
+  resultEl.style.color = "";
+
+  try {
+    for (const f of files) {
+      resultEl.textContent = `Publishing ${f.path}…`;
+      await githubPutFile(f.path, f.content, token, `Admin publish: update ${f.path}`);
+    }
+    resultEl.style.color = "var(--good)";
+    resultEl.textContent = `✔ Published all 3 files to GitHub — live at hamleystraining-dashboard.github.io/hamleys-mystery-audit/ within about a minute.`;
+    toast("Published to GitHub");
+  } catch (err) {
+    resultEl.style.color = "var(--hamleys-red)";
+    resultEl.textContent = `✘ Publish failed: ${err.message}. Nothing partial was left in a bad state — files are only updated one at a time and each one either fully succeeds or fails clearly, so re-running this is safe.`;
+    if (/token|401|403/i.test(err.message)) {
+      sessionStorage.removeItem("hmai_gh_token");
+      updateTokenStatus();
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "🚀 Publish directly to GitHub";
+  }
+}
+
+function forgetGithubToken() {
+  sessionStorage.removeItem("hmai_gh_token");
+  updateTokenStatus();
+  toast("Token forgotten for this session");
 }
 
 boot();
