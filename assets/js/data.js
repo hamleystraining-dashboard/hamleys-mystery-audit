@@ -276,6 +276,32 @@ const HMAI = (() => {
     "Warning Letter + No Incentive (2nd month with low score)",
     "50% PLI Deduction for the Quarter",
   ];
+  const EMPLOYEE_DESIGNATIONS = [
+    { value: "FC", label: "FC — Fun Consultant" },
+    { value: "SM", label: "SM — Store Manager" },
+    { value: "SD", label: "SD — Store Director" },
+  ];
+  // The escalation policy: what action applies for a given employee
+  // designation, at a given trigger reason (score threshold + occurrence).
+  // Keyed as "<designation>|<triggerReason>". Combinations that aren't in
+  // the policy (e.g. FC at <60% two consecutive — already terminated at
+  // first occurrence, so there's nothing further to define) are simply
+  // absent; the UI falls back to letting the ROM pick manually for those.
+  const POLICY_MATRIX = {
+    "FC|80_first": "Warning Letter",
+    "FC|80_consecutive": "Termination Letter",
+    "FC|60_first": "Termination Letter",
+    "SM|80_first": "Warning Letter",
+    "SM|80_consecutive": "Warning Letter + No Incentive (2nd month with low score)",
+    "SM|60_first": "Warning Letter + No Incentive (this month)",
+    "SM|60_consecutive": "Termination Letter",
+    "SD|80_consecutive": "Warning Letter",
+    "SD|60_first": "Warning Letter",
+    "SD|60_consecutive": "50% PLI Deduction for the Quarter",
+  };
+  function suggestAction(designation, triggerReason) {
+    return POLICY_MATRIX[designation + "|" + triggerReason] || null;
+  }
 
   function remoteConfigured() {
     return typeof HMAI_CASES_API !== "undefined" && HMAI_CASES_API;
@@ -459,7 +485,7 @@ const HMAI = (() => {
   }
 
   return {
-    LS_KEYS, TRIGGER_REASONS, ROM_ACTIONS, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
+    LS_KEYS, TRIGGER_REASONS, ROM_ACTIONS, EMPLOYEE_DESIGNATIONS, POLICY_MATRIX, suggestAction, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
     mtd, avg, sectionAverages, filterAudits, uniqueValues, cascadingValues, latestPerStore,
     regionalLeaderboard, storeAuditHistory, sectionSwot, storesWithAudits,
     getCases, saveCases, caseKey, syncCasesFromAudits, triggerLdAction, sendToHR,
