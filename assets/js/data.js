@@ -310,41 +310,92 @@ const HMAI = (() => {
     return POLICY_MATRIX[designation + "|" + triggerReason] || null;
   }
 
-  function remoteConfigured() {
-    return typeof HMAI_CASES_API !== "undefined" && HMAI_CASES_API;
+  // ---- Supabase-backed persistence ----------------------------------------
+  // Cases live in a single shared `cases` table (see SUPABASE_SETUP.md) —
+  // every read fetches live from Supabase, every write commits immediately.
+  // Nothing is saved locally and nothing needs manual export/upload; the
+  // moment someone clicks Trigger / Send to HR / Close, it's live for
+  // everyone within seconds.
+  function supaHeaders(extra) {
+    return Object.assign({
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+    }, extra || {});
   }
 
-  async function apiPost(action, payload) {
-    const res = await fetch(HMAI_CASES_API, {
-      method: "POST",
-      // text/plain avoids a CORS preflight against Apps Script, which
-      // doesn't implement one — the script parses the JSON body itself.
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action, payload }),
-    });
-    const data = await res.json();
-    if (data && data.error) throw new Error(data.error);
-    return data;
+  function rowToCase(row) {
+    return {
+      key: row.key, vertical: row.vertical, evalId: row.eval_id, storeCode: row.store_code,
+      storeName: row.store_name, unmapped: !!row.unmapped, rom: row.rom, sd: row.sd, rm: row.rm,
+      date: row.date, score: Number(row.score), stage: row.stage, triggerReason: row.trigger_reason,
+      employees: row.employees || [], history: row.history || [],
+    };
   }
 
-  async function apiGetAll() {
-    const res = await fetch(HMAI_CASES_API + "?action=list");
+  // Maps whichever camelCase fields are present on `c` to their snake_case
+  // column names — works for both a full case object (upsert) and a
+  // partial patch (only the fields being changed).
+  function caseToRow(c) {
+    const map = {
+      key: "key", vertical: "vertical", evalId: "eval_id", storeCode: "store_code",
+      storeName: "store_name", unmapped: "unmapped", rom: "rom", sd: "sd", rm: "rm",
+      date: "date", score: "score", stage: "stage", triggerReason: "trigger_reason",
+      employees: "employees", history: "history",
+    };
+    const row = {};
+    Object.keys(map).forEach(k => { if (k in c) row[map[k]] = c[k]; });
+    return row;
+  }
+
+  async function supaRequest(path, opts) {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/" + path, opts);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `Supabase error (HTTP ${res.status})`);
+    }
     return res.json();
   }
 
   async function getCases() {
-    if (remoteConfigured()) return apiGetAll();
-    return readOverride(LS_KEYS.cases) || [];
+    const rows = await supaRequest("cases?select=*", { headers: supaHeaders(), cache: "no-store" });
+    return rows.map(rowToCase);
   }
 
-  function saveCases(cases) {
-    localStorage.setItem(LS_KEYS.cases, JSON.stringify(cases));
+  async function getCaseByKey(key) {
+    const rows = await supaRequest(`cases?key=eq.${encodeURIComponent(key)}&select=*`, { headers: supaHeaders(), cache: "no-store" });
+    return rows[0] ? rowToCase(rows[0]) : null;
+  }
+
+  async function upsertCases(cases) {
+    if (!cases.length) return [];
+    const rows = await supaRequest("cases", {
+      method: "POST",
+      headers: supaHeaders({ Prefer: "resolution=merge-duplicates,return=representation" }),
+      body: JSON.stringify(cases.map(caseToRow)),
+    });
+    return rows.map(rowToCase);
+  }
+
+  async function patchCase(key, patch) {
+    const rows = await supaRequest(`cases?key=eq.${encodeURIComponent(key)}`, {
+      method: "PATCH",
+      headers: supaHeaders({ Prefer: "return=representation" }),
+      body: JSON.stringify(caseToRow(patch)),
+    });
+    return rows[0] ? rowToCase(rows[0]) : null;
   }
 
   function caseKey(vertical, evalId) { return vertical + ":" + evalId; }
 
-  // Rebuild the case list from current audit data: any audit scoring <80 gets
-  // a case record if one doesn't already exist. Existing case progress is preserved.
+  function genEmployeeId() {
+    return "emp_" + Math.random().toString(36).slice(2, 9);
+  }
+
+  // Rebuild the case list from current audit data: any audit scoring <80
+  // gets a case record if one doesn't already exist. Only writes to
+  // Supabase when there's actually something new/changed — a normal page
+  // view with nothing new to flag is a pure read, no write, no prompt.
   async function syncCasesFromAudits() {
     const candidates = [];
     ["retail", "play"].forEach(v => {
@@ -359,116 +410,78 @@ const HMAI = (() => {
         }
       });
     });
+    if (!candidates.length) return getCases();
 
-    if (remoteConfigured()) {
-      return apiPost("sync", { candidates });
-    }
-
-    // Local-storage fallback: same upsert logic, run in the browser.
-    const existing = readOverride(LS_KEYS.cases) || [];
+    const existing = await getCases();
     const existingMap = {};
     existing.forEach(c => existingMap[c.key] = c);
-    const flagged = candidates.map(c => {
-      if (existingMap[c.key]) {
-        const existingCase = existingMap[c.key];
-        existingCase.storeName = c.storeName;
-        existingCase.unmapped = c.unmapped;
-        existingCase.rom = c.rom; existingCase.sd = c.sd; existingCase.rm = c.rm;
-        return existingCase;
+    const toUpsert = [];
+    candidates.forEach(c => {
+      const ec = existingMap[c.key];
+      if (ec) {
+        if (ec.storeName !== c.storeName || ec.unmapped !== c.unmapped || ec.rom !== c.rom || ec.sd !== c.sd || ec.rm !== c.rm) {
+          toUpsert.push(Object.assign({}, ec, { storeName: c.storeName, unmapped: c.unmapped, rom: c.rom, sd: c.sd, rm: c.rm }));
+        }
+      } else {
+        toUpsert.push(Object.assign({}, c, {
+          stage: "flagged", triggerReason: null, employees: [],
+          history: [{ stage: "flagged", at: new Date().toISOString(), by: "System", note: "Auto-flagged: score below 80" }],
+        }));
       }
-      return Object.assign({}, c, {
-        stage: "flagged", triggerReason: null, employees: [],
-        history: [{ stage: "flagged", at: new Date().toISOString(), by: "System", note: "Auto-flagged: score below 80" }],
-      });
     });
-    saveCases(flagged);
-    return flagged;
+    if (!toUpsert.length) return existing;
+    await upsertCases(toUpsert);
+    return getCases();
   }
 
-  // L&D picks a reason and triggers the case; notifies the ROM by email
-  // when the backend is configured.
   async function triggerLdAction(key, reason) {
-    if (remoteConfigured()) return apiPost("triggerLD", { key, reason });
-
-    const cases = readOverride(LS_KEYS.cases) || [];
-    const idx = cases.findIndex(c => c.key === key);
-    if (idx === -1) return null;
-    cases[idx].stage = "ld_triggered";
-    cases[idx].triggerReason = reason;
-    cases[idx].history = cases[idx].history || [];
-    cases[idx].history.push({ stage: "ld_triggered", at: new Date().toISOString(), by: "L&D Team", note: "Reason: " + TRIGGER_REASONS[reason] + " (local mode — no email sent, see google-apps-script/SETUP.md)" });
-    saveCases(cases);
-    return cases[idx];
-  }
-
-  function genEmployeeId() {
-    return "emp_" + Math.random().toString(36).slice(2, 9);
+    const c = await getCaseByKey(key);
+    if (!c) throw new Error("Case not found: " + key);
+    const history = (c.history || []).concat([{ stage: "ld_triggered", at: new Date().toISOString(), by: "L&D Team", note: "Reason: " + (TRIGGER_REASONS[reason] || reason) }]);
+    return patchCase(key, { stage: "ld_triggered", triggerReason: reason, history });
   }
 
   // ROM adds one defaulter row at a time (id assigned here so the UI can
   // reference it immediately for edits/removal before "Send to HR").
   async function addEmployee(key, employee) {
-    if (remoteConfigured()) return apiPost("addEmployee", { key, employee });
-
-    const cases = readOverride(LS_KEYS.cases) || [];
-    const idx = cases.findIndex(c => c.key === key);
-    if (idx === -1) return null;
-    cases[idx].employees = cases[idx].employees || [];
-    const row = Object.assign({ id: genEmployeeId(), closed: false, closedAt: null, closedBy: null, closureNote: "" }, employee);
-    cases[idx].employees.push(row);
-    saveCases(cases);
-    return cases[idx];
+    const c = await getCaseByKey(key);
+    if (!c) throw new Error("Case not found: " + key);
+    const employees = (c.employees || []).concat([Object.assign({ id: genEmployeeId(), closed: false, closedAt: null, closedBy: null, closureNote: "" }, employee)]);
+    return patchCase(key, { employees });
   }
 
   async function removeEmployee(key, employeeId) {
-    if (remoteConfigured()) return apiPost("removeEmployee", { key, employeeId });
-
-    const cases = readOverride(LS_KEYS.cases) || [];
-    const idx = cases.findIndex(c => c.key === key);
-    if (idx === -1) return null;
-    cases[idx].employees = (cases[idx].employees || []).filter(e => e.id !== employeeId);
-    saveCases(cases);
-    return cases[idx];
+    const c = await getCaseByKey(key);
+    if (!c) throw new Error("Case not found: " + key);
+    const employees = (c.employees || []).filter(e => e.id !== employeeId);
+    return patchCase(key, { employees });
   }
 
-  // ROM sends the completed defaulter list to HR; notifies HRBP by email
-  // when the backend is configured.
   async function sendToHR(key) {
-    if (remoteConfigured()) return apiPost("sendToHR", { key });
-
-    const cases = readOverride(LS_KEYS.cases) || [];
-    const idx = cases.findIndex(c => c.key === key);
-    if (idx === -1) return null;
-    if (!(cases[idx].employees || []).length) throw new Error("Add at least one employee before sending to HR");
-    cases[idx].stage = "rom_submitted";
-    cases[idx].history = cases[idx].history || [];
-    cases[idx].history.push({ stage: "rom_submitted", at: new Date().toISOString(), by: "ROM", note: `${cases[idx].employees.length} employee(s) submitted (local mode — no email sent, see google-apps-script/SETUP.md)` });
-    saveCases(cases);
-    return cases[idx];
+    const c = await getCaseByKey(key);
+    if (!c) throw new Error("Case not found: " + key);
+    if (!(c.employees || []).length) throw new Error("Add at least one employee before sending to HR");
+    const history = (c.history || []).concat([{ stage: "rom_submitted", at: new Date().toISOString(), by: "ROM", note: `${c.employees.length} employee(s) submitted.` }]);
+    return patchCase(key, { stage: "rom_submitted", history });
   }
 
   // HRBP closes one employee's action; once every employee on the case is
   // closed, the case itself auto-advances to hrbp_closed.
   async function closeEmployee(key, employeeId, closureNote) {
-    if (remoteConfigured()) return apiPost("closeEmployee", { key, employeeId, closureNote });
-
-    const cases = readOverride(LS_KEYS.cases) || [];
-    const idx = cases.findIndex(c => c.key === key);
-    if (idx === -1) return null;
-    const emp = (cases[idx].employees || []).find(e => e.id === employeeId);
-    if (!emp) return null;
-    emp.closed = true;
-    emp.closedAt = new Date().toISOString();
-    emp.closedBy = "HRBP";
-    emp.closureNote = closureNote || "";
-    const allClosed = cases[idx].employees.length > 0 && cases[idx].employees.every(e => e.closed);
-    if (allClosed && cases[idx].stage !== "hrbp_closed") {
-      cases[idx].stage = "hrbp_closed";
-      cases[idx].history = cases[idx].history || [];
-      cases[idx].history.push({ stage: "hrbp_closed", at: new Date().toISOString(), by: "HRBP", note: "All employee actions closed" });
+    const c = await getCaseByKey(key);
+    if (!c) throw new Error("Case not found: " + key);
+    const emp = (c.employees || []).find(e => e.id === employeeId);
+    if (!emp) throw new Error("Employee not found: " + employeeId);
+    const employees = c.employees.map(e => e.id === employeeId
+      ? Object.assign({}, e, { closed: true, closedAt: new Date().toISOString(), closedBy: "HRBP", closureNote: closureNote || "" })
+      : e);
+    const allClosed = employees.length > 0 && employees.every(e => e.closed);
+    const patch = { employees };
+    if (allClosed && c.stage !== "hrbp_closed") {
+      patch.stage = "hrbp_closed";
+      patch.history = (c.history || []).concat([{ stage: "hrbp_closed", at: new Date().toISOString(), by: "HRBP", note: "All employee actions closed" }]);
     }
-    saveCases(cases);
-    return cases[idx];
+    return patchCase(key, patch);
   }
 
   // ---- Admin uploads ------------------------------------------------------
@@ -495,7 +508,7 @@ const HMAI = (() => {
     LS_KEYS, TRIGGER_REASONS, ROM_ACTIONS, EMPLOYEE_DESIGNATIONS, POLICY_MATRIX, suggestAction, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
     mtd, avg, sectionAverages, filterAudits, uniqueValues, cascadingValues, latestPerStore,
     regionalLeaderboard, storeAuditHistory, sectionSwot, storesWithAudits,
-    getCases, saveCases, caseKey, syncCasesFromAudits, triggerLdAction, sendToHR,
+    getCases, caseKey, syncCasesFromAudits, triggerLdAction, sendToHR,
     addEmployee, removeEmployee, closeEmployee,
     saveOverride, exportAllData, get STORES() { return STORES; }, get RETAIL() { return RETAIL; }, get PLAY() { return PLAY; }
   };
