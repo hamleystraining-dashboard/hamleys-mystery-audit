@@ -24,7 +24,12 @@ const HMAI = (() => {
     if (location.protocol === "file:") {
       throw new Error("FILE_PROTOCOL");
     }
-    const res = await fetch(path);
+    // Cache-bust every load: without this, a colleague's browser (or
+    // GitHub's own CDN) can keep serving an old cached copy of these files
+    // for a while after a fresh publish, which is exactly why "I updated
+    // it but my colleague still sees old data" happens on a shared link.
+    const bustedPath = path + (path.includes("?") ? "&" : "?") + "v=" + Date.now();
+    const res = await fetch(bustedPath, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to load " + path);
     return res.json();
   }
