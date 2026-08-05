@@ -49,10 +49,17 @@ const HMAI = (() => {
       loadJSON(base + "play_audits.json"),
     ]);
 
-    // Locally-uploaded data (via Admin page) takes precedence / is merged in.
-    const storesOv = readOverride(LS_KEYS.stores);
-    const retailOv = readOverride(LS_KEYS.retail);
-    const playOv = readOverride(LS_KEYS.play);
+    // Locally-uploaded data (via Admin) only ever applies ON Admin itself,
+    // for previewing an upload before publishing it. Every other page
+    // (Overview, Cohort, Trend, Cases, ROM, HRBP) must read the SAME
+    // published data on every device — a browser that once used Admin for
+    // testing must never permanently see different numbers than one that
+    // never touched it. That mismatch was exactly the "different devices
+    // show different data" bug.
+    const adminMode = typeof HMAI_ADMIN_MODE !== "undefined" && HMAI_ADMIN_MODE;
+    const storesOv = adminMode ? readOverride(LS_KEYS.stores) : null;
+    const retailOv = adminMode ? readOverride(LS_KEYS.retail) : null;
+    const playOv = adminMode ? readOverride(LS_KEYS.play) : null;
 
     STORES = mergeStores(stores, storesOv);
     RETAIL = mergeAudits(retail, retailOv);
