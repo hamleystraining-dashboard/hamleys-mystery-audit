@@ -32,6 +32,13 @@
       <div class="filter-field"><label>RM</label><select id="fRm"></select></div>
       <div class="filter-field"><label>ROM</label><select id="fRom"></select></div>
       <div class="filter-field"><label>SD</label><select id="fSd"></select></div>
+      <div class="filter-field">
+        <label>Financial Year</label>
+        <div class="chip-toggle" id="fyToggle">
+          <button data-fy="2025-26">FY 2025-26</button>
+          <button data-fy="2026-27">FY 2026-27</button>
+        </div>
+      </div>
       <div class="filter-field"><label>From</label><input type="date" id="fFrom"></div>
       <div class="filter-field"><label>To</label><input type="date" id="fTo"></div>
       <div class="filter-field">
@@ -131,10 +138,14 @@ async function boot() {
   document.getElementById("fRom").addEventListener("change", () => { onHierarchyChange("rom"); render(); });
   document.getElementById("fSd").addEventListener("change", () => { onHierarchyChange("sd"); render(); });
   ["fFrom","fTo","fStage"].forEach(id => {
-    document.getElementById(id).addEventListener("change", render);
+    document.getElementById(id).addEventListener("change", () => { clearFyActive(); render(); });
+  });
+  document.querySelectorAll("#fyToggle button").forEach(b => {
+    b.addEventListener("click", () => applyFY(b.dataset.fy));
   });
   document.getElementById("clearAll").addEventListener("click", () => {
     ["fRm","fRom","fSd","fFrom","fTo","fStage"].forEach(id => document.getElementById(id).value = "");
+    clearFyActive();
     populateFilterOptions();
     render();
   });
@@ -142,6 +153,22 @@ async function boot() {
   document.getElementById("ldConfirmBtn").addEventListener("click", confirmLd);
 
   populateFilterOptions();
+  render();
+}
+
+// India FY runs Apr 1 → Mar 31. "2025-26" means Apr 2025 – Mar 2026.
+function fyRange(label) {
+  const startYear = 2000 + parseInt(label.split("-")[0].slice(-2), 10);
+  return { from: `${startYear}-04-01`, to: `${startYear + 1}-03-31` };
+}
+function clearFyActive() {
+  document.querySelectorAll("#fyToggle button").forEach(b => b.classList.remove("active"));
+}
+function applyFY(label) {
+  const { from, to } = fyRange(label);
+  document.getElementById("fFrom").value = from;
+  document.getElementById("fTo").value = to;
+  document.querySelectorAll("#fyToggle button").forEach(b => b.classList.toggle("active", b.dataset.fy === label));
   render();
 }
 
@@ -237,7 +264,7 @@ async function confirmLd() {
   try {
     await HMAI.triggerLdAction(activeCaseKey, reason);
     closeModal("ldModal");
-    toast(typeof HMAI_CASES_API !== "undefined" && HMAI_CASES_API ? "ROM notified by email — case moved to ROM stage" : "Case moved to ROM stage (local mode — no email sent)");
+    toast("Case moved to ROM stage — live for everyone now");
     await render();
   } catch (err) {
     toast("Couldn't trigger: " + err.message);

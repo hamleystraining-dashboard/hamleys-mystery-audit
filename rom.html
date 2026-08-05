@@ -197,7 +197,7 @@ async function sendToHr(key, btn) {
   btn.disabled = true; btn.textContent = "Sending…";
   try {
     await HMAI.sendToHR(key);
-    toast(typeof HMAI_CASES_API !== "undefined" && HMAI_CASES_API ? "Sent to HRBP — email notification sent" : "Sent to HRBP (local mode — no email sent)");
+    toast("Sent to HRBP — live for everyone now");
     await render();
   } catch (err) {
     toast(err.message || "Couldn't send to HR");
