@@ -11948,5 +11948,176 @@
   },
   "city": "",
   "state": ""
+ },
+ {
+  "evalId": 1785930459249,
+  "wave": "PDF Upload",
+  "storeCode": "THD8",
+  "storeName": "Express Avenue - Chennai",
+  "date": "2026-07-15",
+  "score": 59,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 55,
+   "A - APPROACHING RIGHT": 88,
+   "M - MEETING THY NEEDS": 61,
+   "L - LOST IN DEMOS": 0,
+   "E - ENGAGING TILL EXPERIENCE": 43,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 0
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785930459214,
+  "wave": "PDF Upload",
+  "storeCode": "TB2O",
+  "storeName": "Ham - HSP.FF",
+  "date": "2026-07-11",
+  "score": 97,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 75,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785930459395,
+  "wave": "PDF Upload",
+  "storeCode": "TL9A",
+  "storeName": "Hamleys - Ham.LuluBlr",
+  "date": "2026-07-06",
+  "score": 75,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 79,
+   "A - APPROACHING RIGHT": 88,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 67,
+   "Y - YOU COME FIRST": 50,
+   "S - SEEING THEM OFF": 0
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785930459177,
+  "wave": "PDF Upload",
+  "storeCode": "TASG",
+  "storeName": "Hamleys - T1A",
+  "date": "2026-07-02",
+  "score": 93,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 88,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": 0,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785930459818,
+  "wave": "PDF Upload",
+  "storeCode": "TUW4",
+  "storeName": "Gokulam Galleria - Calicut",
+  "date": "2026-07-31",
+  "score": 95,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 50,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785930459113,
+  "wave": "PDF Upload",
+  "storeCode": "TL6O",
+  "storeName": "Ham.Irisbrdway",
+  "date": "2026-07-29",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785930459467,
+  "wave": "PDF Upload",
+  "storeCode": "T34O",
+  "storeName": "Ham -Phoenix Citadel Indore",
+  "date": "2026-07-25",
+  "score": 97,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 50,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785930459546,
+  "wave": "PDF Upload",
+  "storeCode": "THN3",
+  "storeName": "L&T Mall - Hyd",
+  "date": "2026-07-24",
+  "score": 66,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 33,
+   "M - MEETING THY NEEDS": 44,
+   "L - LOST IN DEMOS": 0,
+   "E - ENGAGING TILL EXPERIENCE": 56,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 0
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 1785930459394,
+  "wave": "PDF Upload",
+  "storeCode": "THF0",
+  "storeName": "Phoenix Marketcity - Chennai",
+  "date": "2026-07-16",
+  "score": 85,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 42,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 0
+  },
+  "city": "",
+  "state": ""
  }
 ]
