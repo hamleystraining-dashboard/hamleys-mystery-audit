@@ -24,7 +24,16 @@
       <span class="small-muted" id="resultCount" style="margin-left:auto;"></span>
     </div>
 
+    <div class="section-head" style="margin-top:6px;">
+      <h3>Awaiting Your Action</h3>
+    </div>
     <div id="caseListWrap"></div>
+
+    <div class="section-head" style="margin-top:24px;">
+      <h3>History — Already Sent to HR</h3>
+      <span class="small-muted">Kept here permanently for reference — nothing disappears once actioned</span>
+    </div>
+    <div id="historyWrap"></div>
 
 </div>
 
@@ -70,23 +79,64 @@ async function populateRomFilter() {
 async function render() {
   document.querySelector(".seg-toggle").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
   const romFilter = document.getElementById("fRom").value;
-  let cases = (await HMAI.getCases()).filter(c => c.vertical === vertical && c.stage === "ld_triggered");
+  const allCases = await HMAI.getCases();
+  let cases = allCases.filter(c => c.vertical === vertical && c.stage === "ld_triggered");
   if (romFilter) cases = cases.filter(c => c.rom === romFilter);
   cases.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-  document.getElementById("resultCount").textContent = cases.length + " case(s) awaiting ROM action";
+  let history = allCases.filter(c => c.vertical === vertical && (c.stage === "rom_submitted" || c.stage === "hrbp_closed"));
+  if (romFilter) history = history.filter(c => c.rom === romFilter);
+  history.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  document.getElementById("resultCount").textContent = `${cases.length} awaiting \u00b7 ${history.length} in history`;
   currentCases = cases;
 
   const wrap = document.getElementById("caseListWrap");
   if (!cases.length) {
     wrap.innerHTML = `<div class="card empty-state"><div class="ic">✅</div><h3>Nothing waiting on you right now</h3><p class="small-muted">Cases appear here once L&D triggers an action.</p></div>`;
-    return;
+  } else {
+    wrap.innerHTML = cases.map(c => caseCardHtml(c)).join("");
+    cases.forEach(c => wireCase(c.key));
   }
 
-  wrap.innerHTML = cases.map(c => caseCardHtml(c)).join("");
+  const historyWrap = document.getElementById("historyWrap");
+  historyWrap.innerHTML = history.length
+    ? history.map(c => historyCardHtml(c)).join("")
+    : `<div class="card empty-state"><p class="small-muted">Nothing sent to HR yet.</p></div>`;
+}
 
-  // wire up per-case interactions after render
-  cases.forEach(c => wireCase(c.key));
+function historyCardHtml(c) {
+  const employees = c.employees || [];
+  const stageLabel = c.stage === "hrbp_closed" ? "Closed" : "With HRBP";
+  const stageCls = c.stage === "hrbp_closed" ? "good" : "warn";
+  return `
+  <div class="card" style="margin-bottom:16px; opacity:0.9;">
+    <div class="section-head">
+      <div>
+        <h3>${c.storeName} <span class="small-muted" style="font-weight:400;">(${c.storeCode})</span></h3>
+        <span class="tag warn" style="margin-top:6px;">${HMAI.TRIGGER_REASONS[c.triggerReason] || "Reason not set"}</span>
+        <span class="tag ${stageCls}" style="margin-top:6px; margin-left:6px;">${stageLabel}</span>
+      </div>
+      <div style="text-align:right;">
+        ${scorePill(c.score)}
+        <div class="small-muted" style="margin-top:4px;">${fmtDate(c.date)} &middot; ROM: ${c.rom} &middot; SD: ${c.sd} &middot; HRBP: ${c.hrbp || "—"}</div>
+      </div>
+    </div>
+    <hr class="hr">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Employee Name</th><th>Designation</th><th>Employee Code</th><th>Action</th><th>Received</th><th>Actioned</th><th>Status</th></tr></thead>
+        <tbody>
+          ${employees.map(e => `<tr>
+            <td>${e.name}</td><td>${e.designation}</td><td>${e.code}</td><td>${e.action}</td>
+            <td class="small-muted">${fmtDate(e.addedAt)}</td>
+            <td class="small-muted">${e.closed ? fmtDate(e.closedAt) : "—"}</td>
+            <td>${e.closed ? `<span class="tag good">Closed by ${e.closedBy || "HRBP"}</span>` : `<span class="tag warn">Pending with HRBP</span>`}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
 }
 
 function caseCardHtml(c) {
@@ -106,7 +156,7 @@ function caseCardHtml(c) {
     <hr class="hr">
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Employee Name</th><th>Designation</th><th>Employee Code</th><th>Action</th><th></th></tr></thead>
+        <thead><tr><th>Employee Name</th><th>Designation</th><th>Employee Code</th><th>Action</th><th>Received</th><th></th></tr></thead>
         <tbody id="empBody_${c.key}">
           ${employees.map(e => empRowHtml(e, c.key)).join("")}
         </tbody>
@@ -164,6 +214,7 @@ function applySuggestedAction(key) {
 function empRowHtml(e, key) {
   return `<tr id="emprow_${e.id}">
     <td>${e.name}</td><td>${e.designation}</td><td>${e.code}</td><td>${e.action}</td>
+    <td class="small-muted">${fmtDate(e.addedAt)}</td>
     <td><button class="btn btn-ghost btn-sm" onclick="removeEmployeeRow('${key}','${e.id}')">Remove</button></td>
   </tr>`;
 }

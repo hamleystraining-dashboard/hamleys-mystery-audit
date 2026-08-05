@@ -69,7 +69,7 @@
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Store</th><th>Score</th><th>Audit Date</th><th>RM</th><th>ROM</th><th>SD</th><th>Stage</th><th style="min-width:230px;">Action</th><th>Trend</th>
+            <th>Store</th><th>Score</th><th>Audit Date</th><th>RM</th><th>ROM</th><th>SD</th><th>HRBP</th><th>Stage</th><th style="min-width:230px;">Action</th><th>Trend</th>
           </tr></thead>
           <tbody id="tableBody"></tbody>
         </table>
@@ -239,12 +239,12 @@ async function render() {
       <td><strong>${c.storeName}</strong>${c.unmapped ? ' <span class="tag warn">Unmapped</span>' : ''}<div class="small-muted">${c.storeCode}</div></td>
       <td>${scorePill(c.score)}</td>
       <td>${fmtDate(c.date)}</td>
-      <td>${c.rm}</td><td>${c.rom}</td><td>${c.sd}</td>
+      <td>${c.rm}</td><td>${c.rom}</td><td>${c.sd}</td><td>${c.hrbp || "—"}</td>
       <td><span class="tag ${cls}">${label}</span></td>
       <td>${actionBtn}</td>
       <td><a class="btn btn-ghost btn-sm" href="trend.html?store=${encodeURIComponent(c.storeCode)}&v=${c.vertical}" target="_blank">View</a></td>
     </tr>`;
-  }).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:30px;">No cases match these filters</td></tr>`;
+  }).join("") || `<tr><td colspan="10" style="text-align:center;color:var(--ink-faint);padding:30px;">No cases match these filters</td></tr>`;
 }
 
 async function findCase(key) { return (await HMAI.getCases()).find(c => c.key === key); }

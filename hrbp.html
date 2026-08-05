@@ -11,7 +11,7 @@
     <div class="topbar">
       <div>
         <h1 class="page-title">HRBP Action</h1>
-        <div class="page-sub">Cases the ROM has submitted — close each employee's action</div>
+        <div class="page-sub">Close out employee actions submitted by the ROM &mdash; every case stays on record below, even once closed</div>
       </div>
       <div class="seg-toggle" id="verticalToggle">
         <button data-v="retail" class="active retail">Retail</button>
@@ -20,10 +20,29 @@
     </div>
 
     <div class="filter-bar">
-      <span class="small-muted" id="resultCount"></span>
+      <div class="filter-field" style="min-width:200px;">
+        <label>I am</label>
+        <select id="fHrbpWho">
+          <option value="">Select your name…</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>Filter by HRBP</label>
+        <select id="fHrbp"></select>
+      </div>
+      <span class="small-muted" id="resultCount" style="margin-left:auto;"></span>
     </div>
 
-    <div id="caseListWrap"></div>
+    <div class="section-head" style="margin-top:6px;">
+      <h3>Pending</h3>
+    </div>
+    <div id="pendingWrap"></div>
+
+    <div class="section-head" style="margin-top:24px;">
+      <h3>History — Closed Cases</h3>
+      <span class="small-muted">Kept here permanently for reference — nothing disappears once actioned</span>
+    </div>
+    <div id="historyWrap"></div>
 
 </div>
 
@@ -33,6 +52,12 @@
     <h3 style="margin-bottom:6px;">Mark Action Taken &amp; Closed</h3>
     <p class="small-muted" id="closeModalCopy"></p>
     <hr class="hr">
+    <div class="field-row">
+      <label>Closed by</label>
+      <select id="closeByName">
+        <option value="">Select HRBP name…</option>
+      </select>
+    </div>
     <div class="field-row">
       <label>Closure notes (optional)</label>
       <textarea id="closeNotes" rows="3" placeholder="Any detail on what was done"></textarea>
@@ -52,6 +77,7 @@
 let vertical = "retail";
 let activeCaseKey = null;
 let activeEmpId = null;
+let allCasesCache = [];
 
 async function boot() {
   await requireAccess("HRBP Action — L&D / HRBP Only");
@@ -62,6 +88,20 @@ async function boot() {
     showLoadError(err);
     return;
   }
+
+  fillSelect(document.getElementById("fHrbpWho"), HMAI.HRBP_NAMES, "Select your name…");
+  fillSelect(document.getElementById("fHrbp"), HMAI.HRBP_NAMES, "All HRBPs");
+  fillSelect(document.getElementById("closeByName"), HMAI.HRBP_NAMES, "Select HRBP name…");
+  const savedWho = localStorage.getItem("hmai_hrbp_who");
+  if (savedWho) {
+    document.getElementById("fHrbpWho").value = savedWho;
+    document.getElementById("closeByName").value = savedWho;
+  }
+  document.getElementById("fHrbpWho").addEventListener("change", e => {
+    localStorage.setItem("hmai_hrbp_who", e.target.value);
+    document.getElementById("closeByName").value = e.target.value;
+  });
+  document.getElementById("fHrbp").addEventListener("change", render);
 
   document.querySelectorAll("#verticalToggle button").forEach(b => {
     b.addEventListener("click", async () => {
@@ -78,70 +118,82 @@ async function boot() {
 
 async function render() {
   document.querySelector(".seg-toggle").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.v === vertical));
-  let cases = (await HMAI.getCases()).filter(c => c.vertical === vertical && (c.stage === "rom_submitted" || (c.stage === "hrbp_closed" && (c.employees||[]).some(e=>e.closed))));
-  // Show open (rom_submitted) cases first; fully closed ones stay visible briefly for confirmation but sorted last
-  cases.sort((a,b) => (a.stage === "rom_submitted" ? -1 : 1) - (b.stage === "rom_submitted" ? -1 : 1) || new Date(b.date) - new Date(a.date));
+  const hrbpFilter = document.getElementById("fHrbp").value;
 
-  const openCount = cases.filter(c => c.stage === "rom_submitted").length;
-  document.getElementById("resultCount").textContent = openCount + " case(s) with pending employee actions";
+  let cases = (await HMAI.getCases()).filter(c => c.vertical === vertical && (c.employees || []).length > 0);
+  if (hrbpFilter) cases = cases.filter(c => c.hrbp === hrbpFilter);
+  allCasesCache = cases;
 
-  const wrap = document.getElementById("caseListWrap");
-  if (!cases.length) {
-    wrap.innerHTML = `<div class="card empty-state"><div class="ic">✅</div><h3>Nothing waiting on HRBP right now</h3><p class="small-muted">Cases appear here once a ROM sends defaulter details.</p></div>`;
-    return;
-  }
-  wrap.innerHTML = cases.map(c => caseCardHtml(c)).join("");
+  const pending = cases.filter(c => c.stage === "rom_submitted").sort((a,b) => new Date(b.date) - new Date(a.date));
+  const history = cases.filter(c => c.stage === "hrbp_closed").sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  document.getElementById("resultCount").textContent = `${pending.length} pending \u00b7 ${history.length} closed`;
+
+  const pendingWrap = document.getElementById("pendingWrap");
+  pendingWrap.innerHTML = pending.length
+    ? pending.map(c => caseCardHtml(c, false)).join("")
+    : `<div class="card empty-state"><div class="ic">✅</div><h3>Nothing pending right now</h3><p class="small-muted">Cases appear here once a ROM sends defaulter details.</p></div>`;
+
+  const historyWrap = document.getElementById("historyWrap");
+  historyWrap.innerHTML = history.length
+    ? history.map(c => caseCardHtml(c, true)).join("")
+    : `<div class="card empty-state"><p class="small-muted">No closed cases yet.</p></div>`;
 }
 
-function caseCardHtml(c) {
+function caseCardHtml(c, isHistory) {
   const employees = c.employees || [];
   const closedCount = employees.filter(e => e.closed).length;
-  const allClosed = closedCount === employees.length && employees.length > 0;
   return `
-  <div class="card" style="margin-bottom:16px; ${allClosed ? 'opacity:0.75;' : ''}">
+  <div class="card" style="margin-bottom:16px; ${isHistory ? 'opacity:0.85;' : ''}">
     <div class="section-head">
       <div>
         <h3>${c.storeName} <span class="small-muted" style="font-weight:400;">(${c.storeCode})</span></h3>
         <span class="tag warn" style="margin-top:6px;">${HMAI.TRIGGER_REASONS[c.triggerReason] || "Reason not set"}</span>
-        ${allClosed ? '<span class="tag good" style="margin-top:6px; margin-left:6px;">Case Closed</span>' : ''}
+        ${isHistory ? '<span class="tag good" style="margin-top:6px; margin-left:6px;">Closed</span>' : ''}
       </div>
       <div style="text-align:right;">
         ${scorePill(c.score)}
-        <div class="small-muted" style="margin-top:4px;">${fmtDate(c.date)} &middot; RM: ${c.rm} &middot; ROM: ${c.rom} &middot; SD: ${c.sd}</div>
+        <div class="small-muted" style="margin-top:4px;">${fmtDate(c.date)} &middot; RM: ${c.rm} &middot; ROM: ${c.rom} &middot; SD: ${c.sd} &middot; HRBP: ${c.hrbp || "—"}</div>
       </div>
     </div>
     <hr class="hr">
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Employee Name</th><th>Designation</th><th>Employee Code</th><th>Action</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Employee Name</th><th>Designation</th><th>Employee Code</th><th>Action</th><th>Received</th><th>Actioned</th><th>Status</th><th></th></tr></thead>
         <tbody>
           ${employees.map(e => `<tr>
             <td>${e.name}</td><td>${e.designation}</td><td>${e.code}</td><td>${e.action}</td>
-            <td>${e.closed ? `<span class="tag good">Closed ${fmtDate(e.closedAt)}</span>` : `<span class="tag warn">Pending</span>`}</td>
+            <td class="small-muted">${fmtDate(e.addedAt)}</td>
+            <td class="small-muted">${e.closed ? fmtDate(e.closedAt) : "—"}</td>
+            <td>${e.closed ? `<span class="tag good">Closed by ${e.closedBy || "HRBP"}</span>` : `<span class="tag warn">Pending</span>`}</td>
             <td>${e.closed ? "" : `<button class="btn btn-primary btn-sm" onclick="openClose('${c.key}','${e.id}')">Action Taken &amp; Closed</button>`}</td>
-          </tr>`).join("")}
+          </tr>${e.closed && e.closureNote ? `<tr><td colspan="8" class="small-muted" style="padding-top:0;">Note: ${e.closureNote}</td></tr>` : ""}`).join("")}
         </tbody>
       </table>
     </div>
-    <p class="small-muted" style="margin-top:10px;">${closedCount} of ${employees.length} closed${allClosed ? " — case moved to Closed on the tracker." : ""}</p>
+    <p class="small-muted" style="margin-top:10px;">${closedCount} of ${employees.length} closed</p>
   </div>`;
 }
 
-async function openClose(key, empId) {
+function openClose(key, empId) {
   activeCaseKey = key; activeEmpId = empId;
-  const c = (await HMAI.getCases()).find(x => x.key === key);
+  const c = allCasesCache.find(x => x.key === key);
   const emp = (c.employees || []).find(e => e.id === empId);
   document.getElementById("closeModalCopy").textContent = `${emp.name} (${emp.code}) — ${emp.action}`;
   document.getElementById("closeNotes").value = "";
+  const who = document.getElementById("fHrbpWho").value;
+  if (who) document.getElementById("closeByName").value = who;
   document.getElementById("closeModal").classList.add("open");
 }
 
 async function confirmClose() {
   const notes = document.getElementById("closeNotes").value.trim();
+  const closedBy = document.getElementById("closeByName").value;
+  if (!closedBy) { toast("Please select which HRBP is closing this"); return; }
   const btn = document.getElementById("closeConfirmBtn");
   btn.disabled = true; btn.textContent = "Saving…";
   try {
-    await HMAI.closeEmployee(activeCaseKey, activeEmpId, notes);
+    await HMAI.closeEmployee(activeCaseKey, activeEmpId, notes, closedBy);
     closeModalEl("closeModal");
     toast("Marked closed");
     await render();
