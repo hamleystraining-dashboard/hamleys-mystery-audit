@@ -34,6 +34,7 @@
 <script src="assets/js/ui.js"></script>
 <script>
 let vertical = "retail";
+let currentCases = [];
 
 async function boot() {
   await requireAccess("ROM Action — L&D / ROM Only");
@@ -74,6 +75,7 @@ async function render() {
   cases.sort((a,b) => new Date(b.date) - new Date(a.date));
 
   document.getElementById("resultCount").textContent = cases.length + " case(s) awaiting ROM action";
+  currentCases = cases;
 
   const wrap = document.getElementById("caseListWrap");
   if (!cases.length) {
@@ -112,10 +114,16 @@ function caseCardHtml(c) {
     </div>
     <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; align-items:flex-end;">
       <div class="field-row" style="margin:0;"><label>Name</label><input type="text" id="name_${c.key}" placeholder="Employee name"></div>
-      <div class="field-row" style="margin:0;"><label>Designation</label><input type="text" id="desig_${c.key}" placeholder="e.g. Fun Consultant"></div>
+      <div class="field-row" style="margin:0; min-width:190px;">
+        <label>Designation</label>
+        <select id="desig_${c.key}" onchange="applySuggestedAction('${c.key}')">
+          <option value="">Select…</option>
+          ${HMAI.EMPLOYEE_DESIGNATIONS.map(d => `<option value="${d.value}">${d.label}</option>`).join("")}
+        </select>
+      </div>
       <div class="field-row" style="margin:0;"><label>Employee Code</label><input type="text" id="code_${c.key}" placeholder="e.g. HML1234"></div>
-      <div class="field-row" style="margin:0; min-width:220px;">
-        <label>Action</label>
+      <div class="field-row" style="margin:0; min-width:260px;">
+        <label>Action <span id="actionHint_${c.key}" class="small-muted"></span></label>
         <select id="action_${c.key}">
           <option value="">Select action…</option>
           ${HMAI.ROM_ACTIONS.map(a => `<option value="${a}">${a}</option>`).join("")}
@@ -123,10 +131,34 @@ function caseCardHtml(c) {
       </div>
       <button class="btn btn-navy btn-sm" onclick="addEmployeeRow('${c.key}')">+ Add</button>
     </div>
+    <p class="small-muted" style="margin-top:8px;">Pick the employee's designation and the correct action is suggested automatically, based on ${HMAI.TRIGGER_REASONS[c.triggerReason] || "the trigger reason"} — you can still change it if needed.</p>
     <div style="display:flex; justify-content:flex-end; margin-top:16px;">
       <button class="btn btn-primary" onclick="sendToHr('${c.key}', this)">Send to HR</button>
     </div>
   </div>`;
+}
+
+// Auto-fills the Action dropdown to match the policy for this designation +
+// this case's trigger reason. If the combination has no defined policy
+// (e.g. an FC already terminated at first offense has no "second offense"
+// rule), the Action is left for the ROM to pick manually, with a note.
+function applySuggestedAction(key) {
+  const desigSel = document.getElementById(`desig_${key}`);
+  const actionSel = document.getElementById(`action_${key}`);
+  const hint = document.getElementById(`actionHint_${key}`);
+  const desig = desigSel.value;
+  if (!desig) { hint.textContent = ""; return; }
+  const c = currentCases.find(x => x.key === key);
+  const suggested = c ? HMAI.suggestAction(desig, c.triggerReason) : null;
+  if (suggested) {
+    actionSel.value = suggested;
+    hint.textContent = "— auto-suggested";
+    hint.style.color = "var(--good)";
+  } else {
+    actionSel.value = "";
+    hint.textContent = "— no standard policy for this combination, please select manually";
+    hint.style.color = "var(--hamleys-red)";
+  }
 }
 
 function empRowHtml(e, key) {
@@ -144,10 +176,11 @@ function wireCase(key) {
 
 async function addEmployeeRow(key) {
   const name = document.getElementById(`name_${key}`).value.trim();
-  const designation = document.getElementById(`desig_${key}`).value.trim();
+  const desigSel = document.getElementById(`desig_${key}`);
+  const designation = desigSel.selectedOptions[0] ? desigSel.selectedOptions[0].text.trim() : "";
   const code = document.getElementById(`code_${key}`).value.trim();
   const action = document.getElementById(`action_${key}`).value;
-  if (!name || !designation || !code || !action) {
+  if (!name || !desigSel.value || !code || !action) {
     toast("Fill in name, designation, employee code and action before adding");
     return;
   }
