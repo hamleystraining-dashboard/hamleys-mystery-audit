@@ -88,7 +88,7 @@ const HMAI = (() => {
   }
 
   function storeMeta(storeCode, fallbackName) {
-    return STORE_INDEX[storeCode] || { storeName: fallbackName || storeCode, rom: "Unmapped", sd: "Unmapped", rm: "Unmapped", unmapped: true };
+    return STORE_INDEX[storeCode] || { storeName: fallbackName || storeCode, rom: "Unmapped", sd: "Unmapped", rm: "Unmapped", hrbp: "Unmapped", unmapped: true };
   }
 
   function audits(vertical) {
@@ -146,7 +146,7 @@ const HMAI = (() => {
 
   function withStoreMeta(a) {
     const m = storeMeta(a.storeCode, a.storeName);
-    return Object.assign({}, a, { rom: m.rom, sd: m.sd, rm: m.rm, unmapped: !!m.unmapped, storeNameResolved: m.storeName || a.storeName });
+    return Object.assign({}, a, { rom: m.rom, sd: m.sd, rm: m.rm, hrbp: m.hrbp, unmapped: !!m.unmapped, storeNameResolved: m.storeName || a.storeName });
   }
 
   function filterAudits(vertical, filters) {
@@ -288,6 +288,10 @@ const HMAI = (() => {
     { value: "SM", label: "SM — Store Manager" },
     { value: "SD", label: "SD — Store Director" },
   ];
+  // From Base Store Data's HRBP column — extend this list if more HRBPs
+  // are added later (or map it dynamically once every case reliably
+  // carries its own hrbp field going forward).
+  const HRBP_NAMES = ["Aayushi", "Nazim", "Ravi", "Sachita"];
   // The escalation policy: what action applies for a given employee
   // designation, at a given trigger reason (score threshold + occurrence).
   // Keyed as "<designation>|<triggerReason>". Combinations that aren't in
@@ -327,7 +331,7 @@ const HMAI = (() => {
   function rowToCase(row) {
     return {
       key: row.key, vertical: row.vertical, evalId: row.eval_id, storeCode: row.store_code,
-      storeName: row.store_name, unmapped: !!row.unmapped, rom: row.rom, sd: row.sd, rm: row.rm,
+      storeName: row.store_name, unmapped: !!row.unmapped, rom: row.rom, sd: row.sd, rm: row.rm, hrbp: row.hrbp,
       date: row.date, score: Number(row.score), stage: row.stage, triggerReason: row.trigger_reason,
       employees: row.employees || [], history: row.history || [],
     };
@@ -339,7 +343,7 @@ const HMAI = (() => {
   function caseToRow(c) {
     const map = {
       key: "key", vertical: "vertical", evalId: "eval_id", storeCode: "store_code",
-      storeName: "store_name", unmapped: "unmapped", rom: "rom", sd: "sd", rm: "rm",
+      storeName: "store_name", unmapped: "unmapped", rom: "rom", sd: "sd", rm: "rm", hrbp: "hrbp",
       date: "date", score: "score", stage: "stage", triggerReason: "trigger_reason",
       employees: "employees", history: "history",
     };
@@ -405,7 +409,7 @@ const HMAI = (() => {
           candidates.push({
             key: caseKey(v, a.evalId), vertical: v, evalId: a.evalId, storeCode: a.storeCode,
             storeName: meta.storeName || a.storeName, unmapped: !!meta.unmapped,
-            rom: meta.rom, sd: meta.sd, rm: meta.rm, date: a.date, score: a.score,
+            rom: meta.rom, sd: meta.sd, rm: meta.rm, hrbp: meta.hrbp, date: a.date, score: a.score,
           });
         }
       });
@@ -419,8 +423,8 @@ const HMAI = (() => {
     candidates.forEach(c => {
       const ec = existingMap[c.key];
       if (ec) {
-        if (ec.storeName !== c.storeName || ec.unmapped !== c.unmapped || ec.rom !== c.rom || ec.sd !== c.sd || ec.rm !== c.rm) {
-          toUpsert.push(Object.assign({}, ec, { storeName: c.storeName, unmapped: c.unmapped, rom: c.rom, sd: c.sd, rm: c.rm }));
+        if (ec.storeName !== c.storeName || ec.unmapped !== c.unmapped || ec.rom !== c.rom || ec.sd !== c.sd || ec.rm !== c.rm || ec.hrbp !== c.hrbp) {
+          toUpsert.push(Object.assign({}, ec, { storeName: c.storeName, unmapped: c.unmapped, rom: c.rom, sd: c.sd, rm: c.rm, hrbp: c.hrbp }));
         }
       } else {
         toUpsert.push(Object.assign({}, c, {
@@ -446,7 +450,7 @@ const HMAI = (() => {
   async function addEmployee(key, employee) {
     const c = await getCaseByKey(key);
     if (!c) throw new Error("Case not found: " + key);
-    const employees = (c.employees || []).concat([Object.assign({ id: genEmployeeId(), closed: false, closedAt: null, closedBy: null, closureNote: "" }, employee)]);
+    const employees = (c.employees || []).concat([Object.assign({ id: genEmployeeId(), addedAt: new Date().toISOString(), closed: false, closedAt: null, closedBy: null, closureNote: "" }, employee)]);
     return patchCase(key, { employees });
   }
 
@@ -467,19 +471,20 @@ const HMAI = (() => {
 
   // HRBP closes one employee's action; once every employee on the case is
   // closed, the case itself auto-advances to hrbp_closed.
-  async function closeEmployee(key, employeeId, closureNote) {
+  async function closeEmployee(key, employeeId, closureNote, closedByName) {
     const c = await getCaseByKey(key);
     if (!c) throw new Error("Case not found: " + key);
     const emp = (c.employees || []).find(e => e.id === employeeId);
     if (!emp) throw new Error("Employee not found: " + employeeId);
+    const who = closedByName || "HRBP";
     const employees = c.employees.map(e => e.id === employeeId
-      ? Object.assign({}, e, { closed: true, closedAt: new Date().toISOString(), closedBy: "HRBP", closureNote: closureNote || "" })
+      ? Object.assign({}, e, { closed: true, closedAt: new Date().toISOString(), closedBy: who, closureNote: closureNote || "" })
       : e);
     const allClosed = employees.length > 0 && employees.every(e => e.closed);
     const patch = { employees };
     if (allClosed && c.stage !== "hrbp_closed") {
       patch.stage = "hrbp_closed";
-      patch.history = (c.history || []).concat([{ stage: "hrbp_closed", at: new Date().toISOString(), by: "HRBP", note: "All employee actions closed" }]);
+      patch.history = (c.history || []).concat([{ stage: "hrbp_closed", at: new Date().toISOString(), by: who, note: "All employee actions closed" }]);
     }
     return patchCase(key, patch);
   }
@@ -505,10 +510,10 @@ const HMAI = (() => {
   }
 
   return {
-    LS_KEYS, TRIGGER_REASONS, ROM_ACTIONS, EMPLOYEE_DESIGNATIONS, POLICY_MATRIX, suggestAction, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
+    LS_KEYS, TRIGGER_REASONS, ROM_ACTIONS, EMPLOYEE_DESIGNATIONS, HRBP_NAMES, POLICY_MATRIX, suggestAction, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
     mtd, avg, sectionAverages, filterAudits, uniqueValues, cascadingValues, latestPerStore,
     regionalLeaderboard, storeAuditHistory, sectionSwot, storesWithAudits,
-    getCases, caseKey, syncCasesFromAudits, triggerLdAction, sendToHR,
+    getCases, getCaseByKey, caseKey, syncCasesFromAudits, triggerLdAction, sendToHR,
     addEmployee, removeEmployee, closeEmployee,
     saveOverride, exportAllData, get STORES() { return STORES; }, get RETAIL() { return RETAIL; }, get PLAY() { return PLAY; }
   };
