@@ -13,9 +13,12 @@
         <h1 class="page-title">ROM Action</h1>
         <div class="page-sub">Cases where L&amp;D has triggered an action — add defaulters and route to HRBP</div>
       </div>
-      <div class="seg-toggle" id="verticalToggle">
-        <button data-v="retail" class="active retail">Retail</button>
-        <button data-v="play" class="play">Play</button>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('guidelinesModal').classList.add('open')">📋 Action Guidelines</button>
+        <div class="seg-toggle" id="verticalToggle">
+          <button data-v="retail" class="active retail">Retail</button>
+          <button data-v="play" class="play">Play</button>
+        </div>
       </div>
     </div>
 
@@ -35,6 +38,18 @@
     </div>
     <div id="historyWrap"></div>
 
+</div>
+
+<!-- Action Guidelines modal -->
+<div class="modal-bg" id="guidelinesModal">
+  <div class="modal" style="max-width:900px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <h3 style="margin-bottom:6px;">Action Guidelines</h3>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('guidelinesModal').classList.remove('open')">✕ Close</button>
+    </div>
+    <p class="small-muted">Reference for the correct action based on designation, score, and occurrence.</p>
+    <img src="assets/images/action-guidelines.png" alt="Action guidelines table" style="width:100%; height:auto; border-radius:8px; margin-top:10px;">
+  </div>
 </div>
 
 <script>
