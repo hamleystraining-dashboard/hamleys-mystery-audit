@@ -379,25 +379,24 @@ const HMAI = (() => {
   // surface anywhere in the UI while it awaits manual cleanup in Supabase.
   function dedupeCasesByStore(cases) {
     const stageRank = { flagged: 0, ld_triggered: 1, rom_submitted: 2, hrbp_closed: 3 };
-    const byStore = {};
+    const byStoreDate = {};
     cases.forEach(c => {
-      const k = c.vertical + "|" + c.storeCode;
-      const prev = byStore[k];
-      if (!prev) { byStore[k] = c; return; }
+      const k = c.vertical + "|" + c.storeCode + "|" + c.date;
+      const prev = byStoreDate[k];
+      if (!prev) { byStoreDate[k] = c; return; }
       const prevOpen = prev.stage !== "hrbp_closed";
       const curOpen = c.stage !== "hrbp_closed";
-      if (curOpen && !prevOpen) { byStore[k] = c; return; }
+      if (curOpen && !prevOpen) { byStoreDate[k] = c; return; }
       if (!curOpen && prevOpen) { return; }
       // Both open, or both closed: prefer whichever is further along the
       // workflow (more actual progress made on it) — a case that's already
       // been triggered/sent to HR should never lose to a newer-but-untouched
-      // duplicate just because its audit date is more recent.
+      // duplicate for the exact same audit.
       const prevRank = stageRank[prev.stage] ?? 0;
       const curRank = stageRank[c.stage] ?? 0;
-      if (curRank > prevRank) { byStore[k] = c; }
-      else if (curRank === prevRank && new Date(c.date) > new Date(prev.date)) { byStore[k] = c; }
+      if (curRank > prevRank) { byStoreDate[k] = c; }
     });
-    return Object.values(byStore);
+    return Object.values(byStoreDate);
   }
 
   async function upsertCases(cases) {
@@ -430,12 +429,12 @@ const HMAI = (() => {
   // Supabase when there's actually something new/changed — a normal page
   // view with nothing new to flag is a pure read, no write, no prompt.
   async function syncCasesFromAudits() {
-    const rawCandidates = [];
+    const candidates = [];
     ["retail", "play"].forEach(v => {
       audits(v).forEach(a => {
         if (a.score < 80) {
           const meta = storeMeta(a.storeCode, a.storeName);
-          rawCandidates.push({
+          candidates.push({
             key: caseKey(v, a.evalId), vertical: v, evalId: a.evalId, storeCode: a.storeCode,
             storeName: meta.storeName || a.storeName, unmapped: !!meta.unmapped,
             rom: meta.rom, sd: meta.sd, rm: meta.rm, hrbp: meta.hrbp, date: a.date, score: a.score,
@@ -443,51 +442,31 @@ const HMAI = (() => {
         }
       });
     });
-    if (!rawCandidates.length) return getCases();
-
-    // A store can easily have several below-80 audits at once (repeated
-    // poor performance) — collapse those to just the LATEST one per store
-    // before matching against existing cases, so one sync pass can never
-    // create more than one new case for the same store. Older below-80
-    // audits for that store remain fully visible via Cohort/Trend; they're
-    // just not each tracked as a separate case.
-    const latestByStore = {};
-    rawCandidates.forEach(c => {
-      const k = c.vertical + "|" + c.storeCode;
-      const prev = latestByStore[k];
-      if (!prev || new Date(c.date) > new Date(prev.date)) latestByStore[k] = c;
-    });
-    const candidates = Object.values(latestByStore);
+    if (!candidates.length) return getCases();
 
     const existing = await getCases();
     const existingByKey = {};
     existing.forEach(c => existingByKey[c.key] = c);
-    // Secondary lookup: an OPEN (not yet hrbp_closed) case for this same
-    // store, regardless of which evalId it was created under. A PDF's
-    // internal report ID isn't always stable across separate upload
-    // sessions — without this, a store that already has an active case
-    // could get a second, duplicate case row the moment its evalId drifts,
-    // instead of the existing one being updated. Once a case is closed,
-    // a new low score legitimately starts a fresh case (new escalation
-    // cycle), so closed cases are deliberately excluded from this lookup.
-    const openByStore = {};
-    existing.forEach(c => {
-      if (c.stage !== "hrbp_closed") openByStore[c.vertical + "|" + c.storeCode] = c;
-    });
+    // Fallback lookup by store+date (not evalId): a PDF's internal report ID
+    // isn't always stable across separate upload sessions, so the SAME
+    // real-world audit (same store, same date) could otherwise get a
+    // second, duplicate case row purely because its evalId drifted. This
+    // does NOT collapse different audit dates for the same store — each
+    // below-80 occurrence still gets its own case, since each one needs
+    // its own first-time/consecutive escalation and its own action.
+    const byStoreDate = {};
+    existing.forEach(c => { byStoreDate[c.vertical + "|" + c.storeCode + "|" + c.date] = c; });
 
     const toUpsert = [];
     candidates.forEach(c => {
-      const ec = existingByKey[c.key] || openByStore[c.vertical + "|" + c.storeCode];
+      const ec = existingByKey[c.key] || byStoreDate[c.vertical + "|" + c.storeCode + "|" + c.date];
       if (ec) {
         const changed = ec.storeName !== c.storeName || ec.unmapped !== c.unmapped || ec.rom !== c.rom ||
-          ec.sd !== c.sd || ec.rm !== c.rm || ec.hrbp !== c.hrbp || ec.date !== c.date || ec.score !== c.score;
+          ec.sd !== c.sd || ec.rm !== c.rm || ec.hrbp !== c.hrbp || ec.score !== c.score;
         if (changed) {
-          // Update in place, under the EXISTING row's own key/evalId — even
-          // if matched via the store fallback with a different incoming
-          // evalId — so this always stays one row per store, never two.
           toUpsert.push(Object.assign({}, ec, {
             storeName: c.storeName, unmapped: c.unmapped, rom: c.rom, sd: c.sd, rm: c.rm, hrbp: c.hrbp,
-            date: c.date, score: c.score,
+            score: c.score,
           }));
         }
       } else {
@@ -498,33 +477,29 @@ const HMAI = (() => {
       }
     });
 
-    // Auto-resolve stale flags: if a store's LATEST audit is no longer
-    // below 80 (e.g. a corrected re-upload fixed the score) but it still
-    // has an untouched "flagged" case sitting open, close that case
-    // automatically rather than leaving a stale flag around forever.
-    // Deliberately scoped to stage === "flagged" only — once a human has
-    // acted (triggered, named defaulters, sent to HR), a score correction
-    // must never silently cancel real work already in motion; a person
-    // has to decide what happens to that case from here.
-    const candidateStoreKeys = new Set(candidates.map(c => c.vertical + "|" + c.storeCode));
+    // Auto-resolve stale flags: if THIS SPECIFIC audit (same store+date) was
+    // corrected to no longer be below 80 — e.g. a re-uploaded PDF fixed a
+    // mis-parsed score — but its case is still untouched, close it
+    // automatically. Matched by store+date (not evalId) for the same
+    // ID-instability reason as above. Scoped to stage === "flagged" only —
+    // once a human has acted, a score correction must never silently
+    // cancel real work already in motion.
+    const candidateStoreDateKeys = new Set(candidates.map(c => c.vertical + "|" + c.storeCode + "|" + c.date));
     const alreadyQueued = new Set(toUpsert.map(c => c.key));
     existing.forEach(c => {
-      if (c.stage !== "flagged") return; // only untouched cases auto-resolve
-      const k = c.vertical + "|" + c.storeCode;
-      if (candidateStoreKeys.has(k)) return; // still genuinely below 80
+      if (c.stage !== "flagged") return;
+      const k = c.vertical + "|" + c.storeCode + "|" + c.date;
+      if (candidateStoreDateKeys.has(k)) return; // still genuinely below 80
       if (alreadyQueued.has(c.key)) return;
-      const latestAudit = audits(c.vertical)
-        .filter(a => a.storeCode === c.storeCode)
-        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-      if (!latestAudit || latestAudit.score < 80) return; // no confirming data, leave as-is
+      const thisAudit = audits(c.vertical).find(a => a.storeCode === c.storeCode && a.date === c.date);
+      if (!thisAudit || thisAudit.score < 80) return; // no confirming correction found, leave as-is
       toUpsert.push(Object.assign({}, c, {
-        stage: "hrbp_closed",
-        score: latestAudit.score,
-        date: latestAudit.date,
+        score: thisAudit.score,
         history: (c.history || []).concat([{
           stage: "hrbp_closed", at: new Date().toISOString(), by: "System",
-          note: `Auto-resolved — a later audit corrected the score to ${latestAudit.score}% (no longer below 80). No action had been taken on this case yet, so it was closed automatically.`,
+          note: `Auto-resolved — this audit's score was corrected to ${thisAudit.score}% (no longer below 80). No action had been taken on this case yet, so it was closed automatically.`,
         }]),
+        stage: "hrbp_closed",
       }));
     });
 
