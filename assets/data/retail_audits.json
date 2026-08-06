@@ -11766,7 +11766,7 @@
   "storeCode": "THF6",
   "storeName": "Hamleys - MUMArpt",
   "date": "2026-07-01",
-  "score": 84,
+  "score": 90,
   "sections": {
    "H - HAMLEYS FIRST IMPRESSION": 100,
    "A - APPROACHING RIGHT": 50,
@@ -11805,7 +11805,7 @@
   "storeCode": "T2DE",
   "storeName": "Ham,Lucknow Dept",
   "date": "2026-07-13",
-  "score": 84,
+  "score": 90,
   "sections": {
    "H - HAMLEYS FIRST IMPRESSION": 82,
    "A - APPROACHING RIGHT": 100,
@@ -11918,7 +11918,7 @@
   "storeCode": "THJ4",
   "storeName": "Hamleys - T2 Arrival",
   "date": "2026-07-01",
-  "score": 93,
+  "score": 95,
   "sections": {
    "H - HAMLEYS FIRST IMPRESSION": 100,
    "A - APPROACHING RIGHT": 100,
@@ -11927,25 +11927,6 @@
    "E - ENGAGING TILL EXPERIENCE": 71,
    "Y - YOU COME FIRST": 100,
    "S - SEEING THEM OFF": 100
-  },
-  "city": "",
-  "state": ""
- },
- {
-  "evalId": 1785930459249,
-  "wave": "PDF Upload",
-  "storeCode": "THD8",
-  "storeName": "Express Avenue - Chennai",
-  "date": "2026-07-15",
-  "score": 59,
-  "sections": {
-   "H - HAMLEYS FIRST IMPRESSION": 55,
-   "A - APPROACHING RIGHT": 88,
-   "M - MEETING THY NEEDS": 61,
-   "L - LOST IN DEMOS": 0,
-   "E - ENGAGING TILL EXPERIENCE": 43,
-   "Y - YOU COME FIRST": 100,
-   "S - SEEING THEM OFF": 0
   },
   "city": "",
   "state": ""
@@ -12288,7 +12269,7 @@
   "storeCode": "THP2",
   "storeName": "Hamleys - C21, Indore",
   "date": "2026-07-24",
-  "score": 82,
+  "score": 81,
   "sections": {
    "H - HAMLEYS FIRST IMPRESSION": 97,
    "A - APPROACHING RIGHT": 70,
