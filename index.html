@@ -108,10 +108,10 @@
 
   </main>
 </div>
-<script src="assets/js/config.js"></script>
-<script src="assets/js/auth.js"></script>
-<script src="assets/js/data.js"></script>
-<script src="assets/js/ui.js"></script>
+<script src="assets/js/config.js?v=2"></script>
+<script src="assets/js/auth.js?v=2"></script>
+<script src="assets/js/data.js?v=2"></script>
+<script src="assets/js/ui.js?v=2"></script>
 <script>
 let vertical = "retail";
 let regionGroup = "rm";
@@ -289,6 +289,20 @@ async function renderTracker(filters) {
   if (filters.from || filters.to) {
     cases = cases.filter(c => HMAI.inDateRange(c.date, filters.from, filters.to));
   }
+  // Safety net: if the same store somehow has more than one case row (e.g.
+  // a leftover duplicate from before this was fixed at the source), show
+  // only one — whichever is still open if any are, else the most recent.
+  const byStore = {};
+  cases.forEach(c => {
+    const k = c.vertical + "|" + c.storeCode;
+    const prev = byStore[k];
+    if (!prev) { byStore[k] = c; return; }
+    const prevOpen = prev.stage !== "hrbp_closed";
+    const curOpen = c.stage !== "hrbp_closed";
+    if (curOpen && !prevOpen) { byStore[k] = c; }
+    else if (curOpen === prevOpen && new Date(c.date) > new Date(prev.date)) { byStore[k] = c; }
+  });
+  cases = Object.values(byStore);
   cases.sort((a,b) => new Date(b.date) - new Date(a.date));
   const body = document.getElementById("trackerBody");
   if (!cases.length) {

@@ -26,11 +26,18 @@
       <div class="filter-field"><label>ROM</label><select id="fRom"></select></div>
       <div class="filter-field"><label>SD</label><select id="fSd"></select></div>
       <div class="filter-field"><label>Store</label><select id="fStore"></select></div>
+      <div class="filter-field">
+        <label>Financial Year</label>
+        <div class="chip-toggle" id="fyToggle">
+          <button data-fy="2025-26">FY 2025-26</button>
+          <button data-fy="2026-27">FY 2026-27</button>
+        </div>
+      </div>
       <div class="filter-field"><label>From</label><input type="date" id="fFrom"></div>
       <div class="filter-field"><label>To</label><input type="date" id="fTo"></div>
       <div class="filter-field">
         <label>Threshold</label>
-        <div class="chip-toggle">
+        <div class="chip-toggle" id="thresholdToggle">
           <button data-t="all" class="active">All</button>
           <button data-t="80">&lt; 80</button>
           <button data-t="60">&lt; 60</button>
@@ -64,8 +71,8 @@
 
   </main>
 </div>
-<script src="assets/js/data.js"></script>
-<script src="assets/js/ui.js"></script>
+<script src="assets/js/data.js?v=2"></script>
+<script src="assets/js/ui.js?v=2"></script>
 <script>
 let vertical = "retail";
 let threshold = "all";
@@ -99,21 +106,25 @@ async function boot() {
   ["fStore","fFrom","fTo"].forEach(id => {
     document.getElementById(id).addEventListener("change", () => { defaultView = false; render(); });
   });
-  document.querySelectorAll(".chip-toggle button").forEach(b => {
+  document.querySelectorAll("#thresholdToggle button").forEach(b => {
     b.addEventListener("click", () => {
       threshold = b.dataset.t;
-      document.querySelectorAll(".chip-toggle button").forEach(x => x.classList.remove("active"));
+      document.querySelectorAll("#thresholdToggle button").forEach(x => x.classList.remove("active"));
       b.classList.add("active");
       defaultView = false;
       render();
     });
   });
+  document.querySelectorAll("#fyToggle button").forEach(b => {
+    b.addEventListener("click", () => applyFY(b.dataset.fy));
+  });
   document.getElementById("clearAll").addEventListener("click", () => {
     ["fRm","fRom","fSd","fStore","fFrom","fTo"].forEach(id => document.getElementById(id).value = "");
     populateFilterOptions();
     threshold = "all";
-    document.querySelectorAll(".chip-toggle button").forEach(x => x.classList.remove("active"));
-    document.querySelector(".chip-toggle button[data-t=all]").classList.add("active");
+    document.querySelectorAll("#thresholdToggle button").forEach(x => x.classList.remove("active"));
+    document.querySelector("#thresholdToggle button[data-t=all]").classList.add("active");
+    document.querySelectorAll("#fyToggle button").forEach(x => x.classList.remove("active"));
     defaultView = true;
     render();
   });
@@ -126,6 +137,20 @@ async function boot() {
   });
 
   populateFilterOptions();
+  render();
+}
+
+// India FY runs Apr 1 → Mar 31. "2025-26" means Apr 2025 – Mar 2026.
+function fyRange(label) {
+  const startYear = 2000 + parseInt(label.split("-")[0].slice(-2), 10);
+  return { from: `${startYear}-04-01`, to: `${startYear + 1}-03-31` };
+}
+function applyFY(label) {
+  const { from, to } = fyRange(label);
+  document.getElementById("fFrom").value = from;
+  document.getElementById("fTo").value = to;
+  document.querySelectorAll("#fyToggle button").forEach(b => b.classList.toggle("active", b.dataset.fy === label));
+  defaultView = false;
   render();
 }
 

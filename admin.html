@@ -116,10 +116,10 @@
 
 </div>
 <script>const HMAI_ADMIN_MODE = true;</script>
-<script src="assets/js/config.js"></script>
-<script src="assets/js/auth.js"></script>
-<script src="assets/js/data.js"></script>
-<script src="assets/js/ui.js"></script>
+<script src="assets/js/config.js?v=2"></script>
+<script src="assets/js/auth.js?v=2"></script>
+<script src="assets/js/data.js?v=2"></script>
+<script src="assets/js/ui.js?v=2"></script>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
@@ -364,6 +364,7 @@ async function parseAuditPdf(file) {
     evalId: idMatch ? parseInt(idMatch[1], 10) : (Date.now() + Math.floor(Math.random()*1000)),
     wave: "PDF Upload", storeCode, storeName, date: dateStr,
     score: overall !== null ? overall : 0, sections, city: "", state: "",
+    sourceFile: file.name,
   };
   return { record, vertical, sectionCount: Object.keys(sections).length, fileName: file.name };
 }
@@ -380,17 +381,27 @@ async function handlePdfFiles(fileList) {
   const results = { retail: [], play: [], undetected: [], failed: [] };
   let idCollisions = 0;
   let updatedExisting = 0;
+  let updatedByFileName = 0;
 
-  // Two layers of protection, applied in order:
-  // 1. Same-audit dedup, keyed by store + date (the real identity of "this
-  //    audit"). Re-uploading the same PDF — on purpose, or by accident —
-  //    UPDATES that existing record in place instead of adding a duplicate.
-  // 2. evalId collision guard, for whatever's left, so two genuinely
+  // Three layers of protection, applied in order:
+  // 1. Same FILE NAME dedup — if a PDF with this exact file name was
+  //    uploaded before, treat this as a correction/re-upload of that same
+  //    report and overwrite it in place, even if the date or score inside
+  //    it changed. This is checked first since a file name match is the
+  //    clearest signal "this is the same audit," and takes priority over
+  //    the auto-detected date.
+  // 2. Same-audit dedup, keyed by store + date, for files with no matching
+  //    name but the same real-world audit (store, date) already on file.
+  // 3. evalId collision guard, for whatever's left, so two genuinely
   //    different audits can never silently overwrite each other in storage
   //    just because their extracted/fallback report IDs happened to match.
+  const existingByFileName = { retail: new Map(), play: new Map() };
   const existingByAuditKey = { retail: new Map(), play: new Map() };
   ["retail", "play"].forEach(v => {
-    HMAI.audits(v).forEach(a => existingByAuditKey[v].set(a.storeCode + "|" + a.date, a.evalId));
+    HMAI.audits(v).forEach(a => {
+      existingByAuditKey[v].set(a.storeCode + "|" + a.date, a.evalId);
+      if (a.sourceFile) existingByFileName[v].set(a.sourceFile, a.evalId);
+    });
   });
   const usedIds = {
     retail: new Set(HMAI.audits("retail").map(a => String(a.evalId))),
@@ -416,18 +427,27 @@ async function handlePdfFiles(fileList) {
       if (!vertical) {
         results.undetected.push({ fileName, reason: sectionCount ? "found sections but couldn't tell Retail vs Play" : "no section scores found — check PDF format" });
       } else {
+        const byNameId = existingByFileName[vertical].get(record.sourceFile);
         const auditKey = record.storeCode + "|" + record.date;
-        const existingId = existingByAuditKey[vertical].get(auditKey);
-        if (existingId !== undefined) {
-          // Same store, same date, already on file — treat this as an
-          // update to that record (e.g. a re-upload or a corrected PDF),
-          // not a new one.
-          record.evalId = existingId;
-          updatedExisting++;
+        if (byNameId !== undefined) {
+          // Same file name as a previous upload — always an update, never
+          // a duplicate, regardless of what the date/score inside says now.
+          record.evalId = byNameId;
+          updatedByFileName++;
         } else {
-          record.evalId = assignUniqueEvalId(vertical, record.evalId);
-          existingByAuditKey[vertical].set(auditKey, record.evalId);
+          const existingId = existingByAuditKey[vertical].get(auditKey);
+          if (existingId !== undefined) {
+            // Same store, same date, already on file — treat this as an
+            // update to that record (e.g. a re-upload or a corrected PDF),
+            // not a new one.
+            record.evalId = existingId;
+            updatedExisting++;
+          } else {
+            record.evalId = assignUniqueEvalId(vertical, record.evalId);
+          }
         }
+        existingByFileName[vertical].set(record.sourceFile, record.evalId);
+        existingByAuditKey[vertical].set(auditKey, record.evalId);
         results[vertical].push(record);
       }
     } catch (err) {
