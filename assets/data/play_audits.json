@@ -1106,5 +1106,25 @@
   },
   "city": "",
   "state": ""
+ },
+ {
+  "evalId": 1785995543910,
+  "wave": "PDF Upload",
+  "storeCode": "T2MI",
+  "storeName": "Hamleys - Phoenix Mall of Asia, Bangalore",
+  "date": "2026-07-05",
+  "score": 97,
+  "sections": {
+   "ATTRACTION": 100,
+   "WELCOME": 100,
+   "ENTRY ASSISTANCE": 100,
+   "SAFETY   /   --   -- OUT FOR PLAY": 100,
+   "MAGIC PILLARS": 100,
+   "EXIT": 100,
+   "CSD BIRTHDAY ENQUIRY": 0
+  },
+  "city": "",
+  "state": "",
+  "sourceFile": "dsv_20260806_013341_Play__Mystery_Visit_2025.pdf"
  }
 ]
