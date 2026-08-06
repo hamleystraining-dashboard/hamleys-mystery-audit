@@ -371,6 +371,35 @@ const HMAI = (() => {
     return rows[0] ? rowToCase(rows[0]) : null;
   }
 
+  // Defensive safety net: if the same store somehow has more than one case
+  // row (e.g. a leftover duplicate from before syncCasesFromAudits was
+  // fixed to prevent this at the source), show only one — whichever is
+  // still open if any are, else the most recently dated. Used by every
+  // page that lists cases, so a stray duplicate in the database can't
+  // surface anywhere in the UI while it awaits manual cleanup in Supabase.
+  function dedupeCasesByStore(cases) {
+    const stageRank = { flagged: 0, ld_triggered: 1, rom_submitted: 2, hrbp_closed: 3 };
+    const byStore = {};
+    cases.forEach(c => {
+      const k = c.vertical + "|" + c.storeCode;
+      const prev = byStore[k];
+      if (!prev) { byStore[k] = c; return; }
+      const prevOpen = prev.stage !== "hrbp_closed";
+      const curOpen = c.stage !== "hrbp_closed";
+      if (curOpen && !prevOpen) { byStore[k] = c; return; }
+      if (!curOpen && prevOpen) { return; }
+      // Both open, or both closed: prefer whichever is further along the
+      // workflow (more actual progress made on it) — a case that's already
+      // been triggered/sent to HR should never lose to a newer-but-untouched
+      // duplicate just because its audit date is more recent.
+      const prevRank = stageRank[prev.stage] ?? 0;
+      const curRank = stageRank[c.stage] ?? 0;
+      if (curRank > prevRank) { byStore[k] = c; }
+      else if (curRank === prevRank && new Date(c.date) > new Date(prev.date)) { byStore[k] = c; }
+    });
+    return Object.values(byStore);
+  }
+
   async function upsertCases(cases) {
     if (!cases.length) return [];
     const rows = await supaRequest("cases", {
@@ -468,6 +497,37 @@ const HMAI = (() => {
         }));
       }
     });
+
+    // Auto-resolve stale flags: if a store's LATEST audit is no longer
+    // below 80 (e.g. a corrected re-upload fixed the score) but it still
+    // has an untouched "flagged" case sitting open, close that case
+    // automatically rather than leaving a stale flag around forever.
+    // Deliberately scoped to stage === "flagged" only — once a human has
+    // acted (triggered, named defaulters, sent to HR), a score correction
+    // must never silently cancel real work already in motion; a person
+    // has to decide what happens to that case from here.
+    const candidateStoreKeys = new Set(candidates.map(c => c.vertical + "|" + c.storeCode));
+    const alreadyQueued = new Set(toUpsert.map(c => c.key));
+    existing.forEach(c => {
+      if (c.stage !== "flagged") return; // only untouched cases auto-resolve
+      const k = c.vertical + "|" + c.storeCode;
+      if (candidateStoreKeys.has(k)) return; // still genuinely below 80
+      if (alreadyQueued.has(c.key)) return;
+      const latestAudit = audits(c.vertical)
+        .filter(a => a.storeCode === c.storeCode)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+      if (!latestAudit || latestAudit.score < 80) return; // no confirming data, leave as-is
+      toUpsert.push(Object.assign({}, c, {
+        stage: "hrbp_closed",
+        score: latestAudit.score,
+        date: latestAudit.date,
+        history: (c.history || []).concat([{
+          stage: "hrbp_closed", at: new Date().toISOString(), by: "System",
+          note: `Auto-resolved — a later audit corrected the score to ${latestAudit.score}% (no longer below 80). No action had been taken on this case yet, so it was closed automatically.`,
+        }]),
+      }));
+    });
+
     if (!toUpsert.length) return existing;
     await upsertCases(toUpsert);
     return getCases();
@@ -548,7 +608,7 @@ const HMAI = (() => {
     LS_KEYS, TRIGGER_REASONS, ROM_ACTIONS, EMPLOYEE_DESIGNATIONS, HRBP_NAMES, POLICY_MATRIX, suggestAction, init, storeMeta, audits, sectionNames, inDateRange, scoreClass, scoreTag,
     mtd, avg, sectionAverages, filterAudits, uniqueValues, cascadingValues, latestPerStore,
     regionalLeaderboard, storeAuditHistory, sectionSwot, storesWithAudits,
-    getCases, getCaseByKey, caseKey, syncCasesFromAudits, triggerLdAction, sendToHR,
+    getCases, getCaseByKey, dedupeCasesByStore, caseKey, syncCasesFromAudits, triggerLdAction, sendToHR,
     addEmployee, removeEmployee, closeEmployee,
     saveOverride, exportAllData, get STORES() { return STORES; }, get RETAIL() { return RETAIL; }, get PLAY() { return PLAY; }
   };
