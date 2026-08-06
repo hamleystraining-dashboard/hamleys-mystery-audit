@@ -124,8 +124,8 @@ async function render() {
   if (hrbpFilter) cases = cases.filter(c => c.hrbp === hrbpFilter);
   allCasesCache = cases;
 
-  const pending = cases.filter(c => c.stage === "rom_submitted").sort((a,b) => new Date(b.date) - new Date(a.date));
-  const history = cases.filter(c => c.stage === "hrbp_closed").sort((a,b) => new Date(b.date) - new Date(a.date));
+  const pending = HMAI.dedupeCasesByStore(cases.filter(c => c.stage === "rom_submitted")).sort((a,b) => new Date(b.date) - new Date(a.date));
+  const history = HMAI.dedupeCasesByStore(cases.filter(c => c.stage === "hrbp_closed")).sort((a,b) => new Date(b.date) - new Date(a.date));
 
   document.getElementById("resultCount").textContent = `${pending.length} pending \u00b7 ${history.length} closed`;
 

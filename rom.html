@@ -82,10 +82,12 @@ async function render() {
   const allCases = await HMAI.getCases();
   let cases = allCases.filter(c => c.vertical === vertical && c.stage === "ld_triggered");
   if (romFilter) cases = cases.filter(c => c.rom === romFilter);
+  cases = HMAI.dedupeCasesByStore(cases);
   cases.sort((a,b) => new Date(b.date) - new Date(a.date));
 
   let history = allCases.filter(c => c.vertical === vertical && (c.stage === "rom_submitted" || c.stage === "hrbp_closed"));
   if (romFilter) history = history.filter(c => c.rom === romFilter);
+  history = HMAI.dedupeCasesByStore(history);
   history.sort((a,b) => new Date(b.date) - new Date(a.date));
 
   document.getElementById("resultCount").textContent = `${cases.length} awaiting \u00b7 ${history.length} in history`;

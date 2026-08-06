@@ -212,6 +212,7 @@ async function render() {
   if (f.sd) cases = cases.filter(c => c.sd === f.sd);
   if (f.stage) cases = cases.filter(c => c.stage === f.stage);
   if (f.from || f.to) cases = cases.filter(c => HMAI.inDateRange(c.date, f.from, f.to));
+  cases = HMAI.dedupeCasesByStore(cases);
   cases.sort((a,b) => new Date(b.date) - new Date(a.date));
 
   document.getElementById("kFlagged").textContent = cases.filter(c => c.stage === "flagged").length;
@@ -233,7 +234,10 @@ async function render() {
       const closedCount = (c.employees || []).filter(e => e.closed).length;
       actionBtn = `<span class="small-muted" style="white-space:normal;">${(c.employees||[]).length} employee(s) &middot; ${closedCount} closed<br>Waiting on HRBP</span>`;
     } else {
-      actionBtn = `<span class="small-muted">✔ ${fmtDate(c.history[c.history.length-1]?.at)}</span>`;
+      const lastHist = c.history[c.history.length-1];
+      actionBtn = lastHist && lastHist.by === "System" && lastHist.note && lastHist.note.startsWith("Auto-resolved")
+        ? `<span class="small-muted" title="${lastHist.note}">↻ Auto-resolved ${fmtDate(lastHist.at)}</span>`
+        : `<span class="small-muted">✔ ${fmtDate(lastHist?.at)}</span>`;
     }
     return `<tr>
       <td><strong>${c.storeName}</strong>${c.unmapped ? ' <span class="tag warn">Unmapped</span>' : ''}<div class="small-muted">${c.storeCode}</div></td>
