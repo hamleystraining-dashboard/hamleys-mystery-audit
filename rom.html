@@ -37,10 +37,27 @@
 
 </div>
 
-<script src="assets/js/config.js?v=2"></script>
-<script src="assets/js/auth.js?v=2"></script>
-<script src="assets/js/data.js?v=2"></script>
-<script src="assets/js/ui.js?v=2"></script>
+<script>
+// Always fetch these fresh, every page load - a static "?v=N" cache-bust
+// only forces one refetch the first time; any LATER code change would keep
+// getting served from that same cached URL forever. Date.now() guarantees
+// a genuinely new URL, and therefore a real network fetch, every visit.
+(function() {
+  var t = Date.now();
+  var files = ["assets/js/config.js", "assets/js/auth.js", "assets/js/data.js", "assets/js/ui.js"];
+  window.HMAI_READY = files.reduce(function(p, src) {
+    return p.then(function() {
+      return new Promise(function(resolve, reject) {
+        var s = document.createElement("script");
+        s.src = src + "?t=" + t;
+        s.onload = resolve;
+        s.onerror = function() { reject(new Error("Failed to load " + src)); };
+        document.head.appendChild(s);
+      });
+    });
+  }, Promise.resolve());
+})();
+</script>
 <script>
 let vertical = "retail";
 let currentCases = [];
@@ -258,7 +275,10 @@ async function sendToHr(key, btn) {
   }
 }
 
-boot();
+window.HMAI_READY.then(boot).catch(function(e) {
+  console.error("Failed to load scripts:", e);
+  document.body.insertAdjacentHTML("afterbegin", '<div style="padding:20px;background:#FDEAEA;color:#E31E2B;font-family:sans-serif;">Couldn\'t load the dashboard scripts. Try a hard refresh (Ctrl+Shift+R / Cmd+Shift+R). If it persists: ' + e.message + '</div>');
+});
 </script>
 </body>
 </html>

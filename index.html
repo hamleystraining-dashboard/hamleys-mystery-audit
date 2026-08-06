@@ -108,10 +108,27 @@
 
   </main>
 </div>
-<script src="assets/js/config.js?v=2"></script>
-<script src="assets/js/auth.js?v=2"></script>
-<script src="assets/js/data.js?v=2"></script>
-<script src="assets/js/ui.js?v=2"></script>
+<script>
+// Always fetch these fresh, every page load - a static "?v=N" cache-bust
+// only forces one refetch the first time; any LATER code change would keep
+// getting served from that same cached URL forever. Date.now() guarantees
+// a genuinely new URL, and therefore a real network fetch, every visit.
+(function() {
+  var t = Date.now();
+  var files = ["assets/js/config.js", "assets/js/auth.js", "assets/js/data.js", "assets/js/ui.js"];
+  window.HMAI_READY = files.reduce(function(p, src) {
+    return p.then(function() {
+      return new Promise(function(resolve, reject) {
+        var s = document.createElement("script");
+        s.src = src + "?t=" + t;
+        s.onload = resolve;
+        s.onerror = function() { reject(new Error("Failed to load " + src)); };
+        document.head.appendChild(s);
+      });
+    });
+  }, Promise.resolve());
+})();
+</script>
 <script>
 let vertical = "retail";
 let regionGroup = "rm";
@@ -289,20 +306,7 @@ async function renderTracker(filters) {
   if (filters.from || filters.to) {
     cases = cases.filter(c => HMAI.inDateRange(c.date, filters.from, filters.to));
   }
-  // Safety net: if the same store somehow has more than one case row (e.g.
-  // a leftover duplicate from before this was fixed at the source), show
-  // only one — whichever is still open if any are, else the most recent.
-  const byStore = {};
-  cases.forEach(c => {
-    const k = c.vertical + "|" + c.storeCode;
-    const prev = byStore[k];
-    if (!prev) { byStore[k] = c; return; }
-    const prevOpen = prev.stage !== "hrbp_closed";
-    const curOpen = c.stage !== "hrbp_closed";
-    if (curOpen && !prevOpen) { byStore[k] = c; }
-    else if (curOpen === prevOpen && new Date(c.date) > new Date(prev.date)) { byStore[k] = c; }
-  });
-  cases = Object.values(byStore);
+  cases = HMAI.dedupeCasesByStore(cases);
   cases.sort((a,b) => new Date(b.date) - new Date(a.date));
   const body = document.getElementById("trackerBody");
   if (!cases.length) {
@@ -331,7 +335,10 @@ async function renderTracker(filters) {
   }).join("");
 }
 
-boot();
+window.HMAI_READY.then(boot).catch(function(e) {
+  console.error("Failed to load scripts:", e);
+  document.body.insertAdjacentHTML("afterbegin", '<div style="padding:20px;background:#FDEAEA;color:#E31E2B;font-family:sans-serif;">Couldn\'t load the dashboard scripts. Try a hard refresh (Ctrl+Shift+R / Cmd+Shift+R). If it persists: ' + e.message + '</div>');
+});
 </script>
 </body>
 </html>
