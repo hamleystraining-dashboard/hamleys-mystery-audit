@@ -244,6 +244,13 @@ async function render() {
   document.getElementById("kpiMtdAvg").textContent = avgScore !== null ? avgScore + "%" : "—";
   document.getElementById("kpiMtdFoot").textContent = list.length + " audits in this window";
   document.getElementById("kpiAuditCount").textContent = list.length;
+  // Count unique STORES below threshold, not raw audit rows - a store
+  // audited twice in the same window (e.g. a repeat below-80 case) should
+  // count once here, matching how Cases collapses to one row per store.
+  // Each below-80 audit is its own occurrence needing its own action (per
+  // the escalation policy's first-time/consecutive tracking) - counts raw
+  // audit records, matching how Cases now creates one entry per occurrence,
+  // not one per store.
   document.getElementById("kpiBelow80").textContent = list.filter(a => a.score < 80).length;
   document.getElementById("kpiBelow60").textContent = list.filter(a => a.score < 60).length;
 
