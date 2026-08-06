@@ -401,12 +401,12 @@ const HMAI = (() => {
   // Supabase when there's actually something new/changed — a normal page
   // view with nothing new to flag is a pure read, no write, no prompt.
   async function syncCasesFromAudits() {
-    const candidates = [];
+    const rawCandidates = [];
     ["retail", "play"].forEach(v => {
       audits(v).forEach(a => {
         if (a.score < 80) {
           const meta = storeMeta(a.storeCode, a.storeName);
-          candidates.push({
+          rawCandidates.push({
             key: caseKey(v, a.evalId), vertical: v, evalId: a.evalId, storeCode: a.storeCode,
             storeName: meta.storeName || a.storeName, unmapped: !!meta.unmapped,
             rom: meta.rom, sd: meta.sd, rm: meta.rm, hrbp: meta.hrbp, date: a.date, score: a.score,
@@ -414,17 +414,52 @@ const HMAI = (() => {
         }
       });
     });
-    if (!candidates.length) return getCases();
+    if (!rawCandidates.length) return getCases();
+
+    // A store can easily have several below-80 audits at once (repeated
+    // poor performance) — collapse those to just the LATEST one per store
+    // before matching against existing cases, so one sync pass can never
+    // create more than one new case for the same store. Older below-80
+    // audits for that store remain fully visible via Cohort/Trend; they're
+    // just not each tracked as a separate case.
+    const latestByStore = {};
+    rawCandidates.forEach(c => {
+      const k = c.vertical + "|" + c.storeCode;
+      const prev = latestByStore[k];
+      if (!prev || new Date(c.date) > new Date(prev.date)) latestByStore[k] = c;
+    });
+    const candidates = Object.values(latestByStore);
 
     const existing = await getCases();
-    const existingMap = {};
-    existing.forEach(c => existingMap[c.key] = c);
+    const existingByKey = {};
+    existing.forEach(c => existingByKey[c.key] = c);
+    // Secondary lookup: an OPEN (not yet hrbp_closed) case for this same
+    // store, regardless of which evalId it was created under. A PDF's
+    // internal report ID isn't always stable across separate upload
+    // sessions — without this, a store that already has an active case
+    // could get a second, duplicate case row the moment its evalId drifts,
+    // instead of the existing one being updated. Once a case is closed,
+    // a new low score legitimately starts a fresh case (new escalation
+    // cycle), so closed cases are deliberately excluded from this lookup.
+    const openByStore = {};
+    existing.forEach(c => {
+      if (c.stage !== "hrbp_closed") openByStore[c.vertical + "|" + c.storeCode] = c;
+    });
+
     const toUpsert = [];
     candidates.forEach(c => {
-      const ec = existingMap[c.key];
+      const ec = existingByKey[c.key] || openByStore[c.vertical + "|" + c.storeCode];
       if (ec) {
-        if (ec.storeName !== c.storeName || ec.unmapped !== c.unmapped || ec.rom !== c.rom || ec.sd !== c.sd || ec.rm !== c.rm || ec.hrbp !== c.hrbp) {
-          toUpsert.push(Object.assign({}, ec, { storeName: c.storeName, unmapped: c.unmapped, rom: c.rom, sd: c.sd, rm: c.rm, hrbp: c.hrbp }));
+        const changed = ec.storeName !== c.storeName || ec.unmapped !== c.unmapped || ec.rom !== c.rom ||
+          ec.sd !== c.sd || ec.rm !== c.rm || ec.hrbp !== c.hrbp || ec.date !== c.date || ec.score !== c.score;
+        if (changed) {
+          // Update in place, under the EXISTING row's own key/evalId — even
+          // if matched via the store fallback with a different incoming
+          // evalId — so this always stays one row per store, never two.
+          toUpsert.push(Object.assign({}, ec, {
+            storeName: c.storeName, unmapped: c.unmapped, rom: c.rom, sd: c.sd, rm: c.rm, hrbp: c.hrbp,
+            date: c.date, score: c.score,
+          }));
         }
       } else {
         toUpsert.push(Object.assign({}, c, {
