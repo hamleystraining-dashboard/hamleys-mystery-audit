@@ -104,7 +104,13 @@ Only re-upload through Admin when you have **new or corrected** data:
   tell apart, or can't parse at all, are listed separately with a reason and skipped rather
   than guessed — check that list after a big batch. PDF layouts vary slightly between
   waves, so it's worth spot-checking a few results against the source PDFs.
-- Either way, finish with **Export updated dataset** and commit the 3 JSON files.
+- Either way, finish by clicking **Publish directly to GitHub** (Admin → Publish section) — this
+  is the permanent fix for "I see it, my colleague doesn't": it pushes the 3 JSON files straight
+  to the live repo via GitHub's API, so it's genuinely live for everyone within about a minute,
+  with no manual download/drag/commit step to forget. First time, it'll ask for a GitHub token —
+  the in-page instructions walk through creating one scoped to just this repo. The old manual
+  "Export updated dataset" + drag-into-GitHub flow still works too, as a fallback if you'd rather
+  not set up a token.
 
 ## 4. Cases workflow
 
@@ -131,10 +137,11 @@ everyone:
    itself automatically flips to **Closed** — no separate "close case" step needed.
 
 All three stages, plus the trigger reason, show up live on the **Overview** page's Action
-Tracker. By default (no backend configured) "ROM notified" / "HRBP notified" just advance
-the stage and show a confirmation toast, with no real email — that's local/offline mode.
-**See §7 below to turn on the real Google Sheets + Apps Script backend**, which makes
-Cases/ROM/HRBP shared across everyone's browser and sends real email at each step.
+Tracker — and on every device, immediately, since Cases/ROM/HRBP data now lives in a
+shared Supabase table rather than any one browser's local storage (see §7). There's no
+real email sent at each handoff — that was tried via Google Apps Script and abandoned
+after a corporate network proxy (Zscaler) blocked it; ROM/HRBP notifications are manual
+for now.
 
 ## 5. Trend Data page
 
@@ -149,24 +156,14 @@ Colour system and type are Hamleys-branded (toy-store red / navy / gold / teal),
 KPI cards, section bars, score pills and the trend chart — see `assets/css/style.css` for the
 token list at the top of the file. All charts are hand-built SVG/CSS (no external chart
 library), so nothing depends on a CDN being reachable.
-## 7. Turning on real email + a shared backend
+## 7. The Cases backend (Supabase)
 
-Right now Cases/ROM/HRBP data lives in each browser's local storage — fine for testing,
-but it means an L&D laptop, a ROM's laptop, and an HRBP's laptop each see their own
-disconnected copy, and no real email is sent. `google-apps-script/` contains a complete,
-ready-to-deploy fix:
+Cases/ROM/HRBP data lives in a shared Supabase table, not any one browser's local
+storage — every read and write (Trigger, Add Employee, Send to HR, Close) talks straight
+to it, live, with no export/upload step. See `SUPABASE_SETUP.md` for the table schema and
+setup details (already done — this is reference material, not a to-do). The connection
+lives in `assets/js/config.js` as `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
 
-- `google-apps-script/Code.gs` — a Google Apps Script Web App backed by a Google Sheet.
-  Handles all the same case actions (sync, trigger, add/remove employee, send to HR, close),
-  and sends real email via `MailApp` as `hamleystraining@gmail.com` when L&D triggers a case
-  or a ROM sends one to HR.
-- `google-apps-script/SETUP.md` — step-by-step deployment instructions (create the Sheet,
-  paste the script, deploy as a Web App, get the URL).
-
-Once deployed, paste your Web App URL into `assets/js/config.js`:
-```js
-const HMAI_CASES_API = "https://script.google.com/macros/s/AKfycb.../exec";
-```
-Commit and push — `cases.html`, `rom.html`, and `hrbp.html` automatically switch from local
-storage to the shared Sheet, with real email at each handoff. Leave `HMAI_CASES_API` empty
-to keep using local-only mode (e.g. for testing UI changes without emailing anyone for real).
+`google-apps-script/` is no longer used — an earlier attempt at this same problem via
+Google Apps Script was abandoned after a corporate Zscaler proxy blocked its traffic. The
+folder is left in the repo for reference but nothing points at it anymore.

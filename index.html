@@ -325,18 +325,40 @@ async function renderTracker(filters) {
     const stage = stageMeta[c.stage] ?? 0;
     const isFullyClosed = c.stage === "hrbp_closed";
     const steps = ["Flagged", "L&D Stage", "ROM Stage", "HRBP Closed"];
+    // The step that should read "current" (yellow) is whoever the case is
+    // WAITING ON right now, not whichever team already acted — e.g. once
+    // L&D has triggered (stage=ld_triggered), L&D's own step is done and
+    // it's the ROM step that's pending, not the other way round. That's
+    // stage+1 in step-index terms; everything up to and including `stage`
+    // is already done.
+    const pendingStepIdx = stage + 1;
+    // A pending step turns red instead of yellow once it's been sitting
+    // for more than 7 days. The timestamp a case entered its current
+    // stage is already recorded as the last history entry — no new data
+    // needed, this only changes how existing data is displayed.
+    const lastHist = c.history && c.history.length ? c.history[c.history.length - 1] : null;
+    const daysWaiting = lastHist ? (Date.now() - new Date(lastHist.at).getTime()) / 86400000 : 0;
+    // Only ROM (pendingStepIdx 2) and HRBP (pendingStepIdx 3) have a 7-day
+    // overdue rule, as specified — L&D's own initial flagged-to-triggered
+    // delay doesn't turn red the same way.
+    const isOverdue = !isFullyClosed && pendingStepIdx >= 2 && daysWaiting > 7;
     const trackerHtml = `<div class="tracker">` + steps.map((s, i) => {
-      const cls = isFullyClosed ? "done" : (i < stage ? "done" : (i === stage ? "current" : ""));
+      let cls;
+      if (isFullyClosed) cls = "done";
+      else if (i <= stage) cls = "done";
+      else if (i === pendingStepIdx) cls = isOverdue ? "late" : "current";
+      else cls = "";
       return `<div class="step ${cls}"><div class="bar"></div>${s}</div>`;
     }).join("") + `</div>`;
     const reasonTag = c.triggerReason ? `<div class="small-muted" style="margin-top:6px; white-space:normal;">${HMAI.TRIGGER_REASONS[c.triggerReason]}</div>` : "";
+    const overdueTag = isOverdue ? `<div class="small-muted" style="margin-top:4px; color:var(--hamleys-red); white-space:normal;">⚠ Waiting ${Math.floor(daysWaiting)} days — overdue</div>` : "";
     return `<tr>
       <td><strong>${c.storeName}</strong>${c.unmapped ? ' <span class="tag warn">Unmapped</span>' : ''}<div class="small-muted">${c.storeCode}</div></td>
       <td>${c.vertical === "play" ? "Play" : "Retail"}</td>
       <td>${scorePill(c.score)}</td>
       <td>${fmtDate(c.date)}</td>
       <td>${c.rm}</td><td>${c.rom}</td><td>${c.sd}</td>
-      <td>${trackerHtml}${reasonTag}</td>
+      <td>${trackerHtml}${reasonTag}${overdueTag}</td>
       <td><a class="btn btn-ghost btn-sm" href="trend.html?store=${encodeURIComponent(c.storeCode)}&v=${c.vertical}">View</a></td>
     </tr>`;
   }).join("");
