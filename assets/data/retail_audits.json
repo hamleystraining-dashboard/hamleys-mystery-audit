@@ -12302,5 +12302,93 @@
   "city": "",
   "state": "",
   "sourceFile": "dsv_20260806_013415_Retail__Mystery_visit2025.pdf"
+ },
+ {
+  "evalId": 12412566,
+  "wave": "Wave - 7 (June - July 2026)",
+  "storeCode": "THG0",
+  "storeName": "Hamleys - Lulu Mall, Kochi",
+  "date": "2026-07-22",
+  "score": 95,
+  "sections": {},
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 12412591,
+  "wave": "Wave - 7 (June - July 2026)",
+  "storeCode": "T3AA",
+  "storeName": "Hamleys - Noble House, Rajkot",
+  "date": "2026-07-22",
+  "score": 100,
+  "sections": {},
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 12412595,
+  "wave": "Wave - 7 (June - July 2026)",
+  "storeCode": "T42A",
+  "storeName": "Hamleys - Lulu Mall, Thiruvananthapuram",
+  "date": "2026-07-22",
+  "score": 100,
+  "sections": {},
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 12412611,
+  "wave": "Wave - 7 (June - July 2026)",
+  "storeCode": "TJU3",
+  "storeName": "Hamleys - GSM Mall, Hyderabad",
+  "date": "2026-07-28",
+  "score": 87,
+  "sections": {},
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 12413936,
+  "wave": "Wave - 7 (June - July 2026)",
+  "storeCode": "THP7",
+  "storeName": "Hamleys - Wave Mall, Jammu",
+  "date": "2026-07-24",
+  "score": 100,
+  "sections": {},
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 12415232,
+  "wave": "Wave - 7 (June - July 2026)",
+  "storeCode": "THG7",
+  "storeName": "Hamleys - Forum Vijaya Mall, Chennai",
+  "date": "2026-07-28",
+  "score": 90,
+  "sections": {},
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 12415234,
+  "wave": "Wave - 7 (June - July 2026)",
+  "storeCode": "THP1",
+  "storeName": "Hamleys - VR Mall, Chennai",
+  "date": "2026-07-27",
+  "score": 97,
+  "sections": {},
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 12417514,
+  "wave": "Wave - 7 (June - July 2026)",
+  "storeCode": "THQ2",
+  "storeName": "Hamleys - Forum Mall, Mysore",
+  "date": "2026-07-29",
+  "score": 83,
+  "sections": {},
+  "city": "",
+  "state": ""
  }
 ]
