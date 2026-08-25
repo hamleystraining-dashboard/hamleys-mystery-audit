@@ -277,10 +277,12 @@ tbody tr:hover { background: var(--line-soft); }
 }
 .tracker .step.done::before { background: var(--good); border-color: var(--good); }
 .tracker .step.current::before { background: var(--hamleys-gold); border-color: var(--hamleys-gold); box-shadow: 0 0 0 4px rgba(255,199,44,0.25); }
+.tracker .step.late::before { background: var(--hamleys-red); border-color: var(--hamleys-red); box-shadow: 0 0 0 4px rgba(227,30,43,0.2); }
 .tracker .step.done { color: var(--good); }
 .tracker .step.current { color: #B8860B; }
+.tracker .step.late { color: var(--hamleys-red); font-weight: 600; }
 .tracker .bar { position: absolute; top: 10px; height: 3px; background: var(--line); width: 100%; left: -50%; z-index: -1; }
-.tracker .step.done .bar, .tracker .step.current .bar { background: var(--good); }
+.tracker .step.done .bar, .tracker .step.current .bar, .tracker .step.late .bar { background: var(--good); }
 .tracker .step:first-child .bar { display: none; }
 
 /* Misc ---------------------------------------------------------------------*/
