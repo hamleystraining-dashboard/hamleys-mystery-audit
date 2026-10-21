@@ -1107,5 +1107,100 @@
   "sections": {},
   "city": "",
   "state": ""
+ },
+ {
+  "evalId": 25143,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T2MI",
+  "storeName": "Hamleys - Phoenix Mall of Asia, Bangalore",
+  "date": "2026-10-05",
+  "score": 76,
+  "sections": {
+   "ATTRACTION": 93,
+   "WELCOME": 71,
+   "ENTRY ASSISTANCE": 100,
+   "SAFETY": 50,
+   "OUT FOR PLAY": 50,
+   "MAGIC PILLARS": 33,
+   "EXIT": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25142,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THJ0",
+  "storeName": "Hamleys - Inorbit Mall, Hyderabad",
+  "date": "2026-10-03",
+  "score": 90,
+  "sections": {
+   "ATTRACTION": 100,
+   "WELCOME": 57,
+   "ENTRY ASSISTANCE": 92,
+   "SAFETY": 100,
+   "OUT FOR PLAY": 90,
+   "MAGIC PILLARS": "NA",
+   "EXIT": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25141,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T77X",
+  "storeName": "Hamleys - Palladium Mall, Ahmedabad",
+  "date": "2026-10-02",
+  "score": 96,
+  "sections": {
+   "ATTRACTION": 95,
+   "WELCOME": 86,
+   "ENTRY ASSISTANCE": 100,
+   "SAFETY": 100,
+   "OUT FOR PLAY": 91,
+   "MAGIC PILLARS": 100,
+   "EXIT": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25148,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T26L",
+  "storeName": "Hamleys - KOPA, Pune",
+  "date": "2026-09-28",
+  "score": 94,
+  "sections": {
+   "ATTRACTION": 100,
+   "WELCOME": 86,
+   "ENTRY ASSISTANCE": 100,
+   "SAFETY": 100,
+   "OUT FOR PLAY": 70,
+   "MAGIC PILLARS": 100,
+   "EXIT": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25149,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T61F",
+  "storeName": "Hamleys - Phoenix Market City, Chennai",
+  "date": "2026-09-26",
+  "score": 79,
+  "sections": {
+   "ATTRACTION": 94,
+   "WELCOME": 86,
+   "ENTRY ASSISTANCE": 77,
+   "SAFETY": 100,
+   "OUT FOR PLAY": 45,
+   "MAGIC PILLARS": 80,
+   "EXIT": 33
+  },
+  "city": "",
+  "state": ""
  }
 ]

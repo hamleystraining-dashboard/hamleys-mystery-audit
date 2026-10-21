@@ -12390,5 +12390,1297 @@
   "sections": {},
   "city": "",
   "state": ""
+ },
+ {
+  "evalId": 25096,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THM0",
+  "storeName": "Ardee Mall",
+  "date": "2026-10-12",
+  "score": 88,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 88,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 83,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": "NA"
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25052,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THI9",
+  "storeName": "Hamleys - Xperia, Dombivali",
+  "date": "2026-10-11",
+  "score": 85,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 86,
+   "A - APPROACHING RIGHT": 78,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 60,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25040,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THE2",
+  "storeName": "Hamleys - Alpha One, Ahmedabad",
+  "date": "2026-10-11",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25081,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THR0",
+  "storeName": "D-Address Mall - Vijayawada",
+  "date": "2026-10-10",
+  "score": 88,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 86,
+   "A - APPROACHING RIGHT": 56,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 83,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25039,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THI2",
+  "storeName": "Hamleys - ICC, Pune",
+  "date": "2026-10-10",
+  "score": 88,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 67,
+   "Y - YOU COME FIRST": 50,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25045,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THQ0",
+  "storeName": "Hamleys - Ambuja, Raipur",
+  "date": "2026-10-09",
+  "score": 93,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": "NA",
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25082,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THP5",
+  "storeName": "Sarath City Capital Mall - Hyd",
+  "date": "2026-10-08",
+  "score": 96,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25083,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THS5",
+  "storeName": "Orion Mall - Blr",
+  "date": "2026-10-07",
+  "score": 99,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25044,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THP2",
+  "storeName": "Hamleys - C21, Indore",
+  "date": "2026-10-06",
+  "score": 98,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 93,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25047,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T34O",
+  "storeName": "Ham -Phoenix Citadel Indore",
+  "date": "2026-10-05",
+  "score": 96,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 93,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 50,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25077,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THJ0",
+  "storeName": "Hamleys - Inorbit Mall, Hyderabad",
+  "date": "2026-10-04",
+  "score": 84,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 50,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": "NA"
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25123,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THN3",
+  "storeName": "L&T Mall - Hyd",
+  "date": "2026-10-04",
+  "score": 99,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25135,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TK0G",
+  "storeName": "Ham.GarudaMall",
+  "date": "2026-10-03",
+  "score": 94,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 71,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25085,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TJU4",
+  "storeName": "DSL Virtue Mall - Hyd",
+  "date": "2026-10-03",
+  "score": 94,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 75,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": "NA"
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25048,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T77X",
+  "storeName": "Hamleys - Palladium Mall, Ahmedabad",
+  "date": "2026-10-02",
+  "score": 98,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 75,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25090,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TXSI",
+  "storeName": "Banjara Hills  - Hyd",
+  "date": "2026-10-02",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25079,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THO8",
+  "storeName": "Nexus Shantiniketan Mall - Blr",
+  "date": "2026-10-02",
+  "score": 98,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 93,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25075,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THG4",
+  "storeName": "1 MG - Lido Mall  - Blr",
+  "date": "2026-10-02",
+  "score": 89,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 67,
+   "Y - YOU COME FIRST": 50,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25064,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THD8",
+  "storeName": "Express Avenue - Chennai",
+  "date": "2026-10-02",
+  "score": 87,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 75,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 92,
+   "S - SEEING THEM OFF": "NA"
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25067,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THG7",
+  "storeName": "Nexus Vijaya Mall - Chennai",
+  "date": "2026-10-02",
+  "score": 95,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 93,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25122,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T36O",
+  "storeName": "T2 Airport - Blr",
+  "date": "2026-10-01",
+  "score": 87,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 86,
+   "A - APPROACHING RIGHT": "NA",
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25076,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THG3",
+  "storeName": "Forum Sujana Mall - Hyd",
+  "date": "2026-10-01",
+  "score": 92,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 78,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 71,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25111,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THJ1",
+  "storeName": "Alfa one 1 - Amritsar",
+  "date": "2026-10-01",
+  "score": 99,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25103,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THH2",
+  "storeName": "Pacific Mall - Delhi",
+  "date": "2026-09-30",
+  "score": 97,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 60,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25094,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THF9",
+  "storeName": "Ambience Gurgaon Mall",
+  "date": "2026-09-30",
+  "score": 97,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25101,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THE8",
+  "storeName": "Ambience Vasant Kunj - Delhi",
+  "date": "2026-09-30",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25137,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TL9A",
+  "storeName": "Hamleys - Ham.LuluBlr",
+  "date": "2026-09-30",
+  "score": 80,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 79,
+   "A - APPROACHING RIGHT": "NA",
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 60,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25097,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TJY4",
+  "storeName": "Hamleys - Ham.Airia.Grgn",
+  "date": "2026-09-29",
+  "score": 88,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 97,
+   "A - APPROACHING RIGHT": 92,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 71,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": "NA"
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25063,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THM8",
+  "storeName": "Hamleys - Mall De, Goa",
+  "date": "2026-09-29",
+  "score": 96,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25099,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T2MI",
+  "storeName": "Hamleys - Phoenix Mall of Asia, Bangalore",
+  "date": "2026-09-29",
+  "score": 96,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 83,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25104,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TLX5",
+  "storeName": "Hamleys - Vegas Mall  Dwarka",
+  "date": "2026-09-28",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25043,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THK1",
+  "storeName": "Hamleys - Surat",
+  "date": "2026-09-27",
+  "score": 98,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 80,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25136,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TB6V",
+  "storeName": "Unity Elegante Delhi",
+  "date": "2026-09-27",
+  "score": 95,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 88,
+   "Y - YOU COME FIRST": 77,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25078,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THO9",
+  "storeName": "UB City - Blr",
+  "date": "2026-09-27",
+  "score": 97,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 50,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25100,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THE1",
+  "storeName": "Hamleys - Elante - Chandigarh",
+  "date": "2026-09-27",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25070,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THP1",
+  "storeName": "VR Mall - Chennai",
+  "date": "2026-09-27",
+  "score": 81,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 97,
+   "A - APPROACHING RIGHT": 33,
+   "M - MEETING THY NEEDS": 78,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 57,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": "NA"
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25102,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THH3",
+  "storeName": "Select City Mall - Delhi",
+  "date": "2026-09-26",
+  "score": 98,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 97,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25121,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T2DD",
+  "storeName": "Ham.CP67 Mall",
+  "date": "2026-09-26",
+  "score": 85,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 86,
+   "A - APPROACHING RIGHT": 60,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 60,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25089,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TXSG",
+  "storeName": "Indiranagar - Blr",
+  "date": "2026-09-26",
+  "score": 98,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 78,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25065,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THF0",
+  "storeName": "Phoenix Marketcity - Chennai",
+  "date": "2026-09-26",
+  "score": 94,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 97,
+   "A - APPROACHING RIGHT": 60,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25127,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TXR2",
+  "storeName": "Dhillon Plaza",
+  "date": "2026-09-26",
+  "score": 92,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 60,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25060,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THH8",
+  "storeName": "Hamleys - Nexus Seawood",
+  "date": "2026-09-26",
+  "score": 81,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 79,
+   "A - APPROACHING RIGHT": "NA",
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 67,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25087,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TWR1",
+  "storeName": "Walter Main Rd - Vizag",
+  "date": "2026-09-25",
+  "score": 87,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 83,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 71,
+   "Y - YOU COME FIRST": 67,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25093,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TAUN",
+  "storeName": "Clebration Mall - Udaipur",
+  "date": "2026-09-25",
+  "score": 85,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": 50,
+   "E - ENGAGING TILL EXPERIENCE": 64,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25057,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TY4T",
+  "storeName": "Hamleys - JWD",
+  "date": "2026-09-24",
+  "score": 97,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25050,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THF4",
+  "storeName": "Hamleys - Quest",
+  "date": "2026-09-23",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25046,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THS6",
+  "storeName": "Ham. Golden Icon",
+  "date": "2026-09-23",
+  "score": 87,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 43,
+   "Y - YOU COME FIRST": 71,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25131,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T8LI",
+  "storeName": "Ham - Kurla, PMC",
+  "date": "2026-09-23",
+  "score": 98,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 88,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25055,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THR3",
+  "storeName": "Hamleys - South city",
+  "date": "2026-09-23",
+  "score": 93,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 83,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25041,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THG5",
+  "storeName": "Ham.Inorbit Vododara",
+  "date": "2026-09-22",
+  "score": 92,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 93,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 78,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 29092,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TXUT",
+  "storeName": "Vaishali- Jaipur",
+  "date": "2026-09-22",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25112,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THK0",
+  "storeName": "Mall of India - Noida",
+  "date": "2026-09-22",
+  "score": 98,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 50,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 26687,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TM1F",
+  "storeName": "Ham.Model Town",
+  "date": "2026-09-22",
+  "score": 94,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 50,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25109,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THF2",
+  "storeName": "Logic City Centre - Noida",
+  "date": "2026-09-22",
+  "score": 96,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25069,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THI3",
+  "storeName": "Prozone mall - Coimbatore",
+  "date": "2026-09-22",
+  "score": 95,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 71,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25110,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THG8",
+  "storeName": "Pavilion Mall - Ludhia",
+  "date": "2026-09-21",
+  "score": 99,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25042,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THG9",
+  "storeName": "Hamleys - DB City, Bhopal",
+  "date": "2026-09-21",
+  "score": 97,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 93,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25095,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THI7",
+  "storeName": "WTP - Jaipur",
+  "date": "2026-09-21",
+  "score": 91,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 97,
+   "A - APPROACHING RIGHT": 50,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 90,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25105,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TXPH",
+  "storeName": "Ambala-NH1",
+  "date": "2026-09-21",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 26688,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TBC7",
+  "storeName": "Creekside Doraha P",
+  "date": "2026-09-21",
+  "score": 88,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 86,
+   "A - APPROACHING RIGHT": 82,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": "NA",
+   "E - ENGAGING TILL EXPERIENCE": 86,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25088,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TXGB",
+  "storeName": "HSR Layout - Blr",
+  "date": "2026-09-21",
+  "score": 95,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 83,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25140,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TF5Y",
+  "storeName": "Ham. Sky City",
+  "date": "2026-09-20",
+  "score": 90,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 86,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 83,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25092,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T36H",
+  "storeName": "Falcon City - Blr",
+  "date": "2026-09-20",
+  "score": 91,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 60,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25133,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T7ZN",
+  "storeName": "Ham - Rcity Mall, Ghatkopar",
+  "date": "2026-09-18",
+  "score": 88,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 90,
+   "A - APPROACHING RIGHT": 63,
+   "M - MEETING THY NEEDS": 83,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 87,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25054,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THQ3",
+  "storeName": "Hamleys - Forum",
+  "date": "2026-09-18",
+  "score": 100,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25074,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THE0",
+  "storeName": "Phoenix Marketcity - Blr",
+  "date": "2026-09-18",
+  "score": 83,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 67,
+   "M - MEETING THY NEEDS": 94,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 67,
+   "Y - YOU COME FIRST": 38,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25091,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "TZ8Z",
+  "storeName": "Vega City Mall - Blr",
+  "date": "2026-09-17",
+  "score": 82,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 86,
+   "A - APPROACHING RIGHT": 88,
+   "M - MEETING THY NEEDS": 89,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 57,
+   "Y - YOU COME FIRST": 100,
+   "S - SEEING THEM OFF": "NA"
+  },
+  "city": "",
+  "state": ""
+ },
+ {
+  "evalId": 25068,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "THF1",
+  "storeName": "Brookefields Mall - Coimbatore",
+  "date": "2026-09-17",
+  "score": 98,
+  "sections": {
+   "H - HAMLEYS FIRST IMPRESSION": 100,
+   "A - APPROACHING RIGHT": 100,
+   "M - MEETING THY NEEDS": 100,
+   "L - LOST IN DEMOS": 100,
+   "E - ENGAGING TILL EXPERIENCE": 100,
+   "Y - YOU COME FIRST": 87,
+   "S - SEEING THEM OFF": 100
+  },
+  "city": "",
+  "state": ""
  }
 ]
