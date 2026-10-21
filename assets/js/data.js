@@ -384,14 +384,8 @@ const HMAI = (() => {
       const k = c.vertical + "|" + c.storeCode + "|" + c.date;
       const prev = byStoreDate[k];
       if (!prev) { byStoreDate[k] = c; return; }
-      const prevOpen = prev.stage !== "hrbp_closed";
-      const curOpen = c.stage !== "hrbp_closed";
-      if (curOpen && !prevOpen) { byStoreDate[k] = c; return; }
-      if (!curOpen && prevOpen) { return; }
-      // Both open, or both closed: prefer whichever is further along the
-      // workflow (more actual progress made on it) — a case that's already
-      // been triggered/sent to HR should never lose to a newer-but-untouched
-      // duplicate for the exact same audit.
+      // Same audit (store+date): whichever row is furthest along wins —
+      // a closed case must never lose to an untouched duplicate.
       const prevRank = stageRank[prev.stage] ?? 0;
       const curRank = stageRank[c.stage] ?? 0;
       if (curRank > prevRank) { byStoreDate[k] = c; }
