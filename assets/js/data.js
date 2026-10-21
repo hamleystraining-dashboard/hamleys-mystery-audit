@@ -98,6 +98,15 @@ const HMAI = (() => {
   function sectionNames(vertical) {
     const list = audits(vertical);
     if (!list.length) return [];
+    // Play is scored on the 7 AWESOME sections only. Older imported records also
+    // carry five extra columns from the historic sheet (CSD Birthday Enquiry,
+    // Play Ambience, Staff Grooming, Dance Performances, Play Characters) —
+    // hidden here so they never appear in averages, trends or SWOT.
+    if (vertical === "play") {
+      const AWESOME = ["ATTRACTION","WELCOME","ENTRY ASSISTANCE","SAFETY","OUT FOR PLAY","MAGIC PILLARS","EXIT"];
+      return Object.keys(list[0].sections).filter(n => AWESOME.includes(n)).length === AWESOME.length
+        ? AWESOME : Object.keys(list[0].sections);
+    }
     return Object.keys(list[0].sections);
   }
 
