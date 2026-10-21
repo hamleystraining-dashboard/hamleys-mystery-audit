@@ -1202,5 +1202,24 @@
   },
   "city": "",
   "state": ""
+ },
+ {
+  "evalId": 25146,
+  "wave": "Wave - 8 (September - October 2026)",
+  "storeCode": "T2UO",
+  "storeName": "Hamleys - Mall of Millenium, Pune",
+  "date": "2026-10-05",
+  "score": 99,
+  "sections": {
+   "ATTRACTION": 100,
+   "WELCOME": 100,
+   "ENTRY ASSISTANCE": 100,
+   "SAFETY": 100,
+   "OUT FOR PLAY": 91,
+   "MAGIC PILLARS": 100,
+   "EXIT": 100
+  },
+  "city": "",
+  "state": ""
  }
 ]
